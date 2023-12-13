@@ -1,4 +1,4 @@
-use crate::circuit::{component::Component, wire::Wire};
+use self::{component::Component, wire::Wire};
 use serde::Deserialize;
 
 pub mod component;
