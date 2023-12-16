@@ -13,6 +13,6 @@ pub struct Wire {
 
 impl Debug for Wire {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(format!("Wire: {}, {:?}", self.value.get().value, self.connected_components).as_str())
+        f.write_str(format!("Wire: {:?}, {:?}", self.value.get(), self.connected_components).as_str())
     }
 }

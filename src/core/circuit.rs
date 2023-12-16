@@ -1,5 +1,6 @@
 use crate::core::component::{Component, ComponentIdx};
 use crate::core::pin::Direction;
+use crate::core::value::operations::assign;
 use crate::core::wire::{Wire, WireIdx};
 
 pub struct Circuit {
@@ -22,10 +23,14 @@ impl Circuit {
             clock.on_tick_start();
         }
 
-        let mut first: Vec<&dyn Component> = vec![0, 1, 2].into_iter()
-            .map(|idx| self.get_component(idx))
-            .collect();
+        // let mut first: Vec<&dyn Component> = vec![0, 1].into_iter()
+        //     .map(|idx| self.get_component(idx))
+        //     .collect();
         // let mut first = vec![ self.get_component(2) ];
+
+        let mut first: Vec<&dyn Component> = self.components.iter()
+            .map(|e| e.as_ref())
+            .collect();
         let mut second: Vec<&dyn Component> = Vec::new();
 
         while !first.is_empty() {
@@ -48,6 +53,7 @@ impl Circuit {
 
             // println!("{:?}", first);
 
+            let mut dirty_wires = Vec::new();
             for component in first.iter() {
                 for pin in component.get_pins() {
                     if pin.direction == Direction::OUTPUT {
@@ -57,14 +63,25 @@ impl Circuit {
                         };
                         let wire = self.get_wire(wire_idx);
 
-                        wire.value.set(pin.value.get());
+                        dirty_wires.push(wire);
+                    }
+                }
+            }
 
-                        for (component_idx, pin_idx) in &wire.connected_components {
-                            let component = self.get_component(*component_idx);
-                            if component.get_pins().get(*pin_idx).unwrap().direction == Direction::INPUT {
-                                second.push(component);
-                            }
+            for wire in dirty_wires {
+                wire.value.set(Default::default());
+
+                for (component_idx, pin_idx) in &wire.connected_components {
+                    let component = self.get_component(*component_idx);
+                    match component.get_pins().get(*pin_idx).unwrap().direction {
+                        Direction::INPUT => {
+                            second.push(component);
                         }
+                        Direction::OUTPUT => {
+                            let value = wire.value.get().apply_binary(self.get_component(*component_idx).get_pin_value(*pin_idx), assign);
+                            wire.value.set(value);
+                        }
+                        Direction::INOUT => {}
                     }
                 }
             }
