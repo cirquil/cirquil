@@ -4,6 +4,7 @@ use crate::core::circuit::Circuit;
 use crate::core::component::Component;
 use crate::core::components::logic::and_gate::AndGate;
 use crate::core::components::clock_generator::ClockGenerator;
+use crate::core::components::logic::not_gate::NotGate;
 use crate::core::components::logic::or_gate::OrGate;
 use crate::core::value::Value;
 use crate::core::wire::Wire;
@@ -98,4 +99,43 @@ pub fn test_or() {
     }
 
     println!("{:?} {:?} MHz", start.elapsed(), 1f64 / (start.elapsed().as_micros() as f64 / 1_000_000f64));
+}
+
+pub fn test_not() {
+    let clock = ClockGenerator::create();
+    let not = NotGate::from_bit_width(2);
+
+    let wire = Wire { value: Cell::new(Default::default()), connected_components: vec![(0, 0), (1, 0) ] };
+
+    clock.set_pin_wire(0, Some(0));
+    not.set_pin_wire(0, Some(0));
+
+    let circuit = Circuit {
+        components: vec![ Box::new(clock), Box::new(not) ],
+        wires: vec![ wire ],
+        clock_generators: vec![ 0 ],
+    };
+
+    println!("{:?} {:?}", circuit.components, circuit.wires);
+
+    circuit.propagate();
+
+    println!("{:?} {:?}", circuit.components, circuit.wires);
+
+    circuit.propagate();
+
+    println!("{:?} {:?}", circuit.components, circuit.wires);
+
+    circuit.propagate();
+
+    println!("{:?} {:?}", circuit.components, circuit.wires);
+
+    let start = Instant::now();
+
+    for _ in 0..1_000_000 {
+        circuit.propagate();
+    }
+
+    println!("{:?} {:?} MHz", start.elapsed(), 1f64 / (start.elapsed().as_micros() as f64 / 1_000_000f64));
+
 }
