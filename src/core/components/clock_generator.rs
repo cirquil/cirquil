@@ -2,6 +2,7 @@ use std::cell::Cell;
 use std::fmt::{Debug, Formatter};
 use crate::core::component::{Appearance, Behaviour, OnTickStart, Poke};
 use crate::core::graphics::DrawContext;
+use crate::core::location::Location;
 use crate::core::pin::{Direction, Pin};
 use crate::core::value::Value;
 use crate::declare_component;
@@ -42,6 +43,7 @@ impl ClockGenerator {
                 bit_width: 1,
                 direction: Direction::OUTPUT,
                 wire: Cell::new(None),
+                location: Location(0, 0)
             }
         ];
 

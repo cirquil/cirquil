@@ -7,3 +7,4 @@ pub mod graphics;
 pub mod components;
 pub mod circuit;
 pub mod project;
+pub mod location;

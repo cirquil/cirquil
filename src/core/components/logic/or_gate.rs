@@ -2,6 +2,7 @@ use std::cell::Cell;
 use std::fmt::{Debug, Formatter};
 use crate::core::component::{Appearance, Behaviour, OnTickStart, Poke};
 use crate::core::graphics::DrawContext;
+use crate::core::location::Location;
 use crate::core::pin::{Direction, Pin};
 use crate::core::property::{IntegerProperty};
 use crate::core::value::Value;
@@ -56,18 +57,21 @@ impl OrGate {
                 bit_width,
                 direction: Direction::INPUT,
                 wire: Cell::new(None),
+                location: Location(0, 0)
             },
             Pin {
                 value: Cell::new(Default::default()),
                 bit_width,
                 direction: Direction::INPUT,
                 wire: Cell::new(None),
+                location: Location(0, 20)
             },
             Pin {
                 value: Cell::new(Default::default()),
                 bit_width,
                 direction: Direction::OUTPUT,
                 wire: Cell::new(None),
+                location: Location(20, 10)
             }
         ];
 
