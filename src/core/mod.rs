@@ -8,3 +8,4 @@ pub mod components;
 pub mod circuit;
 pub mod project;
 pub mod location;
+pub mod canvas;
