@@ -8,7 +8,7 @@ pub mod circuit;
 #[derive(Debug, Deserialize)]
 pub struct Project {
     #[serde(rename = "circuit")]
-    circuits: Vec<Circuit>,
+    pub circuits: Vec<Circuit>,
 }
 
 pub fn parse_logisim<P>(f: P) -> Project

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Deserializer};
 use std::str::FromStr;
 
-#[derive(Debug)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,

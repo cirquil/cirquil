@@ -4,7 +4,7 @@ use crate::logisim::converter::circuit::point::Point;
 #[derive(Debug, Deserialize)]
 pub struct Wire {
     #[serde(rename = "@from")]
-    from: Point,
+    pub from: Point,
     #[serde(rename = "@to")]
-    to: Point,
+    pub to: Point,
 }
