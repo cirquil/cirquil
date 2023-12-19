@@ -10,12 +10,12 @@ pub struct CanvasCircuit {
     pub pins: (),
 }
 
-struct CanvasComponent {
-    component: ComponentIdx,
-    loc: Location,
+pub struct CanvasComponent {
+    pub component: ComponentIdx,
+    pub loc: Location,
 }
 
-struct CanvasWire {
-    segments: Vec<(Location, Location)>,
-    wire: WireIdx
+pub struct CanvasWire {
+    pub segments: Vec<(Location, Location)>,
+    pub wire: WireIdx
 }
