@@ -1,8 +1,8 @@
 use crate::test_propagate::{test_not, test_or, test_propagate};
 
 mod core;
-mod logisim;
 mod gui;
+mod logisim;
 mod test_propagate;
 
 fn main() {
