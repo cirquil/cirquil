@@ -1,7 +1,7 @@
 use self::circuit::Circuit;
 use quick_xml::de;
 use serde::Deserialize;
-use std::{fs::File, io::Read};
+use std::{fs::File, io::Read, path::Path};
 
 pub mod circuit;
 
@@ -11,14 +11,11 @@ pub struct Project {
     circuits: Vec<Circuit>,
 }
 
-fn main() {
-    let doc = parse_logisim();
-    println!("{:?}", doc);
-}
-
-pub fn parse_logisim() -> Project {
-    let mut xml = File::open("cdm16.circ")
-        .expect("There should be a file named 'cdm16.circ' in project directory.");
+pub fn parse_logisim<P>(f: P) -> Project
+where
+    P: AsRef<Path>,
+{
+    let mut xml = File::open(f).expect("File invalid");
     let mut contents = String::new();
     xml.read_to_string(&mut contents)
         .expect("Wrong file contents.");
