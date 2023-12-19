@@ -50,14 +50,14 @@ impl NotGate {
                 bit_width,
                 direction: Direction::INPUT,
                 wire: Cell::new(None),
-                location: Location(0, 0)
+                location: Location(-20, 0)
             },
             Pin {
                 value: Cell::new(Default::default()),
                 bit_width,
                 direction: Direction::OUTPUT,
                 wire: Cell::new(None),
-                location: Location(20, 0)
+                location: Location(0, 0)
             }
         ];
 
