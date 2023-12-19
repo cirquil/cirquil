@@ -1,9 +1,10 @@
 use serde::Deserialize;
+use crate::logisim::converter::circuit::point::Point;
 
 #[derive(Debug, Deserialize)]
 pub struct Wire {
     #[serde(rename = "@from")]
-    from: String,
+    from: Point,
     #[serde(rename = "@to")]
-    to: String,
+    to: Point,
 }

@@ -3,6 +3,7 @@ use serde::Deserialize;
 
 pub mod component;
 pub mod wire;
+pub mod point;
 
 #[derive(Debug, Deserialize)]
 pub struct Circuit {
