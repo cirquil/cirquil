@@ -8,9 +8,9 @@ pub mod point;
 #[derive(Debug, Deserialize)]
 pub struct Circuit {
     #[serde(rename = "@name")]
-    name: String,
+    pub name: String,
     #[serde(rename = "wire")]
-    wires: Vec<Wire>,
+    pub wires: Vec<Wire>,
     #[serde(rename = "comp")]
-    components: Vec<Component>,
+    pub components: Vec<Component>,
 }

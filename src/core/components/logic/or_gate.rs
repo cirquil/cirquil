@@ -57,21 +57,21 @@ impl OrGate {
                 bit_width,
                 direction: Direction::INPUT,
                 wire: Cell::new(None),
-                location: Location(0, 0)
+                location: Location(-30, 10)
             },
             Pin {
                 value: Cell::new(Default::default()),
                 bit_width,
                 direction: Direction::INPUT,
                 wire: Cell::new(None),
-                location: Location(0, 20)
+                location: Location(-30, -10)
             },
             Pin {
                 value: Cell::new(Default::default()),
                 bit_width,
                 direction: Direction::OUTPUT,
                 wire: Cell::new(None),
-                location: Location(20, 10)
+                location: Location(0, 0)
             }
         ];
 
