@@ -1,3 +1,4 @@
+use eframe::epaint::Shape;
 use eframe::Frame;
 use egui::{Color32, containers, Context, Pos2, Sense, Separator, Stroke, Vec2};
 use egui_extras::{Size, StripBuilder};
@@ -39,17 +40,6 @@ impl eframe::App for CirquilApp {
 
                             grid::draw(&response.rect, &painter);
                             let coords = response.rect.min.to_vec2();
-                            for canvas_component in &self.canvas.components {
-                                let component = self.circuit.get_component(canvas_component.component);
-                                let component_coords = coords + Vec2::from(canvas_component.loc);
-
-                                let mut shapes = component.as_shapes();
-                                for shape in shapes.iter_mut() {
-                                    shape.translate(component_coords)
-                                }
-
-                                painter.extend(shapes);
-                            }
 
                             let inactive = Stroke::new(2.0, Color32::DARK_GREEN);
                             let active = Stroke::new(2.0, Color32::LIGHT_GREEN);
@@ -62,6 +52,32 @@ impl eframe::App for CirquilApp {
                                         if wire.value.get().get_raw_value() == 0 { inactive } else { active },
                                     );
                                 }
+                            }
+
+                            for canvas_component in &self.canvas.components {
+                                let component = self.circuit.get_component(canvas_component.component);
+                                let component_coords = coords + Vec2::from(canvas_component.loc);
+
+                                let mut shapes = component.as_shapes();
+                                for shape in shapes.iter_mut() {
+                                    shape.translate(component_coords)
+                                }
+
+                                for pin in component.get_pins() {
+                                    let pin_coords = component_coords + Vec2::from(pin.location);
+                                    let color = if pin.value.get().get_defined_value() != 0 {
+                                        Color32::LIGHT_GREEN
+                                    } else {
+                                        Color32::DARK_GREEN
+                                    };
+                                    shapes.push(Shape::circle_filled(
+                                        pin_coords.to_pos2(),
+                                        2f32,
+                                        color
+                                    ));
+                                }
+
+                                painter.extend(shapes);
                             }
                         });
                     });
