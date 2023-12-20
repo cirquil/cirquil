@@ -5,6 +5,8 @@ use crate::core::canvas::{CanvasComponent, CanvasWire};
 use crate::core::circuit::Circuit;
 use crate::core::component::Component;
 use crate::core::components::clock_generator::ClockGenerator;
+use crate::core::components::logic::and_gate::AndGate;
+use crate::core::components::logic::not_gate::NotGate;
 use crate::core::components::logic::or_gate::OrGate;
 use crate::core::location::Location;
 use crate::core::wire::{Wire, WireIdx};
@@ -99,6 +101,8 @@ pub fn test_canvas() {
                 Box::new(ClockGenerator::create())
             }
             ("1", "OR Gate") => Box::new(OrGate::from_bit_width(1)),
+            ("1", "AND Gate") => Box::new(AndGate::from_bit_width(1)),
+            ("1", "NOT Gate") => Box::new(NotGate::from_bit_width(1)),
             _ => panic!("Unknown component {} from lib {}", c.name, c.lib),
         };
         for (pi, p) in comp.get_pins().iter().enumerate() {
