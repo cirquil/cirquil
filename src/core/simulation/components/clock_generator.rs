@@ -7,7 +7,7 @@ use crate::declare_component;
 
 declare_component! {
     pub struct ClockGenerator {
-        value: Cell<u32>
+        pub(crate) value: Cell<u32>
     }
 }
 

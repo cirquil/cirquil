@@ -8,7 +8,7 @@ mod logisim;
 mod test_propagate;
 
 fn main() -> Result<(), eframe::Error> {
-    let filename = "test.circ".to_string();
+    let filename = "test_3.circ".to_string();
     // test_not();
     // test_propagate();
     // test_or();

@@ -51,8 +51,8 @@ impl eframe::App for CirquilApp {
                                 painter.extend(shapes);
                             }
 
-                            let inactive = Stroke::new(1.0, Color32::BLACK);
-                            let active = Stroke::new(1.0, Color32::LIGHT_GREEN);
+                            let inactive = Stroke::new(2.0, Color32::DARK_GREEN);
+                            let active = Stroke::new(2.0, Color32::LIGHT_GREEN);
                             for canvas_wire in &self.canvas.wires {
                                 let wire = self.circuit.get_wire(canvas_wire.wire);
                                 for segment in &canvas_wire.segments {
