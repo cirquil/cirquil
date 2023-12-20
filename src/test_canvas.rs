@@ -119,6 +119,7 @@ pub fn test_canvas() {
                                 value: Cell::new(Default::default()),
                                 connected_components: vec![(*ai, *ap), (ci, pi)],
                             };
+                            locations_map.insert(location, wi);
                             components.get(*ai).unwrap().set_pin_wire(*ap, Some(wi));
                             comp.set_pin_wire(pi, Some(wi));
                             wires.push(wire);
