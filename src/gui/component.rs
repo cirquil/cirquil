@@ -9,5 +9,5 @@ pub trait Poke {
 }
 
 pub trait AsShapes {
-    fn as_shapes(&self, coords: Vec2) -> Vec<Shape>;
+    fn as_shapes(&self) -> Vec<Shape>;
 }

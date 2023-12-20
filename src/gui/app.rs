@@ -41,10 +41,14 @@ impl eframe::App for CirquilApp {
                             let coords = response.rect.min.to_vec2();
                             for canvas_component in &self.canvas.components {
                                 let component = self.circuit.get_component(canvas_component.component);
-                                let mut component_coords = coords;
-                                component_coords.x += canvas_component.loc.x as f32;
-                                component_coords.y += canvas_component.loc.y as f32;
-                                painter.extend(component.as_shapes(component_coords));
+                                let component_coords = coords + Vec2::from(canvas_component.loc);
+
+                                let mut shapes = component.as_shapes();
+                                for shape in shapes.iter_mut() {
+                                    shape.translate(component_coords)
+                                }
+
+                                painter.extend(shapes);
                             }
 
                             let inactive = Stroke::new(1.0, Color32::BLACK);
@@ -52,9 +56,9 @@ impl eframe::App for CirquilApp {
                             for canvas_wire in &self.canvas.wires {
                                 let wire = self.circuit.get_wire(canvas_wire.wire);
                                 for segment in &canvas_wire.segments {
-                                    let (s, e) = segment;
+                                    let (s, e) = *segment;
                                     painter.line_segment(
-                                        [Pos2::new(s.x as f32, s.y as f32) + coords, Pos2::new(e.x as f32, e.y as f32) + coords],
+                                        [Pos2::from(s) + coords, Pos2::from(e) + coords],
                                         if wire.value.get().get_raw_value() == 0 { inactive } else { active },
                                     );
                                 }
