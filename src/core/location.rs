@@ -1,7 +1,7 @@
 use std::ops::{Add, AddAssign};
 
-#[derive(Debug, Copy, Clone)]
-pub struct Location(pub u16, pub u16);
+#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
+pub struct Location(pub i16, pub i16);
 
 impl Add for Location {
     type Output = Location;
