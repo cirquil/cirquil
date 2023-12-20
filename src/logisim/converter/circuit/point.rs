@@ -3,8 +3,8 @@ use std::str::FromStr;
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
 pub struct Point {
-    pub x: i32,
-    pub y: i32,
+    pub x: i16,
+    pub y: i16,
 }
 
 impl<'de> Deserialize<'de> for Point {
@@ -20,8 +20,8 @@ impl<'de> Deserialize<'de> for Point {
                 .collect();
 
             // Парсим числа
-            let x: i32 = i32::from_str(parts[0]).expect("Failed to parse x");
-            let y: i32 = i32::from_str(parts[1]).expect("Failed to parse y");
+            let x: i16 = i16::from_str(parts[0]).expect("Failed to parse x");
+            let y: i16 = i16::from_str(parts[1]).expect("Failed to parse y");
             Point { x, y }
         })
     }

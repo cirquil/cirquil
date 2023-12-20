@@ -1,6 +1,5 @@
 use std::cell::Cell;
 use std::collections::HashMap;
-use regex::Regex;
 use crate::core::canvas::{CanvasComponent, CanvasWire};
 use crate::core::circuit::Circuit;
 use crate::core::component::Component;
@@ -90,12 +89,10 @@ pub fn test_canvas() {
     let mut canvas_components: Vec<CanvasComponent> = Vec::new();
     let mut components: Vec<Box<dyn Component>> = Vec::new();
     let mut clock_generators: Vec<usize> = Vec::new();
-    let re = Regex::new(r"^\((\d+),(\d+)\)$").unwrap();
     for (ci, c) in circuit.components.iter().enumerate() {
-        let x = re.captures(&c.loc).unwrap();
-        let loc = Location(x[1].parse::<i16>().unwrap(), x[2].parse::<i16>().unwrap());
+        let loc = Location(c.loc.x, c.loc.y);
         canvas_components.push(CanvasComponent { component: ci, loc });
-        let mut comp: Box<dyn Component> = match (c.lib.as_str(), c.name.as_str()) {
+        let comp: Box<dyn Component> = match (c.lib.as_str(), c.name.as_str()) {
             ("0", "Clock") => {
                 clock_generators.push(ci);
                 Box::new(ClockGenerator::create())
@@ -158,6 +155,12 @@ pub fn test_canvas() {
         wires: wires,
         clock_generators: clock_generators,
     };
+    println!("{:?} {:?}", circuit.components, circuit.wires);
+    circuit.propagate();
+    println!("{:?} {:?}", circuit.components, circuit.wires);
+    circuit.propagate();
+    println!("{:?} {:?}", circuit.components, circuit.wires);
+    circuit.propagate();
     println!("{:?} {:?}", circuit.components, circuit.wires);
     circuit.propagate();
     println!("{:?} {:?}", circuit.components, circuit.wires);

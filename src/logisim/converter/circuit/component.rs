@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use crate::logisim::converter::circuit::point::Point;
 
 #[derive(Debug, Deserialize)]
 pub struct Param {
@@ -21,7 +22,7 @@ pub struct Component {
     #[serde(rename = "@lib", default = "default_lib")]
     pub lib: String,
     #[serde(rename = "@loc")]
-    pub loc: String,
+    pub loc: Point,
     #[serde(rename = "@name")]
     pub name: String,
     #[serde(rename = "a", default = "default_params")]
