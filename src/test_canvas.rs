@@ -7,7 +7,7 @@ use crate::core::components::logic::or_gate::OrGate;
 use crate::core::location::Location;
 use crate::core::wire::Wire;
 
-pub fn test_canvas() {
+pub fn provide_circuit() -> (Circuit, CanvasCircuit) {
     // Model
     let or = OrGate::from_bit_width(1);
     let clock = ClockGenerator::create();
@@ -32,26 +32,22 @@ pub fn test_canvas() {
     };
 
     // View
-    let canvasOr = CanvasComponent { component: 1, loc: Location(60, 20) };
-    let canvasClock = CanvasComponent { component: 0, loc: Location(20, 20) };
+    let canvas_or = CanvasComponent { component: 1, loc: Location(60, 20) };
+    let canvas_clock = CanvasComponent { component: 0, loc: Location(20, 20) };
 
-    let canvasWire = CanvasWire { segments: vec![(Location(20, 20), Location(60, 20))], wire: 0 };
-    let canvasDisplayWire = CanvasWire { segments: vec![
+    let canvas_wire = CanvasWire { segments: vec![(Location(20, 20), Location(60, 20))], wire: 0 };
+    let canvas_display_wire = CanvasWire { segments: vec![
         (Location(80, 30), Location(100, 30)),
         (Location(100, 30), Location(100, 60))
     ], wire: 1 };
 
-    let canvasCircuit = CanvasCircuit {
-        components: vec![canvasClock, canvasOr],
-        wires: vec![canvasWire, canvasDisplayWire],
+    let canvas_circuit = CanvasCircuit {
+        components: vec![canvas_clock, canvas_or],
+        wires: vec![canvas_wire, canvas_display_wire],
         circuit: 0,
         appearance: (),
         pins: (),
     };
 
-    println!("{:?} {:?}", circuit.components, circuit.wires);
-
-    circuit.propagate();
-
-    println!("{:?} {:?}", circuit.components, circuit.wires);
+    (circuit, canvas_circuit)
 }
