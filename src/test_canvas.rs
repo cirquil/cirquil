@@ -2,12 +2,13 @@ use std::cell::Cell;
 use std::collections::HashMap;
 use crate::core::canvas::{CanvasComponent, CanvasWire};
 use crate::core::circuit::Circuit;
-use crate::core::component::Component;
+use crate::core::component::{Component, ComponentIdx};
 use crate::core::components::clock_generator::ClockGenerator;
 use crate::core::components::logic::and_gate::AndGate;
 use crate::core::components::logic::not_gate::NotGate;
 use crate::core::components::logic::or_gate::OrGate;
 use crate::core::location::Location;
+use crate::core::pin::PinIdx;
 use crate::core::wire::{Wire, WireIdx};
 use crate::logisim::converter::circuit::wire;
 use crate::logisim::converter::circuit::point::Point;
@@ -89,6 +90,7 @@ pub fn test_canvas() {
     let mut canvas_components: Vec<CanvasComponent> = Vec::new();
     let mut components: Vec<Box<dyn Component>> = Vec::new();
     let mut clock_generators: Vec<usize> = Vec::new();
+    let mut pins_locations_map: HashMap<Location, (ComponentIdx, PinIdx)> = HashMap::new();
     for (ci, c) in circuit.components.iter().enumerate() {
         let loc = Location(c.loc.x, c.loc.y);
         canvas_components.push(CanvasComponent { component: ci, loc });
@@ -103,11 +105,28 @@ pub fn test_canvas() {
             _ => panic!("Unknown component {} from lib {}", c.name, c.lib),
         };
         for (pi, p) in comp.get_pins().iter().enumerate() {
-            match locations_map.get(&(loc + p.location)) {
-                None => {}
+            let location = loc + p.location;
+            match locations_map.get(&location) {
                 Some(wi) => {
                     comp.set_pin_wire(pi, Some(*wi));
                     wires.get_mut(*wi).unwrap().connected_components.push((ci, pi));
+                }
+                None => {
+                    match pins_locations_map.get_mut(&location) {
+                        Some((ai, ap)) => {
+                            let wi = wires.len();
+                            let wire = Wire {
+                                value: Cell::new(Default::default()),
+                                connected_components: vec![(*ai, *ap), (ci, pi)],
+                            };
+                            components.get(*ai).unwrap().set_pin_wire(*ap, Some(wi));
+                            comp.set_pin_wire(pi, Some(wi));
+                            wires.push(wire);
+                        }
+                        None => {
+                            pins_locations_map.insert(location, (ci, pi));
+                        }
+                    }
                 }
             }
         }
@@ -155,6 +174,14 @@ pub fn test_canvas() {
         wires: wires,
         clock_generators: clock_generators,
     };
+    println!("{:?} {:?}", circuit.components, circuit.wires);
+    circuit.propagate();
+    println!("{:?} {:?}", circuit.components, circuit.wires);
+    circuit.propagate();
+    println!("{:?} {:?}", circuit.components, circuit.wires);
+    circuit.propagate();
+    println!("{:?} {:?}", circuit.components, circuit.wires);
+    circuit.propagate();
     println!("{:?} {:?}", circuit.components, circuit.wires);
     circuit.propagate();
     println!("{:?} {:?}", circuit.components, circuit.wires);
