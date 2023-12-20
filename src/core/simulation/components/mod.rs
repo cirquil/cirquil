@@ -9,10 +9,12 @@ macro_rules! declare_component {
             $($fpub:vis $field:ident : $type:ty),*
         }
     ) => {
-        use crate::core::property::Property;
-        use crate::core::component::Component;
-        use crate::core::pin::PinIdx;
-        use crate::core::wire::WireIdx;
+        use crate::core::simulation::property::Property;
+        use crate::core::simulation::component::Component;
+        use crate::core::simulation::pin::PinIdx;
+        use crate::core::simulation::wire::WireIdx;
+        use crate::core::simulation::pin::Pin;
+        use crate::core::simulation::value::Value;
 
         $(#[derive($($derive),*)])?
         $pub struct $name {

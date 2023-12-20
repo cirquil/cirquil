@@ -1,8 +1,8 @@
 mod app;
-mod mesh;
+mod grid;
 mod constants;
 mod components;
-mod as_shapes;
+
+pub mod component;
 
 pub use app::CirquilApp;
-pub use as_shapes::AsShapes;

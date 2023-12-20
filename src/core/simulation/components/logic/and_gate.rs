@@ -1,11 +1,9 @@
 use std::cell::Cell;
 use std::fmt::{Debug, Formatter};
-use crate::core::component::{Appearance, Behaviour, OnTickStart, Poke};
-use crate::core::graphics::DrawContext;
-use crate::core::location::Location;
-use crate::core::pin::{Direction, Pin};
-use crate::core::property::{IntegerProperty};
-use crate::core::value::Value;
+use crate::core::simulation::component::{Behaviour, Tick};
+use crate::core::canvas::location::Location;
+use crate::core::simulation::pin::Direction;
+use crate::core::simulation::property::IntegerProperty;
 use crate::declare_component;
 
 declare_component! {
@@ -31,15 +29,7 @@ impl Behaviour for AndGate {
     }
 }
 
-impl Appearance for AndGate {
-    fn draw(&self, ctx: Box<dyn DrawContext>) {
-        ctx.draw_line();
-    }
-}
-
-impl Poke for AndGate {}
-
-impl OnTickStart for AndGate {}
+impl Tick for AndGate {}
 
 impl AndGate {
     pub fn from_properties(properties: Vec<Box<dyn Property>>) -> Self {
@@ -51,21 +41,21 @@ impl AndGate {
                 bit_width,
                 direction: Direction::INPUT,
                 wire: Cell::new(None),
-                location: Location(-30, 10)
+                location: Location::new(-30, 10)
             },
             Pin {
                 value: Cell::new(Default::default()),
                 bit_width,
                 direction: Direction::INPUT,
                 wire: Cell::new(None),
-                location: Location(-30, -10)
+                location: Location::new(-30, -10)
             },
             Pin {
                 value: Cell::new(Default::default()),
                 bit_width,
                 direction: Direction::OUTPUT,
                 wire: Cell::new(None),
-                location: Location(0, 0)
+                location: Location::new(0, 0)
             }
         ];
 

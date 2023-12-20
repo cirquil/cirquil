@@ -1,5 +1,6 @@
 use crate::gui::CirquilApp;
-use crate::logisim::converter::{convert_circuit, parse_logisim};
+use crate::logisim::converter::convert_circuit;
+use crate::logisim::parser::parse_logisim;
 
 mod core;
 mod gui;
@@ -22,7 +23,7 @@ fn main() -> Result<(), eframe::Error> {
         options,
         Box::new(|cc| {
             let (circuit, canvas) = convert_circuit(parse_logisim(filename), 0);
-            Box::new(CirquilApp {circuit, canvas})
+            Box::new(CirquilApp { circuit, canvas })
         }),
     )
 }

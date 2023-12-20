@@ -1,79 +1,29 @@
-use self::circuit::Circuit;
-use quick_xml::de;
-use serde::Deserialize;
-use std::{fs::File, io::Read, path::Path};
 use std::cell::Cell;
 use std::collections::HashMap;
-use crate::core::canvas::{CanvasCircuit, CanvasComponent, CanvasWire};
-use crate::core::component::{Component, ComponentIdx};
-use crate::core::components::clock_generator::ClockGenerator;
-use crate::core::components::logic::and_gate::AndGate;
-use crate::core::components::logic::not_gate::NotGate;
-use crate::core::components::logic::or_gate::OrGate;
-use crate::core::location::Location;
-use crate::core::pin::PinIdx;
-use crate::core::wire::{Wire, WireIdx};
-use crate::logisim::converter::circuit::point::Point;
-use crate::logisim::converter::circuit::wire;
 
-pub mod circuit;
+use crate::core::canvas::circuit::CanvasCircuit;
+use crate::core::canvas::component::CanvasComponent;
+use crate::core::canvas::location::Location;
+use crate::core::canvas::wire::CanvasWire;
+use crate::core::simulation::circuit::Circuit;
+use crate::core::simulation::component::{Component, ComponentIdx};
+use crate::core::simulation::components::clock_generator::ClockGenerator;
+use crate::core::simulation::components::logic::and_gate::AndGate;
+use crate::core::simulation::components::logic::not_gate::NotGate;
+use crate::core::simulation::components::logic::or_gate::OrGate;
+use crate::core::simulation::pin::PinIdx;
+use crate::core::simulation::wire::{Wire, WireIdx};
+use crate::logisim::converter::dfs::dfs_wires;
+use crate::logisim::parser::location::LogisimLocation;
+use crate::logisim::parser::project::LogisimProject;
+use crate::logisim::parser::wire::LogisimWire;
 
-#[derive(Debug, Deserialize)]
-pub struct Project {
-    #[serde(rename = "circuit")]
-    pub circuits: Vec<Circuit>,
-}
+mod dfs;
 
-pub fn parse_logisim<P>(f: P) -> Project
-    where
-        P: AsRef<Path>,
-{
-    let mut xml = File::open(f).expect("File invalid");
-    let mut contents = String::new();
-    xml.read_to_string(&mut contents)
-        .expect("Wrong file contents.");
-
-    let doc: Project = de::from_str(&contents).unwrap();
-    doc
-}
-
-fn dfs_wires(current: &Point, wires_map: &mut HashMap<Point, Vec<&wire::Wire>>) -> Vec<(Location, Location)> {
-    fn dfs_wires(current: &Point, wires_map: &mut HashMap<Point, Vec<&wire::Wire>>,
-                 segments: &mut Vec<(Location, Location)>) {
-        let wires = wires_map.remove(current).unwrap();
-        for i in wires.iter() {
-            let next;
-            if *current == i.to {
-                next = i.from;
-            } else {
-                next = i.to;
-            }
-            if wires_map.contains_key(&next) {
-                segments.push((Location(i.from.x, i.from.y), Location(i.to.x, i.to.y)));
-            }
-        }
-        for i in wires.iter() {
-            let next;
-            if *current == i.to {
-                next = i.from;
-            } else {
-                next = i.to;
-            }
-            if wires_map.contains_key(&next) {
-                dfs_wires(&next, wires_map, segments);
-            }
-        }
-    }
-
-    let mut segments: Vec<(Location, Location)> = Vec::new();
-    dfs_wires(current, wires_map, &mut segments);
-    return segments;
-}
-
-pub fn convert_circuit(parsed_project: Project, circuit_idx: usize) -> (crate::core::circuit::Circuit, CanvasCircuit) {
+pub fn convert_circuit(parsed_project: LogisimProject, circuit_idx: usize) -> (Circuit, CanvasCircuit) {
     let circuit = &parsed_project.circuits[circuit_idx];
 
-    let mut wires_map: HashMap<Point, Vec<&wire::Wire>> = HashMap::new();
+    let mut wires_map: HashMap<LogisimLocation, Vec<&LogisimWire>> = HashMap::new();
     for i in circuit.wires.iter() {
         match wires_map.get_mut(&i.from) {
             None => {
@@ -118,7 +68,7 @@ pub fn convert_circuit(parsed_project: Project, circuit_idx: usize) -> (crate::c
     let mut clock_generators: Vec<usize> = Vec::new();
     let mut pins_no_wire: HashMap<Location, (ComponentIdx, PinIdx)> = HashMap::new();
     for (comp_i, parsed_comp) in circuit.components.iter().enumerate() {
-        let loc = Location(parsed_comp.loc.x, parsed_comp.loc.y);
+        let loc = Location::new(parsed_comp.loc.x, parsed_comp.loc.y);
         canvas_components.push(CanvasComponent { component: comp_i, loc });
         let component: Box<dyn Component> = match (parsed_comp.lib.as_str(), parsed_comp.name.as_str()) {
             ("0", "Clock") => {
@@ -160,7 +110,7 @@ pub fn convert_circuit(parsed_project: Project, circuit_idx: usize) -> (crate::c
         components.push(component);
     }
 
-    return (crate::core::circuit::Circuit { components, wires, clock_generators },
+    return (Circuit { components, wires, clock_generators },
             CanvasCircuit {
                 components: canvas_components,
                 wires: canvas_wires,

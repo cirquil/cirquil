@@ -1,8 +1,7 @@
-use crate::core::value::BitState;
+use crate::core::simulation::value::BitState;
+use crate::core::simulation::value::BitState::{E, F, T, X};
 
 pub fn not(a: BitState) -> BitState {
-    use crate::core::value::BitState::{F, T, X, E};
-
     match a {
         F => { T }
         T => { F }
@@ -12,8 +11,6 @@ pub fn not(a: BitState) -> BitState {
 }
 
 pub fn assign(a: BitState, b: BitState) -> BitState {
-    use crate::core::value::BitState::{F, T, X, E};
-
     match (a, b) {
         (F, F) => { F }
         (F, T) => { E }
@@ -31,8 +28,6 @@ pub fn assign(a: BitState, b: BitState) -> BitState {
 }
 
 pub fn and(a: BitState, b: BitState) -> BitState {
-    use crate::core::value::BitState::{F, T, X, E};
-
     match (a, b) {
         (F, F) => { F }
         (F, T) => { F }
@@ -60,8 +55,6 @@ pub fn and(a: BitState, b: BitState) -> BitState {
 }
 
 pub fn or(a: BitState, b: BitState) -> BitState {
-    use crate::core::value::BitState::{F, T, X, E};
-
     match (a, b) {
         (F, F) => { F }
         (F, T) => { T }

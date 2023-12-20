@@ -1,13 +1,13 @@
 use std::cell::Cell;
 use std::time::Instant;
-use crate::core::circuit::Circuit;
-use crate::core::component::Component;
-use crate::core::components::logic::and_gate::AndGate;
-use crate::core::components::clock_generator::ClockGenerator;
-use crate::core::components::logic::not_gate::NotGate;
-use crate::core::components::logic::or_gate::OrGate;
-use crate::core::value::Value;
-use crate::core::wire::Wire;
+use crate::core::simulation::circuit::Circuit;
+use crate::core::simulation::component::Component;
+use crate::core::simulation::components::clock_generator::ClockGenerator;
+use crate::core::simulation::components::logic::and_gate::AndGate;
+use crate::core::simulation::components::logic::not_gate::NotGate;
+use crate::core::simulation::components::logic::or_gate::OrGate;
+use crate::core::simulation::value::Value;
+use crate::core::simulation::wire::Wire;
 
 pub fn test_propagate() {
     let clock = ClockGenerator::create();

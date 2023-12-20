@@ -1,8 +1,10 @@
-pub mod operations;
-
 use std::fmt::{Debug, Formatter};
 use std::ops::{BitAnd, BitOr, Not};
-use crate::core::value::operations::{and, not, or};
+
+use crate::core::simulation::value::operations::{and, not, or};
+
+pub mod operations;
+
 /*
 union Value {
     uint64_t value;
@@ -18,7 +20,7 @@ pub enum BitState {
     F,
     T,
     X,
-    E
+    E,
 }
 
 #[derive(Copy, Clone)]
@@ -39,7 +41,7 @@ impl Value {
     pub fn create(value: u32, bits: u8) -> Self {
         Self::new(
             value & !(u32::MAX << bits),
-            u32::MAX << bits
+            u32::MAX << bits,
         )
     }
 }
@@ -103,10 +105,10 @@ impl Value {
 impl Value {
     fn get_bit_state(&self, pos: u8) -> BitState {
         match (self.get_raw_bit(pos + 32), self.get_raw_bit(pos)) {
-            (false, false)  => { BitState::F }
-            (false, true)   => { BitState::T }
-            (true, false)   => { BitState::X }
-            (true, true)    => { BitState::E }
+            (false, false) => { BitState::F }
+            (false, true) => { BitState::T }
+            (true, false) => { BitState::X }
+            (true, true) => { BitState::E }
         }
     }
 
@@ -131,7 +133,7 @@ impl Value {
         for i in from..to {
             result = result.set_bit_state(
                 i,
-                function(self.get_bit_state(i))
+                function(self.get_bit_state(i)),
             );
         }
 
@@ -151,7 +153,7 @@ impl Value {
         for i in from..to {
             result = result.set_bit_state(
                 i,
-                function(self.get_bit_state(i), rhs.get_bit_state(i))
+                function(self.get_bit_state(i), rhs.get_bit_state(i)),
             );
         }
 

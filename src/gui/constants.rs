@@ -1,1 +1,1 @@
-pub const MESH_STEP: f32 = 10.0;
+pub const GRID_STEP: f32 = 10.0;

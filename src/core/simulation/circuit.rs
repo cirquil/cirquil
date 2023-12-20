@@ -1,7 +1,7 @@
-use crate::core::component::{Component, ComponentIdx};
-use crate::core::pin::Direction;
-use crate::core::value::operations::assign;
-use crate::core::wire::{Wire, WireIdx};
+use crate::core::simulation::component::{Component, ComponentIdx};
+use crate::core::simulation::pin::Direction;
+use crate::core::simulation::value::operations::assign;
+use crate::core::simulation::wire::{Wire, WireIdx};
 
 pub struct Circuit {
     pub components: Vec<Box<dyn Component>>,
@@ -21,7 +21,7 @@ impl Circuit {
     pub fn propagate(&self) {
         for clock_idx in self.clock_generators.iter() {
             let clock = self.get_component(*clock_idx);
-            clock.on_tick_start();
+            clock.tick();
         }
 
         // let mut first: Vec<&dyn Component> = vec![0, 1].into_iter()

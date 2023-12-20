@@ -1,13 +1,13 @@
 use eframe::Frame;
 use egui::{Color32, containers, Context, Pos2, Sense, Separator, Stroke, Vec2};
 use egui_extras::{Size, StripBuilder};
-use crate::core::canvas::CanvasCircuit;
-use crate::core::circuit::Circuit;
-use crate::core::value::Value;
-use crate::gui::constants::MESH_STEP;
-use crate::gui::mesh;
+use crate::core::canvas::circuit::CanvasCircuit;
 
-const MESH_SQUARE: Vec2 = Vec2::new(MESH_STEP, MESH_STEP);
+use crate::core::simulation::circuit::Circuit;
+use crate::gui::constants::GRID_STEP;
+use crate::gui::grid;
+
+const GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
 
 pub struct CirquilApp {
     pub circuit: Circuit,
@@ -37,13 +37,13 @@ impl eframe::App for CirquilApp {
                             let (mut response, painter) =
                                 ui.allocate_painter(ui.available_size_before_wrap(), Sense::click());
 
-                            mesh::draw(&response.rect, &painter);
+                            grid::draw(&response.rect, &painter);
                             let coords = response.rect.min.to_vec2();
                             for canvas_component in &self.canvas.components {
                                 let component = self.circuit.get_component(canvas_component.component);
                                 let mut component_coords = coords;
-                                component_coords.x += canvas_component.loc.0 as f32;
-                                component_coords.y += canvas_component.loc.1 as f32;
+                                component_coords.x += canvas_component.loc.x as f32;
+                                component_coords.y += canvas_component.loc.y as f32;
                                 painter.extend(component.as_shapes(component_coords));
                             }
 
@@ -54,8 +54,8 @@ impl eframe::App for CirquilApp {
                                 for segment in &canvas_wire.segments {
                                     let (s, e) = segment;
                                     painter.line_segment(
-                                        [Pos2::new(s.0 as f32, s.1 as f32) + coords, Pos2::new(e.0 as f32, e.1 as f32) + coords],
-                                        if wire.value.get().get_raw_value() == 0 { inactive } else { active }
+                                        [Pos2::new(s.x as f32, s.y as f32) + coords, Pos2::new(e.x as f32, e.y as f32) + coords],
+                                        if wire.value.get().get_raw_value() == 0 { inactive } else { active },
                                     );
                                 }
                             }

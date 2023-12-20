@@ -1,7 +1,7 @@
 use std::cell::Cell;
-use crate::core::location::Location;
-use crate::core::value::Value;
-use crate::core::wire::WireIdx;
+use crate::core::canvas::location::Location;
+use crate::core::simulation::value::Value;
+use crate::core::simulation::wire::WireIdx;
 
 pub type PinIdx = usize;
 

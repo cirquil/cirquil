@@ -1,8 +1,9 @@
 use std::cell::Cell;
 use std::fmt::{Debug, Formatter};
-use crate::core::component::ComponentIdx;
-use crate::core::pin::PinIdx;
-use crate::core::value::Value;
+use crate::core::simulation::component::ComponentIdx;
+use crate::core::simulation::pin::PinIdx;
+use crate::core::simulation::value::Value;
+
 
 pub type WireIdx = usize;
 
