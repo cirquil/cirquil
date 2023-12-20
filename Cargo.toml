@@ -8,3 +8,6 @@ edition = "2021"
 [dependencies]
 quick-xml = {version = "0.31.0", features = ["serialize"]}
 serde = {version = "1.0.192", features = ["serde_derive"]}
+eframe = "0.24.1"
+egui = "0.24.1"
+egui_extras = "0.24.2"

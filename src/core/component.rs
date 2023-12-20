@@ -4,6 +4,7 @@ use crate::core::pin::{Pin, PinIdx};
 use crate::core::property::{Property, PropertyIdx};
 use crate::core::value::Value;
 use crate::core::wire::WireIdx;
+use crate::gui::AsShapes;
 
 pub type ComponentIdx = usize;
 
@@ -27,7 +28,7 @@ pub trait OnTickStart {
     fn on_tick_start(&self) {}
 }
 
-pub trait Component: Behaviour + Appearance + Poke + OnTickStart + Debug {
+pub trait Component: Behaviour + Appearance + Poke + OnTickStart + Debug + AsShapes {
     fn get_pins(&self) -> &Vec<Pin>;
     fn get_pin_value(&self, idx: PinIdx) -> Value;
     fn set_pin_value(&self, idx: PinIdx, value: Value);

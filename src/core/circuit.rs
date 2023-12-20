@@ -17,6 +17,7 @@ impl Circuit {
     pub fn get_wire(&self, idx: WireIdx) -> &Wire {
         self.wires.get(idx).unwrap()
     }
+    
     pub fn propagate(&self) {
         for clock_idx in self.clock_generators.iter() {
             let clock = self.get_component(*clock_idx);
