@@ -1,14 +1,13 @@
-use crate::test_canvas::provide_circuit;
-use crate::test_propagate::{test_not, test_or, test_propagate};
 use crate::gui::CirquilApp;
+use crate::logisim::converter::{convert_circuit, parse_logisim};
 
 mod core;
 mod gui;
 mod logisim;
 mod test_propagate;
-mod test_canvas;
 
 fn main() -> Result<(), eframe::Error> {
+    let filename = "test.circ".to_string();
     // test_not();
     // test_propagate();
     // test_or();
@@ -22,7 +21,7 @@ fn main() -> Result<(), eframe::Error> {
         "Cirquil",
         options,
         Box::new(|cc| {
-            let (circuit, canvas) = provide_circuit();
+            let (circuit, canvas) = convert_circuit(parse_logisim(filename), 0);
             Box::new(CirquilApp {circuit, canvas})
         }),
     )
