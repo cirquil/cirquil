@@ -14,33 +14,37 @@ use crate::logisim::converter::circuit::wire;
 use crate::logisim::converter::circuit::point::Point;
 use crate::logisim::converter::parse_logisim;
 
-fn dfs_wires(current: &Point, wires_map: &mut HashMap<Point, Vec<&wire::Wire>>, canvas_wire: &mut CanvasWire,
-             used_locations: &mut Vec<Location>) {
-    used_locations.push(Location(current.x as i16, current.y as i16));
-    let wires = wires_map.remove(current).unwrap();
-    for i in wires.iter() {
-        let next;
-        if *current == i.to {
-            next = i.from;
-        } else {
-            next = i.to;
+fn dfs_wires(current: &Point, wires_map: &mut HashMap<Point, Vec<&wire::Wire>>) -> Vec<(Location, Location)> {
+    fn dfs_wires(current: &Point, wires_map: &mut HashMap<Point, Vec<&wire::Wire>>,
+                 segments: &mut Vec<(Location, Location)>) {
+        let wires = wires_map.remove(current).unwrap();
+        for i in wires.iter() {
+            let next;
+            if *current == i.to {
+                next = i.from;
+            } else {
+                next = i.to;
+            }
+            if wires_map.contains_key(&next) {
+                segments.push((Location(i.from.x, i.from.y), Location(i.to.x, i.to.y)));
+            }
         }
-        if wires_map.contains_key(&next) {
-            canvas_wire.segments.push((Location(i.from.x as i16, i.from.y as i16),
-                                       Location(i.to.x as i16, i.to.y as i16)));
+        for i in wires.iter() {
+            let next;
+            if *current == i.to {
+                next = i.from;
+            } else {
+                next = i.to;
+            }
+            if wires_map.contains_key(&next) {
+                dfs_wires(&next, wires_map, segments);
+            }
         }
     }
-    for i in wires.iter() {
-        let next;
-        if *current == i.to {
-            next = i.from;
-        } else {
-            next = i.to;
-        }
-        if wires_map.contains_key(&next) {
-            dfs_wires(&next, wires_map, canvas_wire, used_locations);
-        }
-    }
+
+    let mut segments: Vec<(Location, Location)> = Vec::new();
+    dfs_wires(current, wires_map, &mut segments);
+    return segments
 }
 
 pub fn test_canvas() {
@@ -69,69 +73,69 @@ pub fn test_canvas() {
 
     let mut canvas_wires: Vec<CanvasWire> = Vec::new();
     let mut wires: Vec<Wire> = Vec::new();
-    let mut locations_map: HashMap<Location, WireIdx> = HashMap::new();
+    let mut wire_nodes: HashMap<Location, WireIdx> = HashMap::new();
     let mut wire_index = 0;
     while !wires_map.is_empty() {
-        let mut canvas_wire = CanvasWire { segments: Vec::new(), wire: wire_index };
-        let mut used_locations: Vec<Location> = Vec::new();
         let begin = wires_map.keys().next().unwrap().clone();
-        dfs_wires(&begin, &mut wires_map, &mut canvas_wire, &mut used_locations);
+        let segments = dfs_wires(&begin, &mut wires_map);
+        for (from, to) in segments.iter() {
+            wire_nodes.insert(*from, wire_index);
+            wire_nodes.insert(*to, wire_index);
+        }
+        let canvas_wire = CanvasWire { segments, wire: wire_index };
         wires.push(Wire {
             value: Cell::new(Default::default()),
             connected_components: Vec::new(),
         });
         canvas_wires.push(canvas_wire);
-        for i in used_locations {
-            locations_map.insert(i, wire_index);
-        }
         wire_index += 1;
     }
 
     let mut canvas_components: Vec<CanvasComponent> = Vec::new();
     let mut components: Vec<Box<dyn Component>> = Vec::new();
     let mut clock_generators: Vec<usize> = Vec::new();
-    let mut pins_locations_map: HashMap<Location, (ComponentIdx, PinIdx)> = HashMap::new();
-    for (ci, c) in circuit.components.iter().enumerate() {
-        let loc = Location(c.loc.x, c.loc.y);
-        canvas_components.push(CanvasComponent { component: ci, loc });
-        let comp: Box<dyn Component> = match (c.lib.as_str(), c.name.as_str()) {
+    let mut pins_no_wire: HashMap<Location, (ComponentIdx, PinIdx)> = HashMap::new();
+    for (comp_i, parsed_comp) in circuit.components.iter().enumerate() {
+        let loc = Location(parsed_comp.loc.x, parsed_comp.loc.y);
+        canvas_components.push(CanvasComponent { component: comp_i, loc });
+        let component: Box<dyn Component> = match (parsed_comp.lib.as_str(), parsed_comp.name.as_str()) {
             ("0", "Clock") => {
-                clock_generators.push(ci);
+                clock_generators.push(comp_i);
                 Box::new(ClockGenerator::create())
             }
             ("1", "OR Gate") => Box::new(OrGate::from_bit_width(1)),
             ("1", "AND Gate") => Box::new(AndGate::from_bit_width(1)),
             ("1", "NOT Gate") => Box::new(NotGate::from_bit_width(1)),
-            _ => panic!("Unknown component {} from lib {}", c.name, c.lib),
+            _ => panic!("Unknown component {} from lib {}", parsed_comp.name, parsed_comp.lib),
         };
-        for (pi, p) in comp.get_pins().iter().enumerate() {
-            let location = loc + p.location;
-            match locations_map.get(&location) {
-                Some(wi) => {
-                    comp.set_pin_wire(pi, Some(*wi));
-                    wires.get_mut(*wi).unwrap().connected_components.push((ci, pi));
+        for (pin_i, pin) in component.get_pins().iter().enumerate() {
+            let location = loc + pin.location;
+            match wire_nodes.get(&location) {
+                Some(wire_i) => {
+                    component.set_pin_wire(pin_i, Some(*wire_i));
+                    wires.get_mut(*wire_i).unwrap().connected_components.push((comp_i, pin_i));
                 }
                 None => {
-                    match pins_locations_map.get_mut(&location) {
-                        Some((ai, ap)) => {
-                            let wi = wires.len();
+                    match pins_no_wire.get_mut(&location) {
+                        Some((another_comp, another_pin)) => {
+                            let wire_i = wires.len();
                             let wire = Wire {
                                 value: Cell::new(Default::default()),
-                                connected_components: vec![(*ai, *ap), (ci, pi)],
+                                connected_components: vec![(*another_comp, *another_pin), (comp_i, pin_i)],
                             };
-                            locations_map.insert(location, wi);
-                            components.get(*ai).unwrap().set_pin_wire(*ap, Some(wi));
-                            comp.set_pin_wire(pi, Some(wi));
+                            wire_nodes.insert(location, wire_i);
+                            component.set_pin_wire(pin_i, Some(wire_i));
+                            components.get(*another_comp).unwrap().set_pin_wire(*another_pin, Some(wire_i));
                             wires.push(wire);
                         }
                         None => {
-                            pins_locations_map.insert(location, (ci, pi));
+                            pins_no_wire.insert(location, (comp_i, pin_i));
                         }
                     }
                 }
             }
         }
-        components.push(comp);
+        components.push(component);
     }
 
 
@@ -170,11 +174,7 @@ pub fn test_canvas() {
     println!("{:?} {:?}", circuit.components, circuit.wires);
 
     println!("From file");
-    let circuit = Circuit {
-        components: components,
-        wires: wires,
-        clock_generators: clock_generators,
-    };
+    let circuit = Circuit { components, wires, clock_generators };
     println!("{:?} {:?}", circuit.components, circuit.wires);
     circuit.propagate();
     println!("{:?} {:?}", circuit.components, circuit.wires);
