@@ -1,4 +1,4 @@
-use egui::{Shape, Vec2};
+use egui::{Rect, Shape};
 
 pub trait Poke {
     fn mouse_pressed(&self) {}
@@ -10,4 +10,8 @@ pub trait Poke {
 
 pub trait AsShapes {
     fn as_shapes(&self) -> Vec<Shape>;
+}
+
+pub trait Bounds {
+    fn get_bounds(&self) -> Rect;
 }

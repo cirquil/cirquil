@@ -1,7 +1,8 @@
-use eframe::emath::{Pos2, Rect, Vec2};
-use eframe::epaint::{Color32, QuadraticBezierShape, Rounding, Shape, Stroke};
+use eframe::emath::{Pos2, Rect};
+use eframe::epaint::{Color32, QuadraticBezierShape, Shape, Stroke};
+
 use crate::core::simulation::components::logic::or_gate::OrGate;
-use crate::gui::component::{AsShapes, Poke};
+use crate::gui::component::{AsShapes, Bounds, Poke};
 
 impl Poke for OrGate {}
 
@@ -15,7 +16,7 @@ impl AsShapes for OrGate {
                     Pos2::new(-30f32, 15f32)
                 ],
                 false,
-                Color32::WHITE, Stroke::new(2f32, Color32::BLACK)
+                Color32::WHITE, Stroke::new(2f32, Color32::BLACK),
             )),
             Shape::QuadraticBezier(QuadraticBezierShape::from_points_stroke(
                 [
@@ -24,7 +25,7 @@ impl AsShapes for OrGate {
                     Pos2::new(-30f32, -15f32)
                 ],
                 false,
-                Color32::WHITE, Stroke::new(2f32, Color32::BLACK)
+                Color32::WHITE, Stroke::new(2f32, Color32::BLACK),
             )),
             Shape::QuadraticBezier(QuadraticBezierShape::from_points_stroke(
                 [
@@ -33,8 +34,14 @@ impl AsShapes for OrGate {
                     Pos2::new(-30f32, -15f32)
                 ],
                 false,
-                Color32::WHITE, Stroke::new(2f32, Color32::BLACK)
+                Color32::WHITE, Stroke::new(2f32, Color32::BLACK),
             )),
         ]
+    }
+}
+
+impl Bounds for OrGate {
+    fn get_bounds(&self) -> Rect {
+        Rect::NOTHING
     }
 }
