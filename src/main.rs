@@ -1,3 +1,4 @@
+use egui::{Style, Visuals};
 use crate::gui::CirquilApp;
 use crate::logisim::converter::convert_circuit;
 use crate::logisim::parser::parse_logisim;
@@ -22,6 +23,12 @@ fn main() -> Result<(), eframe::Error> {
         "Cirquil",
         options,
         Box::new(|cc| {
+            let style = Style {
+                visuals: Visuals::light(),
+                ..Style::default()
+            };
+            cc.egui_ctx.set_style(style);
+
             let (circuit, canvas) = convert_circuit(parse_logisim(filename), 0);
             Box::new(CirquilApp { circuit, canvas })
         }),
