@@ -38,22 +38,22 @@ pub fn test_propagate() {
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
 
-    circuit.propagate();
+    circuit.propagate_all();
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
 
-    circuit.propagate();
+    circuit.propagate_all();
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
 
-    circuit.propagate();
+    circuit.propagate_all();
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
 
     let start = Instant::now();
 
     for _ in 0..1_000_000 {
-        circuit.propagate();
+        circuit.propagate_all();
     }
 
     println!("{:?} {:?} MHz", start.elapsed(), 1f64 / (start.elapsed().as_micros() as f64 / 1_000_000f64));
@@ -80,22 +80,22 @@ pub fn test_or() {
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
 
-    circuit.propagate();
+    circuit.propagate_all();
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
 
-    circuit.propagate();
+    circuit.propagate_all();
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
 
-    circuit.propagate();
+    circuit.propagate_all();
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
 
     let start = Instant::now();
 
     for _ in 0..1_000_000 {
-        circuit.propagate();
+        circuit.propagate_all();
     }
 
     println!("{:?} {:?} MHz", start.elapsed(), 1f64 / (start.elapsed().as_micros() as f64 / 1_000_000f64));
@@ -118,22 +118,22 @@ pub fn test_not() {
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
 
-    circuit.propagate();
+    circuit.propagate_all();
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
 
-    circuit.propagate();
+    circuit.propagate_all();
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
 
-    circuit.propagate();
+    circuit.propagate_all();
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
 
     let start = Instant::now();
 
     for _ in 0..1_000_000 {
-        circuit.propagate();
+        circuit.propagate_all();
     }
 
     println!("{:?} {:?} MHz", start.elapsed(), 1f64 / (start.elapsed().as_micros() as f64 / 1_000_000f64));
