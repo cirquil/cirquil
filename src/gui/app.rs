@@ -27,7 +27,7 @@ impl eframe::App for CirquilApp {
                         ui.centered_and_justified(|ui| {
                             if ui.button("Tick!").clicked() {
                                 self.circuit.tick();
-                                self.circuit.propagate_all();
+                                self.circuit.propagate_ticked();
                             };
                         });
                     });

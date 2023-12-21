@@ -25,6 +25,14 @@ impl Circuit {
         }
     }
 
+    pub fn propagate_ticked(&self) {
+        self.propagate(
+            self.clock_generators.iter()
+                .map(|idx| self.get_component(*idx))
+                .collect()
+        )
+    }
+
     pub fn propagate_all(&self) {
         self.propagate(
             self.components.iter()
@@ -34,11 +42,6 @@ impl Circuit {
     }
 
     pub fn propagate(&self, initial_components: Vec<&dyn Component>) {
-        // let mut first: Vec<&dyn Component> = vec![0, 1].into_iter()
-        //     .map(|idx| self.get_component(idx))
-        //     .collect();
-        // let mut first = vec![ self.get_component(2) ];
-
         let mut first: Vec<&dyn Component> = initial_components.clone();
         let mut second: Vec<&dyn Component> = Vec::new();
 
