@@ -10,6 +10,10 @@ pub struct Circuit {
 }
 
 impl Circuit {
+    const ITERATIONS_TIMEOUT: u16 = 1000;
+}
+
+impl Circuit {
     pub fn get_component(&self, idx: ComponentIdx) -> &dyn Component {
         self.components.get(idx).unwrap().as_ref()
     }
@@ -45,14 +49,12 @@ impl Circuit {
         let mut first: Vec<&dyn Component> = initial_components.clone();
         let mut second: Vec<&dyn Component> = Vec::new();
 
+        let mut iterations = 0;
         while !first.is_empty() {
             for component in first.iter() {
                 for pin in component.get_pins() {
                     if pin.direction == Direction::INPUT {
-                        let wire_idx = match pin.wire.get() {
-                            None => { continue; }
-                            Some(v) => { v }
-                        };
+                        let Some(wire_idx) = pin.wire.get() else { continue; };
 
                         pin.value.set(self.get_wire(wire_idx).value.get())
                     }
@@ -69,13 +71,12 @@ impl Circuit {
             for component in first.iter() {
                 for pin in component.get_pins() {
                     if pin.direction == Direction::OUTPUT {
-                        let wire_idx = match pin.wire.get() {
-                            Some(v) => { v }
-                            None => { continue; }
-                        };
+                        let Some(wire_idx) = pin.wire.get() else { continue; };
                         let wire = self.get_wire(wire_idx);
 
-                        dirty_wires.push(wire);
+                        if pin.value.get() != wire.value.get() {
+                            dirty_wires.push(wire);
+                        }
                     }
                 }
             }
@@ -100,6 +101,11 @@ impl Circuit {
 
             first.clear();
             first.append(&mut second);
+
+            if iterations > Self::ITERATIONS_TIMEOUT {
+                panic!("Detected oscillation, shutting down");
+            }
+            iterations += 1;
         }
     }
 }

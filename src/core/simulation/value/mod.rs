@@ -23,7 +23,8 @@ pub enum BitState {
     E,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq)]
+#[repr(transparent)]
 pub struct Value(u64);
 
 impl Value {
