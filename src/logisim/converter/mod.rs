@@ -8,6 +8,7 @@ use crate::core::canvas::wire::CanvasWire;
 use crate::core::simulation::circuit::Circuit;
 use crate::core::simulation::component::{Component, ComponentIdx};
 use crate::core::simulation::components::clock_generator::ClockGenerator;
+use crate::core::simulation::components::input::button::InputButton;
 use crate::core::simulation::components::logic::and_gate::AndGate;
 use crate::core::simulation::components::logic::not_gate::NotGate;
 use crate::core::simulation::components::logic::or_gate::OrGate;
@@ -74,7 +75,8 @@ pub fn convert_circuit(parsed_project: LogisimProject, circuit_idx: usize) -> (C
             ("0", "Clock") => {
                 clock_generators.push(comp_i);
                 Box::new(ClockGenerator::create())
-            }
+            },
+            ("5", "Button") => Box::new(InputButton::create()),
             ("1", "OR Gate") => Box::new(OrGate::from_bit_width(1)),
             ("1", "AND Gate") => Box::new(AndGate::from_bit_width(1)),
             ("1", "NOT Gate") => Box::new(NotGate::from_bit_width(1)),

@@ -1,2 +1,3 @@
 pub mod clock_generator;
-mod logic;
+pub mod logic;
+pub mod input;

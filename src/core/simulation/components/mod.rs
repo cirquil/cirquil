@@ -1,5 +1,6 @@
 pub mod clock_generator;
 pub mod logic;
+pub mod input;
 
 #[macro_export]
 macro_rules! declare_component {
