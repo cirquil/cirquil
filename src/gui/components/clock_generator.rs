@@ -1,11 +1,16 @@
 use egui::{Color32, Pos2, Rect, Rounding, Shape, Stroke};
+use crate::core::simulation::component::Tick;
 
 use crate::core::simulation::components::clock_generator::ClockGenerator;
 use crate::gui::component::{AsShapes, Bounds, Poke};
 
 const RECT: Rect = Rect::from_min_max(Pos2::new(-20.0, -10.0), Pos2::new(0.0, 10.0));
 
-impl Poke for ClockGenerator {}
+impl Poke for ClockGenerator {
+    fn mouse_clicked(&self, _: Pos2) {
+        self.tick();
+    }
+}
 
 impl AsShapes for ClockGenerator {
     fn as_shapes(&self) -> Vec<Shape> {

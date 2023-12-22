@@ -37,7 +37,7 @@ impl eframe::App for CirquilApp {
                     strip.cell(|ui| {
                         containers::Frame::canvas(ui.style()).show(ui, |ui| {
                             let (mut response, painter) =
-                                ui.allocate_painter(ui.available_size_before_wrap(), Sense::click());
+                                ui.allocate_painter(ui.available_size_before_wrap(), Sense::click_and_drag());
 
                             grid::draw(&response.rect, &painter);
                             let coords = response.rect.min.to_vec2();
@@ -58,6 +58,18 @@ impl eframe::App for CirquilApp {
                             for canvas_component in &self.canvas.components {
                                 let component = self.circuit.get_component(canvas_component.component);
                                 let component_coords = coords + Vec2::from(canvas_component.loc);
+
+                                if let Some(mut interact_pos) = response.interact_pointer_pos() {
+                                    interact_pos -= component_coords;
+                                    if component.get_bounds().contains(interact_pos) {
+                                        if response.drag_started() { component.mouse_pressed(interact_pos) }
+                                        if response.drag_released() { component.mouse_released(interact_pos) }
+                                        if response.clicked() { component.mouse_clicked(interact_pos) }
+                                        if response.dragged() { component.mouse_dragged(response.drag_delta()) }
+
+                                        self.circuit.propagate(vec![component]);
+                                    }
+                                }
 
                                 let mut shapes = component.as_shapes();
                                 for shape in shapes.iter_mut() {
