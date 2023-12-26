@@ -16,7 +16,7 @@ impl AsShapes for OrGate {
                     Pos2::new(-30f32, 15f32)
                 ],
                 false,
-                Color32::WHITE, Stroke::new(2f32, Color32::BLACK),
+                Color32::TRANSPARENT, Stroke::new(2f32, Color32::BLACK),
             )),
             Shape::QuadraticBezier(QuadraticBezierShape::from_points_stroke(
                 [
@@ -25,7 +25,7 @@ impl AsShapes for OrGate {
                     Pos2::new(-30f32, -15f32)
                 ],
                 false,
-                Color32::WHITE, Stroke::new(2f32, Color32::BLACK),
+                Color32::TRANSPARENT, Stroke::new(2f32, Color32::BLACK),
             )),
             Shape::QuadraticBezier(QuadraticBezierShape::from_points_stroke(
                 [
@@ -34,7 +34,7 @@ impl AsShapes for OrGate {
                     Pos2::new(-30f32, -15f32)
                 ],
                 false,
-                Color32::WHITE, Stroke::new(2f32, Color32::BLACK),
+                Color32::TRANSPARENT, Stroke::new(2f32, Color32::BLACK),
             )),
         ]
     }
