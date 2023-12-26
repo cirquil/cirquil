@@ -1,8 +1,9 @@
 use std::cell::Cell;
 use std::fmt::{Debug, Formatter};
-use crate::core::component::ComponentIdx;
-use crate::core::pin::PinIdx;
-use crate::core::value::Value;
+use crate::core::simulation::component::ComponentIdx;
+use crate::core::simulation::pin::PinIdx;
+use crate::core::simulation::value::Value;
+
 
 pub type WireIdx = usize;
 
@@ -13,6 +14,6 @@ pub struct Wire {
 
 impl Debug for Wire {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(format!("Wire: {}, {:?}", self.value.get().value, self.connected_components).as_str())
+        f.write_str(format!("Wire: {:?}, {:?}", self.value.get(), self.connected_components).as_str())
     }
 }

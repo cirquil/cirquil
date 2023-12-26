@@ -1,4 +1,4 @@
-use crate::core::circuit::Circuit;
+use crate::core::simulation::circuit::Circuit;
 
 pub struct Project {
     name: String,
