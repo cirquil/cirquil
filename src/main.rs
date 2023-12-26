@@ -1,7 +1,10 @@
+use std::{env, fs};
 use egui::{Style, Visuals};
 use crate::gui::CirquilApp;
 use crate::logisim::converter::convert_circuit;
 use crate::logisim::parser::parse_logisim;
+use std::path::Path;
+use std::process::exit;
 
 mod core;
 mod gui;
@@ -9,7 +12,15 @@ mod logisim;
 mod test_propagate;
 
 fn main() -> Result<(), eframe::Error> {
-    let filename = "test_3.circ".to_string();
+    // let filename = Path::new("test_.circ".to_string());
+    let filename = env::var("INPUT_FILE").unwrap_or(String::from("test.circ"));
+    match fs::metadata(&filename) {
+        Ok(_) => {}
+        Err(err) => {
+            println!("{}: {}", err, filename);
+            exit(1);
+        }
+    }
     // test_not();
     // test_propagate();
     // test_or();
