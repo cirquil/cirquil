@@ -3,7 +3,6 @@ use egui::{Style, Visuals};
 use crate::gui::CirquilApp;
 use crate::logisim::converter::convert_circuit;
 use crate::logisim::parser::parse_logisim;
-use std::path::Path;
 use std::process::exit;
 
 mod core;

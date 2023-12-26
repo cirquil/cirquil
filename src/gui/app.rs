@@ -53,6 +53,16 @@ impl eframe::App for CirquilApp {
                                         if wire.value.get().get_raw_value() == 0 { inactive } else { active },
                                     );
                                 }
+                                for node in &canvas_wire.nodes {
+                                    painter.circle_filled(
+                                        Pos2::from(*node) + coords, 3.5f32,
+                                        if wire.value.get().get_raw_value() == 0 {
+                                            Color32::DARK_GREEN
+                                        } else {
+                                            Color32::LIGHT_GREEN
+                                        },
+                                    );
+                                }
                             }
 
                             for canvas_component in &self.canvas.components {
@@ -86,7 +96,7 @@ impl eframe::App for CirquilApp {
                                     shapes.push(Shape::circle_filled(
                                         pin_coords.to_pos2(),
                                         2f32,
-                                        color
+                                        color,
                                     ));
                                 }
 

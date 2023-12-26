@@ -50,12 +50,12 @@ pub fn convert_circuit(parsed_project: LogisimProject, circuit_idx: usize) -> (C
     let mut wire_index = 0;
     while !wires_map.is_empty() {
         let begin = wires_map.keys().next().unwrap().clone();
-        let segments = dfs_wires(&begin, &mut wires_map);
+        let (segments, nodes) = dfs_wires(&begin, &mut wires_map);
         for (from, to) in segments.iter() {
             wire_nodes.insert(*from, wire_index);
             wire_nodes.insert(*to, wire_index);
         }
-        let canvas_wire = CanvasWire { segments, wire: wire_index };
+        let canvas_wire = CanvasWire { wire: wire_index, segments, nodes };
         wires.push(Wire {
             value: Cell::new(Default::default()),
             connected_components: Vec::new(),
@@ -75,7 +75,7 @@ pub fn convert_circuit(parsed_project: LogisimProject, circuit_idx: usize) -> (C
             ("0", "Clock") => {
                 clock_generators.push(comp_i);
                 Box::new(ClockGenerator::create())
-            },
+            }
             ("5", "Button") => Box::new(InputButton::create()),
             ("1", "OR Gate") => Box::new(OrGate::from_bit_width(1)),
             ("1", "AND Gate") => Box::new(AndGate::from_bit_width(1)),
