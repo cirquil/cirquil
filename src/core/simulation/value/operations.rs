@@ -5,7 +5,7 @@ pub fn not(a: BitState) -> BitState {
     match a {
         F => { T }
         T => { F }
-        X => { X }
+        X => { E }
         E => { E }
     }
 }
@@ -32,11 +32,11 @@ pub fn and(a: BitState, b: BitState) -> BitState {
         (F, F) => { F }
         (F, T) => { F }
         (F, X) => { F }
-        (F, E) => { E }
+        (F, E) => { F }
         (T, T) => { T }
-        (T, X) => { X }
+        (T, X) => { E }
         (T, E) => { E }
-        (X, X) => { X }
+        (X, X) => { E }
         (X, E) => { E }
         (E, E) => { E }
 
@@ -58,12 +58,12 @@ pub fn or(a: BitState, b: BitState) -> BitState {
     match (a, b) {
         (F, F) => { F }
         (F, T) => { T }
-        (F, X) => { X }
+        (F, X) => { E }
         (F, E) => { E }
         (T, T) => { T }
         (T, X) => { T }
-        (T, E) => { E }
-        (X, X) => { X }
+        (T, E) => { T }
+        (X, X) => { E }
         (X, E) => { E }
         (E, E) => { E }
 
