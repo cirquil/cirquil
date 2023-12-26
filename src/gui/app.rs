@@ -1,12 +1,13 @@
 use eframe::epaint::Shape;
 use eframe::Frame;
-use egui::{Color32, containers, Context, Pos2, Sense, Separator, Stroke, Vec2};
+use egui::{containers, Context, Pos2, Sense, Separator, Stroke, Vec2};
 use egui_extras::{Size, StripBuilder};
 use crate::core::canvas::circuit::CanvasCircuit;
 
 use crate::core::simulation::circuit::Circuit;
 use crate::gui::constants::GRID_STEP;
 use crate::gui::grid;
+use crate::gui::value::get_value_color;
 
 const GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
 
@@ -42,25 +43,33 @@ impl eframe::App for CirquilApp {
                             grid::draw(&response.rect, &painter);
                             let coords = response.rect.min.to_vec2();
 
-                            let inactive = Stroke::new(2.0, Color32::DARK_GREEN);
-                            let active = Stroke::new(2.0, Color32::LIGHT_GREEN);
                             for canvas_wire in &self.canvas.wires {
                                 let wire = self.circuit.get_wire(canvas_wire.wire);
+
+                                let bit_width;
+                                if wire.connected_components.len() > 0 {
+                                    let (component_idx, pin_idx) = wire.connected_components.first().unwrap();
+                                    bit_width = self.circuit.get_component(*component_idx).get_pins().get(*pin_idx).unwrap().bit_width;
+                                } else {
+                                    bit_width = 1;
+                                }
+
+                                let color = get_value_color(
+                                    wire.value.get(),
+                                    bit_width
+                                );
+
                                 for segment in &canvas_wire.segments {
                                     let (s, e) = *segment;
                                     painter.line_segment(
                                         [Pos2::from(s) + coords, Pos2::from(e) + coords],
-                                        if wire.value.get().get_raw_value() == 0 { inactive } else { active },
+                                        Stroke::new(2f32, color),
                                     );
                                 }
                                 for node in &canvas_wire.nodes {
                                     painter.circle_filled(
                                         Pos2::from(*node) + coords, 3.5f32,
-                                        if wire.value.get().get_raw_value() == 0 {
-                                            Color32::DARK_GREEN
-                                        } else {
-                                            Color32::LIGHT_GREEN
-                                        },
+                                        color
                                     );
                                 }
                             }
@@ -88,11 +97,8 @@ impl eframe::App for CirquilApp {
 
                                 for pin in component.get_pins() {
                                     let pin_coords = component_coords + Vec2::from(pin.location);
-                                    let color = if pin.value.get().get_defined_value() != 0 {
-                                        Color32::LIGHT_GREEN
-                                    } else {
-                                        Color32::DARK_GREEN
-                                    };
+                                    let color = get_value_color(pin.value.get(), pin.bit_width);
+
                                     shapes.push(Shape::circle_filled(
                                         pin_coords.to_pos2(),
                                         2f32,

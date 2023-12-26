@@ -7,3 +7,4 @@ mod components;
 mod location;
 
 pub mod component;
+pub mod value;
