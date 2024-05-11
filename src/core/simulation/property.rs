@@ -1,4 +1,4 @@
-use std::cell::Cell;
+use std::cell::{Cell, RefCell};
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 
@@ -31,6 +31,27 @@ impl Property for IntegerProperty {
 
     fn parse(&self, string: &str) -> Result<(), Box<dyn Error>> {
         Ok(self.value.set(string.parse()?))
+    }
+}
+
+#[derive(Debug)]
+pub struct StringProperty {
+    pub name: String,
+    pub value: RefCell<String>
+}
+
+impl Property for StringProperty {
+    fn get_name(&self) -> String {
+        self.name.clone()
+    }
+
+    fn get_value(&self) -> String {
+        self.value.borrow().clone()
+    }
+
+    fn parse(&self, string: &str) -> Result<(), Box<dyn Error>> {
+        *self.value.borrow_mut() = string.to_string();
+        Ok(())
     }
 }
 

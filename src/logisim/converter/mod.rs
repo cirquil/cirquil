@@ -12,6 +12,7 @@ use crate::core::simulation::components::input::button::InputButton;
 use crate::core::simulation::components::logic::and_gate::AndGate;
 use crate::core::simulation::components::logic::not_gate::NotGate;
 use crate::core::simulation::components::logic::or_gate::OrGate;
+use crate::core::simulation::components::tunnel::Tunnel;
 use crate::core::simulation::pin::PinIdx;
 use crate::core::simulation::wire::{Wire, WireIdx};
 use crate::logisim::converter::dfs::dfs_wires;
@@ -80,6 +81,13 @@ pub fn convert_circuit(parsed_project: LogisimProject, circuit_idx: usize) -> (C
             ("1", "OR Gate") => Box::new(OrGate::from_bit_width(1)),
             ("1", "AND Gate") => Box::new(AndGate::from_bit_width(1)),
             ("1", "NOT Gate") => Box::new(NotGate::from_bit_width(1)),
+            ("0", "Tunnel") => {
+                let name = parsed_comp.params.iter()
+                    .find(|x| x.name == "label")
+                    .unwrap()
+                    .name.clone();
+                Box::new(Tunnel::from_name_width(name.as_str(), 1))
+            },
             _ => panic!("Unknown component {} from lib {}", parsed_comp.name, parsed_comp.lib),
         };
         for (pin_i, pin) in component.get_pins().iter().enumerate() {
