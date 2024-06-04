@@ -28,3 +28,13 @@ pub struct LogisimComponent {
     #[serde(rename = "a", default = "default_params")]
     pub params: Vec<LogisimParameter>,
 }
+
+impl LogisimComponent {
+    pub fn get_param(&self, name: &str) -> Option<&String> {
+        match self.params.iter().find(|x| x.name == name)
+        {
+            Some(x) => Some(&x.val),
+            None => None
+        }
+    }
+}

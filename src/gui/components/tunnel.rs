@@ -1,5 +1,3 @@
-use std::default::Default;
-
 use egui::{Color32, Pos2, Rect, Rounding, Shape, Stroke};
 
 use crate::core::simulation::components::tunnel::Tunnel;
