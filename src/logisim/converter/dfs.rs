@@ -111,13 +111,13 @@ fn dfs_wires_internal(current: &LogisimLocation,
                 match tunnel_to_loc.swap_remove(tun) {
                     None => {}
                     Some(locs) => {
-                        for loc in locs.iter().filter(
-                            |loc| loc != &current
-                        ) {
-                            dfs_wires_internal(loc, wires_map,
-                                               loc_to_tunnel,
-                                               tunnel_to_loc,
-                                               segments, circuit_nodes);
+                        for loc in locs.iter() {
+                            if *loc != *current && wires_map.contains_key(loc) {
+                                dfs_wires_internal(loc, wires_map,
+                                                   loc_to_tunnel,
+                                                   tunnel_to_loc,
+                                                   segments, circuit_nodes);
+                            }
                         }
                     }
                 }
