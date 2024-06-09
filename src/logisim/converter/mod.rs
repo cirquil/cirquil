@@ -12,9 +12,10 @@ use crate::core::simulation::components::input::button::InputButton;
 use crate::core::simulation::components::logic::and_gate::AndGate;
 use crate::core::simulation::components::logic::not_gate::NotGate;
 use crate::core::simulation::components::logic::or_gate::OrGate;
+use crate::core::simulation::components::tunnel::Tunnel;
 use crate::core::simulation::pin::PinIdx;
 use crate::core::simulation::wire::{Wire, WireIdx};
-use crate::logisim::converter::dfs::dfs_wires;
+use crate::logisim::converter::dfs::{dfs_wires, DfsComponents};
 use crate::logisim::parser::location::LogisimLocation;
 use crate::logisim::parser::project::LogisimProject;
 use crate::logisim::parser::wire::LogisimWire;
@@ -44,13 +45,14 @@ pub fn convert_circuit(parsed_project: LogisimProject, circuit_idx: usize) -> (C
         }
     }
 
+    let mut dfs_components = DfsComponents::new(&circuit.components);
     let mut canvas_wires: Vec<CanvasWire> = Vec::new();
     let mut wires: Vec<Wire> = Vec::new();
     let mut wire_nodes: HashMap<Location, WireIdx> = HashMap::new();
     let mut wire_index = 0;
     while !wires_map.is_empty() {
         let begin = wires_map.keys().next().unwrap().clone();
-        let (segments, nodes) = dfs_wires(&begin, &mut wires_map);
+        let (segments, nodes) = dfs_wires(&begin, &mut wires_map, &mut dfs_components);
         for (from, to) in segments.iter() {
             wire_nodes.insert(*from, wire_index);
             wire_nodes.insert(*to, wire_index);
@@ -80,6 +82,12 @@ pub fn convert_circuit(parsed_project: LogisimProject, circuit_idx: usize) -> (C
             ("1", "OR Gate") => Box::new(OrGate::from_bit_width(1)),
             ("1", "AND Gate") => Box::new(AndGate::from_bit_width(1)),
             ("1", "NOT Gate") => Box::new(NotGate::from_bit_width(1)),
+            ("0", "Tunnel") => {
+                Box::new(Tunnel::from_name_width(
+                    parsed_comp.get_param("label").unwrap(),
+                    1,
+                ))
+            }
             _ => panic!("Unknown component {} from lib {}", parsed_comp.name, parsed_comp.lib),
         };
         for (pin_i, pin) in component.get_pins().iter().enumerate() {
