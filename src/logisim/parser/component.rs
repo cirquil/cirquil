@@ -30,10 +30,10 @@ pub struct LogisimComponent {
 }
 
 impl LogisimComponent {
-    pub fn get_param(&self, name: &str) -> Option<&String> {
+    pub fn get_param(&self, name: &str) -> Option<&str> {
         match self.params.iter().find(|x| x.name == name)
         {
-            Some(x) => Some(&x.val),
+            Some(x) => Some(x.val.as_str()),
             None => None
         }
     }

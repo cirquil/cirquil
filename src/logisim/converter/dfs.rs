@@ -18,7 +18,7 @@ impl DfsComponents {
         for tun in components.iter()
             .filter(|x| x.lib == "0" && x.name == "Tunnel") {
             let label = tun.get_param("label").unwrap();
-            match label_to_tunnel.get(label.as_str()) {
+            match label_to_tunnel.get(label) {
                 None => {
                     label_to_tunnel.insert(String::from(label), tunnel_to_loc.len());
                     tunnel_to_loc.push(Some(vec![tun.loc]));
