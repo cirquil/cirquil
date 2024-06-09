@@ -1,27 +1,110 @@
+use std::collections::HashMap;
 use std::fmt::Debug;
+
+use serde::{Deserialize, Serialize};
+
+use crate::core::simulation::components::clock_generator::ClockGenerator;
+use crate::core::simulation::components::input::button::InputButton;
+use crate::core::simulation::components::logic::and_gate::AndGate;
+use crate::core::simulation::components::logic::not_gate::NotGate;
+use crate::core::simulation::components::logic::or_gate::OrGate;
+use crate::core::simulation::components::tunnel::Tunnel;
 use crate::core::simulation::pin::{Pin, PinIdx};
-use crate::core::simulation::property::{Property, PropertyIdx};
+use crate::core::simulation::property::Property;
 use crate::core::simulation::value::Value;
 use crate::core::simulation::wire::WireIdx;
-use crate::gui::component::{AsShapes, Bounds, Poke};
 
 pub type ComponentIdx = usize;
 
 pub trait Behaviour {
-    fn propagate(&self);
+    fn propagate(&self, pins: &ComponentPins, properties: &ComponentProperties);
 }
 
 pub trait Tick {
-    fn tick(&self) {}
+    fn tick(&self);
 }
 
-pub trait Component: Behaviour + Tick + Poke + AsShapes + Bounds + Debug {
-    fn get_pins(&self) -> &Vec<Pin>;
-    fn get_pin_value(&self, idx: PinIdx) -> Value;
-    fn set_pin_value(&self, idx: PinIdx, value: Value);
-    fn set_pin_wire(&self, pin: PinIdx, wire: Option<WireIdx>);
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Component {
+    pub pins: ComponentPins,
+    pub properties: ComponentProperties,
+    pub component: ComponentModel,
+}
 
-    fn get_properties(&self) -> &Vec<Box<dyn Property>>;
-    fn get_property_value(&self, idx: PropertyIdx) -> String;
-    fn set_property_value(&self, idx: PropertyIdx, value: String);
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ComponentModel {
+    ClockGenerator(ClockGenerator),
+    AndGate(AndGate),
+    OrGate(OrGate),
+    NotGate(NotGate),
+    InputButton(InputButton),
+    Tunnel(Tunnel),
+}
+
+impl Component {
+    pub fn get_pins(&self) -> &[Pin] { self.pins.get_pins() }
+    pub fn get_pin_value(&self, idx: PinIdx) -> Value { self.pins.get_value(idx) }
+    pub fn set_pin_value(&self, idx: PinIdx, value: Value) { self.pins.set_value(idx, value) }
+    pub fn set_pin_wire(&self, pin: PinIdx, wire: Option<WireIdx>) {
+        self.pins.get_pins().get(pin).unwrap().wire.set(wire)
+    }
+
+    pub fn get_properties(&self) -> &ComponentProperties { &self.properties }
+    pub fn get_property(&self, name: &str) -> &Property {
+        self.properties.get(name).unwrap()
+    }
+
+    pub fn propagate(&self) {
+        match &self.component {
+            ComponentModel::ClockGenerator(c) => { c.propagate(&self.pins, &self.properties) }
+            ComponentModel::AndGate(c) => { c.propagate(&self.pins, &self.properties) }
+            ComponentModel::OrGate(c) => { c.propagate(&self.pins, &self.properties) }
+            ComponentModel::NotGate(c) => { c.propagate(&self.pins, &self.properties) }
+            ComponentModel::InputButton(c) => { c.propagate(&self.pins, &self.properties) }
+            ComponentModel::Tunnel(_) => {}
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ComponentProperties(HashMap<String, Property>);
+
+impl ComponentProperties {
+    pub fn get(&self, name: &str) -> Option<&Property> {
+        self.0.get(name)
+    }
+
+    pub fn new(properties: Vec<(String, Property)>) -> Self {
+        let properties_map: HashMap<String, Property> = properties.into_iter().collect();
+
+        ComponentProperties {
+            0: properties_map
+        }
+    }
+
+    // pub fn new(properties: HashMap<String, Property>) -> Self {
+    //     ComponentProperties {
+    //         0: properties,
+    //     }
+    // }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ComponentPins(Vec<Pin>);
+
+impl ComponentPins {
+    pub fn get_pins(&self) -> &[Pin] {
+        self.0.as_slice()
+    }
+
+    pub fn set_value(&self, pin_number: PinIdx, value: Value) {
+        self.0.get(pin_number).unwrap().value.set(value);
+    }
+
+    pub fn get_value(&self, pin_number: PinIdx) -> Value {
+        self.0.get(pin_number).unwrap().value.get()
+    }
+    pub fn new(pins: Vec<Pin>) -> Self {
+        ComponentPins { 0: pins }
+    }
 }

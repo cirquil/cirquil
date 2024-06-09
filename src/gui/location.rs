@@ -1,4 +1,5 @@
 use egui::{Pos2, Vec2};
+
 use crate::core::canvas::location::Location;
 
 impl From<Location> for Vec2 {

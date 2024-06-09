@@ -1,4 +1,5 @@
 use serde::Deserialize;
+
 use crate::logisim::parser::location::LogisimLocation;
 
 #[derive(Debug, Deserialize)]

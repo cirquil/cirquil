@@ -1,4 +1,5 @@
 use serde::Deserialize;
+
 use crate::logisim::parser::circuit::LogisimCircuit;
 
 #[derive(Debug, Deserialize)]

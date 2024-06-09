@@ -1,15 +1,18 @@
 use std::cell::Cell;
 use std::fmt::{Debug, Formatter};
+
+use serde::{Deserialize, Serialize};
+
 use crate::core::simulation::component::ComponentIdx;
 use crate::core::simulation::pin::PinIdx;
 use crate::core::simulation::value::Value;
 
-
 pub type WireIdx = usize;
 
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Wire {
     pub value: Cell<Value>,
-    pub connected_components: Vec<(ComponentIdx, PinIdx)>
+    pub connected_components: Vec<(ComponentIdx, PinIdx)>,
 }
 
 impl Debug for Wire {

@@ -2,94 +2,125 @@ use std::cell::{Cell, RefCell};
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 
-// pub struct PropertyStruct<T: FromStr + ToString> {
-//     name: String,
-//     value: Cell<T>
-// }
+use serde::{Deserialize, Serialize};
 
 pub type PropertyIdx = usize;
 
-pub trait Property: Debug {
-    fn get_name(&self) -> String;
-    fn get_value(&self) -> String;
-    fn parse(&self, string: &str) -> Result<(), Box<dyn Error>>;
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Property {
+    Integer(IntegerProperty),
+    BoundedInteger(BoundedIntegerProperty),
+    String(StringProperty),
 }
 
-#[derive(Debug)]
-pub struct IntegerProperty {
-    pub name: String,
-    pub value: Cell<u32>
-}
-impl Property for IntegerProperty {
-    fn get_name(&self) -> String {
-        self.name.clone()
+impl Property {
+    pub fn as_integer(&self) -> Option<&IntegerProperty> {
+        if let Property::Integer(p) = self { Some(p) } else { None }
     }
 
-    fn get_value(&self) -> String {
-        self.value.get().to_string()
+    pub fn as_bounded_integer(&self) -> Option<&BoundedIntegerProperty> {
+        if let Property::BoundedInteger(p) = self { Some(p) } else { None }
     }
 
-    fn parse(&self, string: &str) -> Result<(), Box<dyn Error>> {
-        Ok(self.value.set(string.parse()?))
+    pub fn as_string(&self) -> Option<&StringProperty> {
+        if let Property::String(p) = self { Some(p) } else { None }
     }
 }
 
-#[derive(Debug)]
-pub struct StringProperty {
-    pub name: String,
-    pub value: RefCell<String>
-}
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GenericProperty<T>(T);
 
-impl Property for StringProperty {
-    fn get_name(&self) -> String {
-        self.name.clone()
-    }
+pub type CellProperty<V> = GenericProperty<Cell<V>>;
 
-    fn get_value(&self) -> String {
-        self.value.borrow().clone()
-    }
-
-    fn parse(&self, string: &str) -> Result<(), Box<dyn Error>> {
-        *self.value.borrow_mut() = string.to_string();
-        Ok(())
+impl<V: Copy> CellProperty<V> {
+    pub fn get(&self) -> V {
+        self.0.get()
     }
 }
 
-#[derive(Debug)]
+impl<V> CellProperty<V> {
+    pub fn set(&self, value: V) {
+        self.0.set(value)
+    }
+
+    pub fn new(value: V) -> Self {
+        CellProperty {
+            0: Cell::new(value),
+        }
+    }
+}
+
+pub type RefCellProperty<V> = GenericProperty<RefCell<V>>;
+
+impl<V: Clone> RefCellProperty<V> {
+    pub fn get(&self) -> V {
+        self.0.borrow().clone()
+    }
+}
+
+impl<V> RefCellProperty<V> {
+    pub fn set(&self, value: V) {
+        self.0.replace(value);
+    }
+
+    pub fn new(value: V) -> Self {
+        RefCellProperty {
+            0: RefCell::new(value)
+        }
+    }
+}
+
+pub type IntegerProperty = CellProperty<u32>;
+pub type StringProperty = RefCellProperty<String>;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BoundedIntegerProperty {
-    name: String,
     min: u32,
     max: u32,
-    value: Cell<u32>
+    value: Cell<u32>,
 }
 
 #[derive(Debug)]
-struct BoundsError;
+pub struct BoundsError {
+    min: u32,
+    max: u32,
+    value: u32,
+}
 
 impl Display for BoundsError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str("Value is out of bounds")
+        f.write_str(
+            format!("Value {} is out of bounds: [{}; {})",
+                    self.value, self.min, self.max)
+                .as_str()
+        )
     }
 }
 
 impl Error for BoundsError {}
 
-impl Property for BoundedIntegerProperty {
-    fn get_name(&self) -> String {
-        self.name.clone()
+impl BoundedIntegerProperty {
+    pub fn get(&self) -> u32 {
+        self.value.get()
     }
 
-    fn get_value(&self) -> String {
-        self.value.get().to_string()
-    }
-
-    fn parse(&self, string: &str) -> Result<(), Box<dyn Error>> {
-        let value = string.parse::<u32>()?;
-
+    pub fn set(&self, value: u32) -> Result<(), BoundsError> {
         if (self.min <= value) && (value < self.max) {
-            Ok(self.value.set(string.parse()?))
+            Ok(self.value.set(value))
         } else {
-            Err(Box::new(BoundsError))
+            Err(BoundsError {
+                min: self.min,
+                max: self.max,
+                value,
+            })
+        }
+    }
+
+    pub fn new(min: u32, max: u32, value: u32) -> Self {
+        BoundedIntegerProperty {
+            min,
+            max,
+            value: Cell::new(value),
         }
     }
 }

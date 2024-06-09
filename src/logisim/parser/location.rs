@@ -1,5 +1,7 @@
-use serde::{Deserialize, Deserializer};
 use std::str::FromStr;
+
+use serde::{Deserialize, Deserializer};
+
 use crate::core::canvas::location::Location;
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
@@ -16,8 +18,8 @@ impl From<LogisimLocation> for Location {
 
 impl<'de> Deserialize<'de> for LogisimLocation {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
+        where
+            D: Deserializer<'de>,
     {
         Deserialize::deserialize(deserializer).map(|s: String| {
             // Разбиваем строку на подстроки, удаляем скобки, разбиваем по запятой

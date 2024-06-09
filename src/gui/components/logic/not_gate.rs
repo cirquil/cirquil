@@ -2,9 +2,7 @@ use eframe::emath::{Pos2, Rect};
 use eframe::epaint::{Color32, Shape, Stroke};
 
 use crate::core::simulation::components::logic::not_gate::NotGate;
-use crate::gui::component::{AsShapes, Bounds, Poke};
-
-impl Poke for NotGate {}
+use crate::gui::component::{AsShapes, Bounds};
 
 impl AsShapes for NotGate {
     fn as_shapes(&self) -> Vec<Shape> {

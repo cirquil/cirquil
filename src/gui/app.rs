@@ -2,8 +2,8 @@ use eframe::epaint::Shape;
 use eframe::Frame;
 use egui::{containers, Context, Pos2, Sense, Separator, Stroke, Vec2};
 use egui_extras::{Size, StripBuilder};
-use crate::core::canvas::circuit::CanvasCircuit;
 
+use crate::core::canvas::circuit::CanvasCircuit;
 use crate::core::simulation::circuit::Circuit;
 use crate::gui::constants::GRID_STEP;
 use crate::gui::grid;
@@ -37,7 +37,7 @@ impl eframe::App for CirquilApp {
                     });
                     strip.cell(|ui| {
                         containers::Frame::canvas(ui.style()).show(ui, |ui| {
-                            let (mut response, painter) =
+                            let (response, painter) =
                                 ui.allocate_painter(ui.available_size_before_wrap(), Sense::click_and_drag());
 
                             grid::draw(&response.rect, &painter);
@@ -56,7 +56,7 @@ impl eframe::App for CirquilApp {
 
                                 let color = get_value_color(
                                     wire.value.get(),
-                                    bit_width
+                                    bit_width,
                                 );
 
                                 for segment in &canvas_wire.segments {
@@ -69,7 +69,7 @@ impl eframe::App for CirquilApp {
                                 for node in &canvas_wire.nodes {
                                     painter.circle_filled(
                                         Pos2::from(*node) + coords, 3.5f32,
-                                        color
+                                        color,
                                     );
                                 }
                             }

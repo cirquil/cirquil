@@ -1,8 +1,11 @@
 use std::ops::{Add, AddAssign};
-#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
+
+use serde::{Deserialize, Serialize};
+
+#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct Location {
     pub x: i16,
-    pub y: i16
+    pub y: i16,
 }
 
 impl Location {

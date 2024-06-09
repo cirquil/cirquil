@@ -50,7 +50,6 @@ impl AsShapes for InputButton {
                         [Pos2::new(-5f32, 5f32), Pos2::new(0f32, 10f32)],
                         Stroke::new(2.0, Color32::BLACK),
                     ),
-
                 ]
             }
         }

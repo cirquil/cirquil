@@ -1,6 +1,6 @@
 use egui::{Color32, Pos2, Rect, Rounding, Shape, Stroke};
-use crate::core::simulation::component::Tick;
 
+use crate::core::simulation::component::Tick;
 use crate::core::simulation::components::clock_generator::ClockGenerator;
 use crate::gui::component::{AsShapes, Bounds, Poke};
 

@@ -1,7 +1,9 @@
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
+
 use quick_xml::de;
+
 use crate::logisim::parser::project::LogisimProject;
 
 pub mod circuit;
