@@ -6,7 +6,7 @@ use egui::{Style, Visuals};
 use crate::gui::CirquilApp;
 use crate::logisim::converter::convert_circuit;
 use crate::logisim::parser::parse_logisim;
-use crate::test_propagate::{test_not, test_or, test_propagate};
+
 
 mod core;
 mod gui;

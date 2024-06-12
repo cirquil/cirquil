@@ -46,13 +46,12 @@ impl eframe::App for CirquilApp {
                             for canvas_wire in &self.canvas.wires {
                                 let wire = self.circuit.get_wire(canvas_wire.wire);
 
-                                let bit_width;
-                                if wire.connected_components.len() > 0 {
+                                let bit_width = if !wire.connected_components.is_empty() {
                                     let (component_idx, pin_idx) = wire.connected_components.first().unwrap();
-                                    bit_width = self.circuit.get_component(*component_idx).get_pins().get(*pin_idx).unwrap().bit_width;
+                                    self.circuit.get_component(*component_idx).get_pins().get(*pin_idx).unwrap().bit_width
                                 } else {
-                                    bit_width = 1;
-                                }
+                                    1
+                                };
 
                                 let color = get_value_color(
                                     wire.value.get(),

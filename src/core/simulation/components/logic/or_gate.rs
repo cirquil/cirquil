@@ -12,7 +12,7 @@ use crate::core::simulation::property::{BoundedIntegerProperty, IntegerProperty,
 pub struct OrGate;
 
 impl Behaviour for OrGate {
-    fn propagate(&self, pins: &ComponentPins, properties: &ComponentProperties) {
+    fn propagate(&self, pins: &ComponentPins, _properties: &ComponentProperties) {
         pins.set_value(
             2,
             pins.get_value(0) | pins.get_value(1),
@@ -34,21 +34,21 @@ impl OrGate {
             Pin {
                 value: Cell::new(Default::default()),
                 bit_width,
-                direction: Direction::INPUT,
+                direction: Direction::Input,
                 wire: Cell::new(None),
                 location: Location::new(-30, 10),
             },
             Pin {
                 value: Cell::new(Default::default()),
                 bit_width,
-                direction: Direction::INPUT,
+                direction: Direction::Input,
                 wire: Cell::new(None),
                 location: Location::new(-30, -10),
             },
             Pin {
                 value: Cell::new(Default::default()),
                 bit_width,
-                direction: Direction::OUTPUT,
+                direction: Direction::Output,
                 wire: Cell::new(None),
                 location: Location::new(0, 0),
             },

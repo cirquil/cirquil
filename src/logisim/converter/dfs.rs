@@ -12,7 +12,7 @@ pub struct DfsComponents {
 }
 
 impl DfsComponents {
-    pub(crate) fn new(components: &Vec<LogisimComponent>) -> Self {
+    pub(crate) fn new(components: &[LogisimComponent]) -> Self {
         let mut tunnel_to_loc: Vec<Option<Vec<LogisimLocation>>> = Vec::new();
         let mut label_to_tunnel: HashMap<String, usize> = HashMap::new();
         for tun in components.iter()
@@ -34,7 +34,7 @@ impl DfsComponents {
                 loc_to_tunnel.entry(*loc).or_default().push(tun_i);
             }
         }
-        return DfsComponents { loc_to_tunnel, tunnel_to_loc };
+        DfsComponents { loc_to_tunnel, tunnel_to_loc }
     }
 }
 
@@ -49,7 +49,7 @@ pub fn dfs_wires(current: &LogisimLocation,
                        &comps.loc_to_tunnel,
                        &mut comps.tunnel_to_loc,
                        &mut segments, &mut circuit_nodes);
-    return (segments, circuit_nodes);
+    (segments, circuit_nodes)
 }
 
 fn dfs_wires_internal(current: &LogisimLocation,
@@ -59,43 +59,49 @@ fn dfs_wires_internal(current: &LogisimLocation,
                       segments: &mut Vec<(Location, Location)>,
                       circuit_nodes: &mut Vec<Location>) {
     let wires = wires_map.remove(current).unwrap();
-    if wires.len() > 2 {
-        circuit_nodes.push(Location::new(current.x, current.y));
-    } else if wires.len() == 2 {
-        let first;
-        if *current == wires[0].to {
-            first = wires[0].from;
-        } else {
-            first = wires[0].to;
+    
+    match wires.len() { 
+        2 => {
+            let first = if *current == wires[0].to {
+                wires[0].from
+            } else {
+                wires[0].to
+            };
+
+            let second = if *current == wires[1].to {
+                wires[1].from
+            } else {
+                wires[1].to
+            };
+
+            if first.x == second.x || first.y == second.y {
+                circuit_nodes.push(Location::new(current.x, current.y));
+            }
         }
-        let second;
-        if *current == wires[1].to {
-            second = wires[1].from;
-        } else {
-            second = wires[1].to;
-        }
-        if first.x == second.x || first.y == second.y {
+        3.. => {
             circuit_nodes.push(Location::new(current.x, current.y));
         }
+        _ => {}
     }
+    
     for i in wires.iter() {
-        let next;
-        if *current == i.to {
-            next = i.from;
+        let next = if *current == i.to {
+            i.from
         } else {
-            next = i.to;
-        }
+            i.to
+        };
+        
         if wires_map.contains_key(&next) {
             segments.push((Location::new(i.from.x, i.from.y), Location::new(i.to.x, i.to.y)));
         }
     }
     for i in wires.iter() {
-        let next;
-        if *current == i.to {
-            next = i.from;
+        let next= if *current == i.to {
+            i.from
         } else {
-            next = i.to;
-        }
+            i.to
+        };
+        
         if wires_map.contains_key(&next) {
             dfs_wires_internal(&next, wires_map,
                                loc_to_tunnel,

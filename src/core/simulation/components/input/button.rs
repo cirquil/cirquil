@@ -14,7 +14,7 @@ pub struct InputButton {
 }
 
 impl Behaviour for InputButton {
-    fn propagate(&self, pins: &ComponentPins, properties: &ComponentProperties) {
+    fn propagate(&self, pins: &ComponentPins, _properties: &ComponentProperties) {
         pins.set_value(0, Value::create(self.state.get(), 1));
     }
 }
@@ -31,7 +31,7 @@ impl InputButton {
             Pin {
                 value: Cell::new(Default::default()),
                 bit_width: 1,
-                direction: Direction::OUTPUT,
+                direction: Direction::Output,
                 wire: Cell::new(None),
                 location: Location::new(0, 0),
             }

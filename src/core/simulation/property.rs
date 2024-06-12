@@ -4,8 +4,6 @@ use std::fmt::{Debug, Display, Formatter};
 
 use serde::{Deserialize, Serialize};
 
-pub type PropertyIdx = usize;
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Property {
     Integer(IntegerProperty),
@@ -106,7 +104,8 @@ impl BoundedIntegerProperty {
 
     pub fn set(&self, value: u32) -> Result<(), BoundsError> {
         if (self.min <= value) && (value < self.max) {
-            Ok(self.value.set(value))
+            self.value.set(value);
+            Ok(())
         } else {
             Err(BoundsError {
                 min: self.min,
