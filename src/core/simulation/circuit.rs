@@ -28,9 +28,9 @@ impl Circuit {
     pub fn tick(&self) {
         for clock_idx in self.clock_generators.iter() {
             let clock = self.get_component(*clock_idx);
-            match &clock.component {
-                ComponentModel::ClockGenerator(c) => { c.tick() }
-                _ => {}
+            
+            if let ComponentModel::ClockGenerator(c) = &clock.component {
+                c.tick()
             }
         }
     }
@@ -57,7 +57,7 @@ impl Circuit {
         while !first.is_empty() {
             for component in first.iter() {
                 for pin in component.get_pins() {
-                    if pin.direction == Direction::INPUT {
+                    if pin.direction == Direction::Input {
                         let Some(wire_idx) = pin.wire.get() else { continue; };
 
                         pin.value.set(self.get_wire(wire_idx).value.get())
@@ -74,7 +74,7 @@ impl Circuit {
             let mut dirty_wires = Vec::new();
             for component in first.iter() {
                 for pin in component.get_pins() {
-                    if pin.direction == Direction::OUTPUT {
+                    if pin.direction == Direction::Output {
                         let Some(wire_idx) = pin.wire.get() else { continue; };
                         let wire = self.get_wire(wire_idx);
 
@@ -91,14 +91,14 @@ impl Circuit {
                 for (component_idx, pin_idx) in &wire.connected_components {
                     let component = self.get_component(*component_idx);
                     match component.get_pins().get(*pin_idx).unwrap().direction {
-                        Direction::INPUT => {
+                        Direction::Input => {
                             second.push(component);
                         }
-                        Direction::OUTPUT => {
+                        Direction::Output => {
                             let value = wire.value.get().apply_binary(self.get_component(*component_idx).get_pin_value(*pin_idx), assign);
                             wire.value.set(value);
                         }
-                        Direction::INOUT => {}
+                        Direction::Inout => {}
                     }
                 }
             }

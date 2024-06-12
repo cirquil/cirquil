@@ -11,7 +11,7 @@ use crate::core::simulation::property::{BoundedIntegerProperty, IntegerProperty,
 pub struct NotGate;
 
 impl Behaviour for NotGate {
-    fn propagate(&self, pins: &ComponentPins, properties: &ComponentProperties) {
+    fn propagate(&self, pins: &ComponentPins, _properties: &ComponentProperties) {
         pins.set_value(
             1,
             !pins.get_value(0),
@@ -33,14 +33,14 @@ impl NotGate {
             Pin {
                 value: Cell::new(Default::default()),
                 bit_width,
-                direction: Direction::INPUT,
+                direction: Direction::Input,
                 wire: Cell::new(None),
                 location: Location::new(-20, 0),
             },
             Pin {
                 value: Cell::new(Default::default()),
                 bit_width,
-                direction: Direction::OUTPUT,
+                direction: Direction::Output,
                 wire: Cell::new(None),
                 location: Location::new(0, 0),
             },

@@ -34,7 +34,7 @@ impl Tunnel {
             Pin {
                 value: Cell::new(Default::default()),
                 bit_width,
-                direction: Direction::OUTPUT,
+                direction: Direction::Output,
                 wire: Cell::new(None),
                 location: Location::new(0, 0),
             }

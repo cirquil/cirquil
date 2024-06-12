@@ -51,7 +51,7 @@ pub fn convert_circuit(parsed_project: LogisimProject, circuit_idx: usize) -> (C
     let mut wire_nodes: HashMap<Location, WireIdx> = HashMap::new();
     let mut wire_index = 0;
     while !wires_map.is_empty() {
-        let begin = wires_map.keys().next().unwrap().clone();
+        let begin = *wires_map.keys().next().unwrap();
         let (segments, nodes) = dfs_wires(&begin, &mut wires_map, &mut dfs_components);
         for (from, to) in segments.iter() {
             wire_nodes.insert(*from, wire_index);
@@ -120,12 +120,12 @@ pub fn convert_circuit(parsed_project: LogisimProject, circuit_idx: usize) -> (C
         components.push(component);
     }
 
-    return (Circuit { components, wires, clock_generators },
+    (Circuit { components, wires, clock_generators },
             CanvasCircuit {
                 components: canvas_components,
                 wires: canvas_wires,
                 circuit: circuit_idx,
                 appearance: (),
                 pins: (),
-            });
+            })
 }

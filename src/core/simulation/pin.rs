@@ -10,9 +10,9 @@ pub type PinIdx = usize;
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum Direction {
-    INPUT,
-    OUTPUT,
-    INOUT,
+    Input,
+    Output,
+    Inout,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

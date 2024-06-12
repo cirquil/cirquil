@@ -77,9 +77,7 @@ impl ComponentProperties {
     pub fn new(properties: Vec<(String, Property)>) -> Self {
         let properties_map: HashMap<String, Property> = properties.into_iter().collect();
 
-        ComponentProperties {
-            0: properties_map
-        }
+        ComponentProperties(properties_map)
     }
 
     // pub fn new(properties: HashMap<String, Property>) -> Self {
@@ -105,6 +103,6 @@ impl ComponentPins {
         self.0.get(pin_number).unwrap().value.get()
     }
     pub fn new(pins: Vec<Pin>) -> Self {
-        ComponentPins { 0: pins }
+        ComponentPins(pins)
     }
 }

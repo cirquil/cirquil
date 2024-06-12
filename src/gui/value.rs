@@ -18,7 +18,7 @@ pub fn get_value_color(value: Value, bits: u8) -> Color32 {
             if defined_value & 1 != 0 {
                 return Color32::LIGHT_GREEN;
             }
-            return Color32::DARK_GREEN;
+            Color32::DARK_GREEN
         }
         _ => {
             Color32::BLACK

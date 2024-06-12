@@ -3,10 +3,10 @@ use egui::{Pos2, Rect, Shape, Vec2};
 use crate::core::simulation::component::{Component, ComponentModel};
 
 pub trait Poke {
-    fn mouse_pressed(&self, position: Pos2) {}
-    fn mouse_released(&self, position: Pos2) {}
-    fn mouse_clicked(&self, position: Pos2) {}
-    fn mouse_dragged(&self, delta: Vec2) {}
+    fn mouse_pressed(&self, _position: Pos2) {}
+    fn mouse_released(&self, _position: Pos2) {}
+    fn mouse_clicked(&self, _position: Pos2) {}
+    fn mouse_dragged(&self, _delta: Vec2) {}
 
     fn key_typed(&self) {}
 }
