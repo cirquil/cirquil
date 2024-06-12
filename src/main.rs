@@ -1,3 +1,6 @@
+// TODO: Remove this for release
+#![allow(dead_code)]
+
 use std::{env, fs};
 use std::process::exit;
 
