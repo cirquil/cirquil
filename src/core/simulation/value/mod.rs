@@ -1,6 +1,8 @@
 use std::fmt::{Debug, Formatter};
 use std::ops::{BitAnd, BitOr, Not};
 
+use serde::{Deserialize, Serialize};
+
 use crate::core::simulation::value::operations::{and, not, or};
 
 pub mod operations;
@@ -23,7 +25,7 @@ pub enum BitState {
     E,
 }
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Serialize, Deserialize)]
 #[repr(transparent)]
 pub struct Value(u64);
 

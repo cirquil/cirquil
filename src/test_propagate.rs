@@ -1,7 +1,7 @@
 use std::cell::Cell;
 use std::time::Instant;
+
 use crate::core::simulation::circuit::Circuit;
-use crate::core::simulation::component::Component;
 use crate::core::simulation::components::clock_generator::ClockGenerator;
 use crate::core::simulation::components::logic::and_gate::AndGate;
 use crate::core::simulation::components::logic::not_gate::NotGate;
@@ -21,8 +21,8 @@ pub fn test_propagate() {
     and_b.set_pin_value(0, Value::new(7, 0));
     and_b.set_pin_value(1, Value::new(9, 0));
 
-    let wire1 = Wire { value: Cell::new(Default::default()), connected_components: vec![(0, 2), (1, 0) ] };
-    let wire2 = Wire { value: Cell::new(Default::default()), connected_components: vec![(2, 0), (1, 1) ] };
+    let wire1 = Wire { value: Cell::new(Default::default()), connected_components: vec![(0, 2), (1, 0)] };
+    let wire2 = Wire { value: Cell::new(Default::default()), connected_components: vec![(2, 0), (1, 1)] };
 
     and_a.set_pin_wire(2, Some(0));
     and_b.set_pin_wire(0, Some(0));
@@ -31,9 +31,9 @@ pub fn test_propagate() {
     clock.set_pin_wire(0, Some(1));
 
     let circuit = Circuit {
-        components: vec![ Box::new(and_a), Box::new(and_b), Box::new(clock) ],
-        wires: vec![ wire1, wire2 ],
-        clock_generators: vec![ 2 ],
+        components: vec![and_a, and_b, clock],
+        wires: vec![wire1, wire2],
+        clock_generators: vec![2],
     };
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
@@ -73,7 +73,7 @@ pub fn test_or() {
     or.set_pin_wire(0, Some(0));
 
     let circuit = Circuit {
-        components: vec![ Box::new(or), Box::new(clock) ],
+        components: vec![ or, clock ],
         wires: vec![ wire ],
         clock_generators: vec![ 1 ],
     };
@@ -111,7 +111,7 @@ pub fn test_not() {
     not.set_pin_wire(0, Some(0));
 
     let circuit = Circuit {
-        components: vec![ Box::new(clock), Box::new(not) ],
+        components: vec![ clock, not ],
         wires: vec![ wire ],
         clock_generators: vec![ 0 ],
     };
@@ -137,5 +137,4 @@ pub fn test_not() {
     }
 
     println!("{:?} {:?} MHz", start.elapsed(), 1f64 / (start.elapsed().as_micros() as f64 / 1_000_000f64));
-
 }

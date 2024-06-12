@@ -1,5 +1,8 @@
 # Build files
-target
+target/
 
 # IDE files
-.idea
+.idea/
+
+# Test circuits folder
+test_circuits/

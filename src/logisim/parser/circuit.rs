@@ -1,4 +1,5 @@
 use serde::Deserialize;
+
 use crate::logisim::parser::component::LogisimComponent;
 use crate::logisim::parser::wire::LogisimWire;
 

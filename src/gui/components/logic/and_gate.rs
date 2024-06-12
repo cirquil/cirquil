@@ -2,9 +2,7 @@ use eframe::emath::{Pos2, Rect};
 use eframe::epaint::{Color32, QuadraticBezierShape, Shape, Stroke};
 
 use crate::core::simulation::components::logic::and_gate::AndGate;
-use crate::gui::component::{AsShapes, Bounds, Poke};
-
-impl Poke for AndGate {}
+use crate::gui::component::{AsShapes, Bounds};
 
 impl AsShapes for AndGate {
     fn as_shapes(&self) -> Vec<Shape> {

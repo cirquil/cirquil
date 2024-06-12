@@ -1,10 +1,13 @@
-use crate::core::simulation::component::{Component, ComponentIdx};
+use serde::{Deserialize, Serialize};
+
+use crate::core::simulation::component::{Component, ComponentIdx, ComponentModel, Tick};
 use crate::core::simulation::pin::Direction;
 use crate::core::simulation::value::operations::assign;
 use crate::core::simulation::wire::{Wire, WireIdx};
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Circuit {
-    pub components: Vec<Box<dyn Component>>,
+    pub components: Vec<Component>,
     pub wires: Vec<Wire>,
     pub clock_generators: Vec<ComponentIdx>,
 }
@@ -14,8 +17,8 @@ impl Circuit {
 }
 
 impl Circuit {
-    pub fn get_component(&self, idx: ComponentIdx) -> &dyn Component {
-        self.components.get(idx).unwrap().as_ref()
+    pub fn get_component(&self, idx: ComponentIdx) -> &Component {
+        self.components.get(idx).unwrap()
     }
 
     pub fn get_wire(&self, idx: WireIdx) -> &Wire {
@@ -25,7 +28,10 @@ impl Circuit {
     pub fn tick(&self) {
         for clock_idx in self.clock_generators.iter() {
             let clock = self.get_component(*clock_idx);
-            clock.tick();
+            match &clock.component {
+                ComponentModel::ClockGenerator(c) => { c.tick() }
+                _ => {}
+            }
         }
     }
 
@@ -39,15 +45,13 @@ impl Circuit {
 
     pub fn propagate_all(&self) {
         self.propagate(
-            self.components.iter()
-                .map(|e| e.as_ref())
-                .collect()
+            self.components.iter().collect()
         );
     }
 
-    pub fn propagate(&self, initial_components: Vec<&dyn Component>) {
-        let mut first: Vec<&dyn Component> = initial_components.clone();
-        let mut second: Vec<&dyn Component> = Vec::new();
+    pub fn propagate(&self, initial_components: Vec<&Component>) {
+        let mut first: Vec<&Component> = initial_components.clone();
+        let mut second: Vec<&Component> = Vec::new();
 
         let mut iterations = 0;
         while !first.is_empty() {

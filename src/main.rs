@@ -1,9 +1,12 @@
 use std::{env, fs};
+use std::process::exit;
+
 use egui::{Style, Visuals};
+
 use crate::gui::CirquilApp;
 use crate::logisim::converter::convert_circuit;
 use crate::logisim::parser::parse_logisim;
-use std::process::exit;
+use crate::test_propagate::{test_not, test_or, test_propagate};
 
 mod core;
 mod gui;
@@ -20,9 +23,12 @@ fn main() -> Result<(), eframe::Error> {
             exit(1);
         }
     }
+    
     // test_not();
     // test_propagate();
     // test_or();
+    //
+    // return Ok(());
 
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default().with_inner_size([1000.0, 600.0]),

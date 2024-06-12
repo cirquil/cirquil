@@ -1,4 +1,5 @@
 use eframe::epaint::Color32;
+
 use crate::core::simulation::value::Value;
 
 pub fn get_value_color(value: Value, bits: u8) -> Color32 {
@@ -18,7 +19,7 @@ pub fn get_value_color(value: Value, bits: u8) -> Color32 {
                 return Color32::LIGHT_GREEN;
             }
             return Color32::DARK_GREEN;
-        },
+        }
         _ => {
             Color32::BLACK
         }

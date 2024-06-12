@@ -12,7 +12,7 @@ pub struct DfsComponents {
 }
 
 impl DfsComponents {
-    pub(crate) fn new(components: &Vec<LogisimComponent>) -> DfsComponents {
+    pub(crate) fn new(components: &Vec<LogisimComponent>) -> Self {
         let mut tunnel_to_loc: Vec<Option<Vec<LogisimLocation>>> = Vec::new();
         let mut label_to_tunnel: HashMap<String, usize> = HashMap::new();
         for tun in components.iter()

@@ -2,9 +2,7 @@ use eframe::emath::{Pos2, Rect};
 use eframe::epaint::{Color32, QuadraticBezierShape, Shape, Stroke};
 
 use crate::core::simulation::components::logic::or_gate::OrGate;
-use crate::gui::component::{AsShapes, Bounds, Poke};
-
-impl Poke for OrGate {}
+use crate::gui::component::{AsShapes, Bounds};
 
 impl AsShapes for OrGate {
     fn as_shapes(&self) -> Vec<Shape> {
