@@ -24,7 +24,7 @@ fn main() -> Result<(), eframe::Error> {
     };
 
     eframe::run_native(
-        "Cirquil",
+        "Cirquil Player",
         options,
         Box::new(|cc| {
             let style = Style {
