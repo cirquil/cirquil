@@ -11,12 +11,12 @@ use crate::gui::value::get_value_color;
 
 const GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
 
-pub struct CirquilApp {
+pub struct CirquilPlayerApp {
     pub circuit: Circuit,
     pub canvas: CanvasCircuit,
 }
 
-impl eframe::App for CirquilApp {
+impl eframe::App for CirquilPlayerApp {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             StripBuilder::new(ui)

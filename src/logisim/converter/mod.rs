@@ -121,11 +121,11 @@ pub fn convert_circuit(parsed_project: LogisimProject, circuit_idx: usize) -> (C
     }
 
     (Circuit { components, wires, clock_generators },
-            CanvasCircuit {
-                components: canvas_components,
-                wires: canvas_wires,
-                circuit: circuit_idx,
-                appearance: (),
-                pins: (),
-            })
+     CanvasCircuit {
+         components: canvas_components,
+         wires: canvas_wires,
+         circuit: circuit_idx,
+         appearance: (),
+         pins: (),
+     })
 }

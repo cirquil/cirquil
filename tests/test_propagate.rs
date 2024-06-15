@@ -1,14 +1,15 @@
 use std::cell::Cell;
 use std::time::Instant;
 
-use crate::core::simulation::circuit::Circuit;
-use crate::core::simulation::components::clock_generator::ClockGenerator;
-use crate::core::simulation::components::logic::and_gate::AndGate;
-use crate::core::simulation::components::logic::not_gate::NotGate;
-use crate::core::simulation::components::logic::or_gate::OrGate;
-use crate::core::simulation::value::Value;
-use crate::core::simulation::wire::Wire;
+use cirquil::core::simulation::circuit::Circuit;
+use cirquil::core::simulation::components::clock_generator::ClockGenerator;
+use cirquil::core::simulation::components::logic::and_gate::AndGate;
+use cirquil::core::simulation::components::logic::not_gate::NotGate;
+use cirquil::core::simulation::components::logic::or_gate::OrGate;
+use cirquil::core::simulation::value::Value;
+use cirquil::core::simulation::wire::Wire;
 
+#[test]
 pub fn test_propagate() {
     let clock = ClockGenerator::create();
 
@@ -59,6 +60,7 @@ pub fn test_propagate() {
     println!("{:?} {:?} MHz", start.elapsed(), 1f64 / (start.elapsed().as_micros() as f64 / 1_000_000f64));
 }
 
+#[test]
 pub fn test_or() {
     let clock = ClockGenerator::create();
 
@@ -67,15 +69,15 @@ pub fn test_or() {
     or.set_pin_value(0, Value::new(8, 0));
     or.set_pin_value(1, Value::new(2, 0));
 
-    let wire = Wire { value: Cell::new(Default::default()), connected_components: vec![(0, 0), (1, 0) ] };
+    let wire = Wire { value: Cell::new(Default::default()), connected_components: vec![(0, 0), (1, 0)] };
 
     clock.set_pin_wire(0, Some(0));
     or.set_pin_wire(0, Some(0));
 
     let circuit = Circuit {
-        components: vec![ or, clock ],
-        wires: vec![ wire ],
-        clock_generators: vec![ 1 ],
+        components: vec![or, clock],
+        wires: vec![wire],
+        clock_generators: vec![1],
     };
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
@@ -101,19 +103,20 @@ pub fn test_or() {
     println!("{:?} {:?} MHz", start.elapsed(), 1f64 / (start.elapsed().as_micros() as f64 / 1_000_000f64));
 }
 
+#[test]
 pub fn test_not() {
     let clock = ClockGenerator::create();
     let not = NotGate::from_bit_width(2);
 
-    let wire = Wire { value: Cell::new(Default::default()), connected_components: vec![(0, 0), (1, 0) ] };
+    let wire = Wire { value: Cell::new(Default::default()), connected_components: vec![(0, 0), (1, 0)] };
 
     clock.set_pin_wire(0, Some(0));
     not.set_pin_wire(0, Some(0));
 
     let circuit = Circuit {
-        components: vec![ clock, not ],
-        wires: vec![ wire ],
-        clock_generators: vec![ 0 ],
+        components: vec![clock, not],
+        wires: vec![wire],
+        clock_generators: vec![0],
     };
 
     println!("{:?} {:?}", circuit.components, circuit.wires);

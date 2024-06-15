@@ -28,7 +28,7 @@ impl Circuit {
     pub fn tick(&self) {
         for clock_idx in self.clock_generators.iter() {
             let clock = self.get_component(*clock_idx);
-            
+
             if let ComponentModel::ClockGenerator(c) = &clock.component {
                 c.tick()
             }

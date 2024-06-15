@@ -59,8 +59,8 @@ fn dfs_wires_internal(current: &LogisimLocation,
                       segments: &mut Vec<(Location, Location)>,
                       circuit_nodes: &mut Vec<Location>) {
     let wires = wires_map.remove(current).unwrap();
-    
-    match wires.len() { 
+
+    match wires.len() {
         2 => {
             let first = if *current == wires[0].to {
                 wires[0].from
@@ -83,25 +83,25 @@ fn dfs_wires_internal(current: &LogisimLocation,
         }
         _ => {}
     }
-    
+
     for i in wires.iter() {
         let next = if *current == i.to {
             i.from
         } else {
             i.to
         };
-        
+
         if wires_map.contains_key(&next) {
             segments.push((Location::new(i.from.x, i.from.y), Location::new(i.to.x, i.to.y)));
         }
     }
     for i in wires.iter() {
-        let next= if *current == i.to {
+        let next = if *current == i.to {
             i.from
         } else {
             i.to
         };
-        
+
         if wires_map.contains_key(&next) {
             dfs_wires_internal(&next, wires_map,
                                loc_to_tunnel,

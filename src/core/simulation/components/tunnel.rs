@@ -50,7 +50,7 @@ impl Tunnel {
     pub fn from_name_width(name: &str, bit_width: u8) -> Component {
         let properties = ComponentProperties::new(vec![
             ("bit_width".to_string(), Property::Integer(IntegerProperty::new(bit_width as u32))),
-            ("name".to_string(), Property::String(StringProperty::new(name.to_string())))
+            ("name".to_string(), Property::String(StringProperty::new(name.to_string()))),
         ]);
 
         Self::from_properties(properties)
