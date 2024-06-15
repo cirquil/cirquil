@@ -1,14 +1,15 @@
 use std::cell::Cell;
 use std::time::Instant;
 
-use crate::core::simulation::circuit::Circuit;
-use crate::core::simulation::components::clock_generator::ClockGenerator;
-use crate::core::simulation::components::logic::and_gate::AndGate;
-use crate::core::simulation::components::logic::not_gate::NotGate;
-use crate::core::simulation::components::logic::or_gate::OrGate;
-use crate::core::simulation::value::Value;
-use crate::core::simulation::wire::Wire;
+use cirquil::core::simulation::circuit::Circuit;
+use cirquil::core::simulation::components::clock_generator::ClockGenerator;
+use cirquil::core::simulation::components::logic::and_gate::AndGate;
+use cirquil::core::simulation::components::logic::not_gate::NotGate;
+use cirquil::core::simulation::components::logic::or_gate::OrGate;
+use cirquil::core::simulation::value::Value;
+use cirquil::core::simulation::wire::Wire;
 
+#[test]
 pub fn test_propagate() {
     let clock = ClockGenerator::create();
 
@@ -59,6 +60,7 @@ pub fn test_propagate() {
     println!("{:?} {:?} MHz", start.elapsed(), 1f64 / (start.elapsed().as_micros() as f64 / 1_000_000f64));
 }
 
+#[test]
 pub fn test_or() {
     let clock = ClockGenerator::create();
 
@@ -101,6 +103,7 @@ pub fn test_or() {
     println!("{:?} {:?} MHz", start.elapsed(), 1f64 / (start.elapsed().as_micros() as f64 / 1_000_000f64));
 }
 
+#[test]
 pub fn test_not() {
     let clock = ClockGenerator::create();
     let not = NotGate::from_bit_width(2);
