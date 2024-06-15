@@ -8,14 +8,13 @@ use cirquil::logisim::parser::parse_logisim;
 use cirquil::player::CirquilPlayerApp;
 
 fn main() -> Result<(), eframe::Error> {
-    // let filename = Path::new("test_.circ".to_string());
-    let filename = env::var("INPUT_FILE").unwrap_or(String::from("test.circ"));
-    match fs::metadata(&filename) {
-        Ok(_) => {}
-        Err(err) => {
-            println!("{}: {}", err, filename);
-            exit(1);
-        }
+    let args: Vec<String> = env::args().collect();
+
+    let filename = args.get(1).unwrap_or(&"test.circ".to_string()).clone();
+    
+    if let Err(err) = fs::metadata(&filename) {
+        println!("{}: {}", err, filename);
+        exit(1);
     }
 
     let options = eframe::NativeOptions {
