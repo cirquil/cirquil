@@ -67,15 +67,15 @@ pub fn test_or() {
     or.set_pin_value(0, Value::new(8, 0));
     or.set_pin_value(1, Value::new(2, 0));
 
-    let wire = Wire { value: Cell::new(Default::default()), connected_components: vec![(0, 0), (1, 0) ] };
+    let wire = Wire { value: Cell::new(Default::default()), connected_components: vec![(0, 0), (1, 0)] };
 
     clock.set_pin_wire(0, Some(0));
     or.set_pin_wire(0, Some(0));
 
     let circuit = Circuit {
-        components: vec![ or, clock ],
-        wires: vec![ wire ],
-        clock_generators: vec![ 1 ],
+        components: vec![or, clock],
+        wires: vec![wire],
+        clock_generators: vec![1],
     };
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
@@ -105,15 +105,15 @@ pub fn test_not() {
     let clock = ClockGenerator::create();
     let not = NotGate::from_bit_width(2);
 
-    let wire = Wire { value: Cell::new(Default::default()), connected_components: vec![(0, 0), (1, 0) ] };
+    let wire = Wire { value: Cell::new(Default::default()), connected_components: vec![(0, 0), (1, 0)] };
 
     clock.set_pin_wire(0, Some(0));
     not.set_pin_wire(0, Some(0));
 
     let circuit = Circuit {
-        components: vec![ clock, not ],
-        wires: vec![ wire ],
-        clock_generators: vec![ 0 ],
+        components: vec![clock, not],
+        wires: vec![wire],
+        clock_generators: vec![0],
     };
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
