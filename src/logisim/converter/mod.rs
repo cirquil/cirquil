@@ -7,20 +7,17 @@ use crate::core::canvas::location::Location;
 use crate::core::canvas::wire::CanvasWire;
 use crate::core::simulation::circuit::Circuit;
 use crate::core::simulation::component::{Component, ComponentIdx};
-use crate::core::simulation::components::clock_generator::ClockGenerator;
-use crate::core::simulation::components::input::button::InputButton;
-use crate::core::simulation::components::logic::and_gate::AndGate;
-use crate::core::simulation::components::logic::not_gate::NotGate;
-use crate::core::simulation::components::logic::or_gate::OrGate;
-use crate::core::simulation::components::tunnel::Tunnel;
+use crate::core::simulation::component::ComponentModel::ClockGenerator;
 use crate::core::simulation::pin::PinIdx;
 use crate::core::simulation::wire::{Wire, WireIdx};
+use crate::logisim::converter::component::convert_logisim_component;
 use crate::logisim::converter::dfs::{dfs_wires, DfsComponents};
 use crate::logisim::parser::location::LogisimLocation;
 use crate::logisim::parser::project::LogisimProject;
 use crate::logisim::parser::wire::LogisimWire;
 
 mod dfs;
+pub mod component;
 
 pub fn convert_circuit(parsed_project: LogisimProject, circuit_idx: usize) -> (Circuit, CanvasCircuit) {
     let circuit = &parsed_project.circuits[circuit_idx];
@@ -72,24 +69,15 @@ pub fn convert_circuit(parsed_project: LogisimProject, circuit_idx: usize) -> (C
     let mut pins_no_wire: HashMap<Location, (ComponentIdx, PinIdx)> = HashMap::new();
     for (comp_i, parsed_comp) in circuit.components.iter().enumerate() {
         let loc = Location::new(parsed_comp.loc.x, parsed_comp.loc.y);
+        
         canvas_components.push(CanvasComponent { component: comp_i, loc });
-        let component: Component = match (parsed_comp.lib.as_str(), parsed_comp.name.as_str()) {
-            ("0", "Clock") => {
-                clock_generators.push(comp_i);
-                ClockGenerator::create()
-            }
-            ("5", "Button") => InputButton::create(),
-            ("1", "OR Gate") => OrGate::from_bit_width(1),
-            ("1", "AND Gate") => AndGate::from_bit_width(1),
-            ("1", "NOT Gate") => NotGate::from_bit_width(1),
-            ("0", "Tunnel") => {
-                Tunnel::from_name_width(
-                    parsed_comp.get_param("label").unwrap(),
-                    1,
-                )
-            }
-            _ => panic!("Unknown component {} from lib {}", parsed_comp.name, parsed_comp.lib),
-        };
+        
+        let component: Component = convert_logisim_component(parsed_comp);
+        
+        if let ClockGenerator(_) = component.component {
+            clock_generators.push(comp_i);
+        }
+        
         for (pin_i, pin) in component.get_pins().iter().enumerate() {
             let location = loc + pin.location;
             match wire_nodes.get(&location) {
