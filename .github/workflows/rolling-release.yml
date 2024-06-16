@@ -1,0 +1,85 @@
+name: Rolling Release
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-upload:
+    name: Build and upload
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        include:
+          - build: linux
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+
+          - build: windows
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+
+          - build: macos-apple-silicon
+            os: macos-latest
+            target: aarch64-apple-darwin
+
+          - build: macos-x86_64
+            os: macos-13
+            target: x86_64-apple-darwin
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build crate
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+
+      - name: Create archive
+        shell: bash
+        run: |
+          dirname="cirquil-${{ matrix.target }}"
+          
+          mkdir "$dirname"
+
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            mv "target/release/editor.exe" "$dirname/cirquil-editor.exe"
+            mv "target/release/player.exe" "$dirname/cirquil-player.exe"
+
+            7z a "$dirname.zip" "$dirname"
+            echo "ASSET=$dirname.zip" >> $GITHUB_ENV
+          else
+            mv "target/release/editor" "$dirname/cirquil-editor"
+            mv "target/release/player" "$dirname/cirquil-player"
+
+            tar -czf "$dirname.tar.gz" "$dirname"
+            echo "ASSET=$dirname.tar.gz" >> $GITHUB_ENV
+          fi
+
+      - name: Update tag
+        uses: richardsimko/update-tag@v1
+        with:
+          tag_name: rolling
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: ${{ env.ASSET }}
+          tag: rolling
+          name: Rolling Release
+          body: This release is built automatically from `HEAD` of master branch
+          allowUpdates: true
