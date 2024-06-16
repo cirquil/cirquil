@@ -3,7 +3,7 @@ use std::process::exit;
 
 use egui::{Style, Visuals};
 
-use cirquil::logisim::converter::convert_circuit;
+use cirquil::core::compiler::convert_circuit;
 use cirquil::logisim::parser::parse_logisim;
 use cirquil::player::CirquilPlayerApp;
 
@@ -11,7 +11,7 @@ fn main() -> Result<(), eframe::Error> {
     let args: Vec<String> = env::args().collect();
 
     let filename = args.get(1).unwrap_or(&"test.circ".to_string()).clone();
-    
+
     if let Err(err) = fs::metadata(&filename) {
         println!("{}: {}", err, filename);
         exit(1);

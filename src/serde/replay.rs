@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+
 use crate::core::canvas::circuit::CanvasCircuit;
 use crate::core::simulation::circuit::Circuit;
 

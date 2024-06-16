@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+
 use crate::core::canvas::component::CanvasComponent;
 use crate::core::canvas::wire::CanvasWire;
 

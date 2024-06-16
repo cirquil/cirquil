@@ -6,9 +6,9 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 
 pub fn serialize_to_file<T, P>(obj: &T, path: P) -> Result<(), Error>
-where
-    T: Serialize,
-    P: AsRef<Path>,
+    where
+        T: Serialize,
+        P: AsRef<Path>,
 {
     let file = File::create(path)?;
     let mut writer = BufWriter::new(file);
@@ -20,9 +20,9 @@ where
 }
 
 pub fn deserialize_from_file<T, P>(path: P) -> Result<T, Error>
-where
-    T: DeserializeOwned,
-    P: AsRef<Path>,
+    where
+        T: DeserializeOwned,
+        P: AsRef<Path>,
 {
     let file = File::open(path)?;
     let reader = BufReader::new(file);

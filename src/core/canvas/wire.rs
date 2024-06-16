@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+
 use crate::core::canvas::location::Location;
 use crate::core::simulation::wire::WireIdx;
 
