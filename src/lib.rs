@@ -6,3 +6,4 @@ pub mod gui;
 pub mod logisim;
 pub mod editor;
 pub mod player;
+pub mod serde;
