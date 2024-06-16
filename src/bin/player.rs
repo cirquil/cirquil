@@ -32,7 +32,7 @@ fn main() -> Result<(), eframe::Error> {
             };
             cc.egui_ctx.set_style(style);
 
-            let (circuit, canvas) = convert_circuit(parse_logisim(filename), 0);
+            let (circuit, canvas) = convert_circuit(parse_logisim(filename).unwrap(), 0);
             circuit.propagate_all();
             Box::new(CirquilPlayerApp { circuit, canvas })
         }),
