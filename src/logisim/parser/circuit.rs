@@ -12,3 +12,9 @@ pub struct LogisimCircuit {
     #[serde(rename = "comp")]
     pub components: Vec<LogisimComponent>,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct TopCircuit {
+    #[serde(rename = "@name")]
+    pub name: String,
+}

@@ -7,9 +7,9 @@ use crate::serde::project::{ProjectFile, SavedCircuit, SavedComponent, SavedWire
 
 pub mod component;
 
-fn convert_logisim_project(logisim_project: LogisimProject) -> ProjectFile {
+pub fn convert_logisim_project(logisim_project: LogisimProject) -> ProjectFile {
     let mut project_file = ProjectFile {
-        top_circuit: "".to_string(),
+        top_circuit: logisim_project.top_circuit.name,
         circuits: HashMap::new(),
     };
 
