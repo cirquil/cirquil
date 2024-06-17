@@ -13,6 +13,7 @@ pub mod project;
 pub mod appear;
 pub mod circ_port;
 pub mod rect;
+pub mod circ_anchor;
 
 pub fn parse_logisim<P>(path: P) -> Result<LogisimProject, Box<dyn Error>>
     where
