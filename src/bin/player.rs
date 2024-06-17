@@ -3,7 +3,8 @@ use std::process::exit;
 
 use egui::{Style, Visuals};
 
-use cirquil::core::compiler::convert_circuit;
+use cirquil::core::compiler::{compile_circuit};
+use cirquil::logisim::converter::convert_logisim_project;
 use cirquil::logisim::parser::parse_logisim;
 use cirquil::player::CirquilPlayerApp;
 
@@ -32,7 +33,9 @@ fn main() -> Result<(), eframe::Error> {
             };
             cc.egui_ctx.set_style(style);
 
-            let (circuit, canvas) = convert_circuit(parse_logisim(filename).unwrap(), 0);
+            let mut logisim_project = convert_logisim_project(parse_logisim(filename).unwrap());
+            let saved_circuit = logisim_project.circuits.remove(&logisim_project.top_circuit).unwrap();
+            let (circuit, canvas) = compile_circuit(saved_circuit);
             circuit.propagate_all();
             Box::new(CirquilPlayerApp { circuit, canvas })
         }),

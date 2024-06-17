@@ -1,4 +1,5 @@
 use std::cell::Cell;
+use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 
 use crate::core::canvas::circuit::CanvasCircuit;
@@ -11,32 +12,24 @@ use crate::core::simulation::component::{Component, ComponentIdx};
 use crate::core::simulation::component::ComponentModel::ClockGenerator;
 use crate::core::simulation::pin::PinIdx;
 use crate::core::simulation::wire::{Wire, WireIdx};
-use crate::logisim::converter::component::convert_logisim_component;
-use crate::logisim::parser::location::LogisimLocation;
-use crate::logisim::parser::project::LogisimProject;
-use crate::logisim::parser::wire::LogisimWire;
+use crate::serde::project::{SavedCircuit, SavedComponent, SavedWire};
 
 mod dfs;
 
-// TODO: Rewrite convert_circuit to convert from SavedCircuit to (Circuit, CanvasCircuit)
-// pub fn compile_circuit(saved_circuit: &SavedCircuit) -> (Circuit, CanvasCircuit) {}
-
-pub fn convert_circuit(parsed_project: LogisimProject, circuit_idx: usize) -> (Circuit, CanvasCircuit) {
-    let circuit = &parsed_project.circuits[circuit_idx];
-
-    let mut wires_map: HashMap<LogisimLocation, Vec<&LogisimWire>> = HashMap::new();
-    for i in circuit.wires.iter() {
-        match wires_map.get_mut(&i.from) {
+pub fn compile_circuit(saved_circuit: SavedCircuit) -> (Circuit, CanvasCircuit) {
+    let mut wires_map: HashMap<Location, Vec<&SavedWire>> = HashMap::new();
+    for i in saved_circuit.wires.iter() {
+        match wires_map.get_mut(&i.start) {
             None => {
-                wires_map.insert(i.from, vec![i]);
+                wires_map.insert(i.start, vec![i]);
             }
             Some(v) => {
                 v.push(i);
             }
         }
-        match wires_map.get_mut(&i.to) {
+        match wires_map.get_mut(&i.end) {
             None => {
-                wires_map.insert(i.to, vec![i]);
+                wires_map.insert(i.end, vec![i]);
             }
             Some(v) => {
                 v.push(i);
@@ -44,7 +37,7 @@ pub fn convert_circuit(parsed_project: LogisimProject, circuit_idx: usize) -> (C
         }
     }
 
-    let mut dfs_components = DfsComponents::new(&circuit.components);
+    let mut dfs_components = DfsComponents::new(&saved_circuit.components);
     let mut canvas_wires: Vec<CanvasWire> = Vec::new();
     let mut wires: Vec<Wire> = Vec::new();
     let mut wire_nodes: HashMap<Location, WireIdx> = HashMap::new();
@@ -69,25 +62,23 @@ pub fn convert_circuit(parsed_project: LogisimProject, circuit_idx: usize) -> (C
     let mut components: Vec<Component> = Vec::new();
     let mut clock_generators: Vec<usize> = Vec::new();
     let mut pins_no_wire: HashMap<Location, (ComponentIdx, PinIdx)> = HashMap::new();
-    for (comp_i, parsed_comp) in circuit.components.iter().enumerate() {
-        let loc = Location::new(parsed_comp.loc.x, parsed_comp.loc.y);
 
+    for (comp_i, SavedComponent { location: loc, component })
+    in saved_circuit.components.into_iter().enumerate() {
         canvas_components.push(CanvasComponent { component: comp_i, loc });
-
-        let component: Component = convert_logisim_component(parsed_comp);
-
         if let ClockGenerator(_) = component.component {
             clock_generators.push(comp_i);
         }
 
         for (pin_i, pin) in component.get_pins().iter().enumerate() {
             let location = loc + pin.location;
-            match wire_nodes.get(&location) {
-                Some(wire_i) => {
-                    component.set_pin_wire(pin_i, Some(*wire_i));
-                    wires.get_mut(*wire_i).unwrap().connected_components.push((comp_i, pin_i));
+            match wire_nodes.entry(location) {
+                Entry::Occupied(occ) => {
+                    let &wire_i = occ.get();
+                    component.set_pin_wire(pin_i, Some(wire_i));
+                    wires.get_mut(wire_i).unwrap().connected_components.push((comp_i, pin_i));
                 }
-                None => {
+                Entry::Vacant(vac) => {
                     match pins_no_wire.get_mut(&location) {
                         Some((another_comp, another_pin)) => {
                             let wire_i = wires.len();
@@ -95,7 +86,7 @@ pub fn convert_circuit(parsed_project: LogisimProject, circuit_idx: usize) -> (C
                                 value: Cell::new(Default::default()),
                                 connected_components: vec![(*another_comp, *another_pin), (comp_i, pin_i)],
                             };
-                            wire_nodes.insert(location, wire_i);
+                            vac.insert(wire_i);
                             component.set_pin_wire(pin_i, Some(wire_i));
                             components.get(*another_comp).unwrap().set_pin_wire(*another_pin, Some(wire_i));
                             wires.push(wire);
@@ -114,7 +105,6 @@ pub fn convert_circuit(parsed_project: LogisimProject, circuit_idx: usize) -> (C
      CanvasCircuit {
          components: canvas_components,
          wires: canvas_wires,
-         circuit: circuit_idx,
          appearance: (),
          pins: (),
      })
