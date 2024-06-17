@@ -21,9 +21,23 @@ pub struct SavedWire {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SavedCircuitBounds {
+    pub start: Location,
+    pub end: Location,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SavedCircuitPin {
+    pub location: Location,
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SavedCircuit {
     pub components: Vec<SavedComponent>,
     pub wires: Vec<SavedWire>,
+    pub bounds: SavedCircuitBounds,
+    pub pins: Vec<SavedCircuitPin>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

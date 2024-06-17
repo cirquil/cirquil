@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::core::canvas::location::Location;
 use crate::logisim::converter::component::convert_logisim_component;
 use crate::logisim::parser::project::LogisimProject;
-use crate::serde::project::{ProjectFile, SavedCircuit, SavedComponent, SavedWire};
+use crate::serde::project::{ProjectFile, SavedCircuit, SavedCircuitBounds, SavedComponent, SavedWire};
 
 pub mod component;
 
@@ -38,7 +38,7 @@ pub fn convert_logisim_project(logisim_project: LogisimProject) -> ProjectFile {
 
         project_file
             .circuits
-            .insert(name, SavedCircuit { components, wires });
+            .insert(name, SavedCircuit { components, wires, bounds: SavedCircuitBounds { start: Location { x: 0, y: 0 }, end: Location { x: 0, y: 0 } }, pins: vec![] });
     }
 
     project_file
