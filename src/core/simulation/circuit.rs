@@ -12,6 +12,8 @@ pub struct Circuit {
     pub clock_generators: Vec<ComponentIdx>,
 }
 
+pub type CircuitIdx = usize;
+
 impl Circuit {
     const ITERATIONS_TIMEOUT: u16 = 1000;
 }

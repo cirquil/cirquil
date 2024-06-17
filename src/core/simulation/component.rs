@@ -8,6 +8,7 @@ use crate::core::simulation::components::input::button::InputButton;
 use crate::core::simulation::components::logic::and_gate::AndGate;
 use crate::core::simulation::components::logic::not_gate::NotGate;
 use crate::core::simulation::components::logic::or_gate::OrGate;
+use crate::core::simulation::components::subcircuit::Subcircuit;
 use crate::core::simulation::components::tunnel::Tunnel;
 use crate::core::simulation::pin::{Pin, PinIdx};
 use crate::core::simulation::property::Property;
@@ -39,6 +40,8 @@ pub enum ComponentModel {
     NotGate(NotGate),
     InputButton(InputButton),
     Tunnel(Tunnel),
+    
+    Subcircuit(Subcircuit),
 }
 
 impl Component {
@@ -62,6 +65,8 @@ impl Component {
             ComponentModel::NotGate(c) => { c.propagate(&self.pins, &self.properties) }
             ComponentModel::InputButton(c) => { c.propagate(&self.pins, &self.properties) }
             ComponentModel::Tunnel(_) => {}
+            
+            ComponentModel::Subcircuit(_) => {}
         }
     }
 }
