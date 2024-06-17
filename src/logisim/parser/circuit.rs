@@ -3,6 +3,8 @@ use serde::Deserialize;
 use crate::logisim::parser::component::LogisimComponent;
 use crate::logisim::parser::wire::LogisimWire;
 
+use crate::logisim::parser::appear::Appear;
+
 #[derive(Debug, Deserialize)]
 pub struct LogisimCircuit {
     #[serde(rename = "@name")]
@@ -11,6 +13,8 @@ pub struct LogisimCircuit {
     pub wires: Vec<LogisimWire>,
     #[serde(rename = "comp")]
     pub components: Vec<LogisimComponent>,
+    #[serde(rename = "appear")]
+    pub appear: Option<Appear>,
 }
 
 #[derive(Debug, Deserialize)]

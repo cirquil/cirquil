@@ -10,6 +10,9 @@ pub mod component;
 pub mod location;
 pub mod wire;
 pub mod project;
+pub mod appear;
+pub mod circ_port;
+pub mod rect;
 
 pub fn parse_logisim<P>(path: P) -> Result<LogisimProject, Box<dyn Error>>
     where
