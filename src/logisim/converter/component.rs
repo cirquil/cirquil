@@ -18,6 +18,8 @@ pub fn convert_logisim_component(logisim_component: &LogisimComponent) -> Compon
         (1, "AND Gate") => AndGate::from_bit_width(1),
         (1, "NOT Gate") => NotGate::from_bit_width(1),
         (0, "Tunnel") => Tunnel::from_name_width(logisim_component.get_param("label").unwrap(), 1),
+        (0, "Pin") => InputButton::create(),
+        
         _ => panic!(
             "Unknown component {} from lib {}",
             logisim_component.name,
