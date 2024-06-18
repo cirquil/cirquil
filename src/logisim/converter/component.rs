@@ -4,6 +4,8 @@ use crate::core::simulation::components::input::button::InputButton;
 use crate::core::simulation::components::logic::and_gate::AndGate;
 use crate::core::simulation::components::logic::not_gate::NotGate;
 use crate::core::simulation::components::logic::or_gate::OrGate;
+use crate::core::simulation::components::subcircuit::input_pin::InputPin;
+use crate::core::simulation::components::subcircuit::output_pin::OutputPin;
 use crate::core::simulation::components::tunnel::Tunnel;
 use crate::logisim::parser::component::LogisimComponent;
 
@@ -18,8 +20,14 @@ pub fn convert_logisim_component(logisim_component: &LogisimComponent) -> Compon
         (1, "AND Gate") => AndGate::from_bit_width(1),
         (1, "NOT Gate") => NotGate::from_bit_width(1),
         (0, "Tunnel") => Tunnel::from_name_width(logisim_component.get_param("label").unwrap(), 1),
-        (0, "Pin") => InputButton::create(),
-        
+        (0, "Pin") => {
+            if let Some("true") = logisim_component.get_param("output") {
+                OutputPin::create()
+            } else {
+                InputPin::create()
+            }
+        }
+
         _ => panic!(
             "Unknown component {} from lib {}",
             logisim_component.name,

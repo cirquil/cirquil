@@ -64,7 +64,9 @@ impl Component {
             ComponentModel::NotGate(c) => { c.as_shapes() }
             ComponentModel::InputButton(c) => { c.as_shapes() }
             ComponentModel::Tunnel(c) => { c.as_shapes() }
-            
+
+            ComponentModel::InputPin(_) => { vec![] }
+            ComponentModel::OutputPin(_) => { vec![] }
             ComponentModel::Subcircuit(_) => { vec![] }
         }
     }
@@ -76,7 +78,9 @@ impl Component {
             ComponentModel::NotGate(c) => { c.get_bounds() }
             ComponentModel::InputButton(c) => { c.get_bounds() }
             ComponentModel::Tunnel(c) => { c.get_bounds() }
-            
+
+            ComponentModel::InputPin(_) => { Rect::ZERO }
+            ComponentModel::OutputPin(_) => { Rect::ZERO }
             ComponentModel::Subcircuit(_) => { Rect::ZERO }
         }
     }

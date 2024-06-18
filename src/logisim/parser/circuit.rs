@@ -1,9 +1,8 @@
 use serde::Deserialize;
 
+use crate::logisim::parser::appear::Appear;
 use crate::logisim::parser::component::LogisimComponent;
 use crate::logisim::parser::wire::LogisimWire;
-
-use crate::logisim::parser::appear::Appear;
 
 #[derive(Debug, Deserialize)]
 pub struct LogisimCircuit {

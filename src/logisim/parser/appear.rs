@@ -1,4 +1,5 @@
 use serde::Deserialize;
+
 use crate::logisim::parser::circ_anchor::CircAnchor;
 use crate::logisim::parser::circ_port::CircPort;
 use crate::logisim::parser::rect::Rect;
