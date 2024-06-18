@@ -89,7 +89,7 @@ impl eframe::App for CirquilPlayerApp {
                                     }
                                 }
 
-                                let mut shapes = component.as_shapes();
+                                let mut shapes = component.as_shapes(ctx);
                                 for shape in shapes.iter_mut() {
                                     shape.translate(component_coords)
                                 }
