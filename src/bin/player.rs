@@ -3,7 +3,7 @@ use std::process::exit;
 
 use egui::{Style, Visuals};
 
-use cirquil::core::compiler::compile_circuit;
+use cirquil::core::compiler::circuit::compile_circuit;
 use cirquil::logisim::converter::convert_logisim_project;
 use cirquil::logisim::parser::parse_logisim;
 use cirquil::player::CirquilPlayerApp;

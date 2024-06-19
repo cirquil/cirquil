@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::core::simulation::circuit::CircuitIdx;
 use crate::core::simulation::component::{Component, ComponentModel, ComponentPins, ComponentProperties};
 use crate::core::simulation::components::subcircuit::Subcircuit::NotInstantiated;
-use crate::core::simulation::pin::{Direction, Pin};
+use crate::core::simulation::pin::Pin;
 use crate::serde::project::SavedCircuit;
 
 pub mod input_pin;
