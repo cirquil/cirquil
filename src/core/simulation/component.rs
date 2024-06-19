@@ -72,7 +72,7 @@ impl Component {
 
             ComponentModel::InputPin(c) => { c.propagate(&self.pins, &self.properties) }
             ComponentModel::OutputPin(c) => { c.propagate(&self.pins, &self.properties) }
-            ComponentModel::Subcircuit(_) => {}
+            ComponentModel::Subcircuit(c) => { c.propagate(&self.pins, &self.properties) }
         }
     }
 }

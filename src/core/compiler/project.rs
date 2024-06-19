@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use std::rc::Rc;
 
+use serde::{Deserialize, Serialize};
+
 use crate::core::canvas::circuit::CanvasCircuit;
 use crate::core::compiler::circuit::compile_circuit;
 use crate::core::simulation::circuit::{Circuit, CircuitIdx};
@@ -8,6 +10,7 @@ use crate::core::simulation::component::{ComponentIdx, ComponentModel};
 use crate::core::simulation::components::subcircuit::Subcircuit;
 use crate::serde::project::ProjectFile;
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InstantiatedCircuits {
     pub canvas_circuits: Vec<CanvasCircuit>,
     pub instantiated_circuits: Vec<(Rc<Circuit>, CircuitIdx)>,
