@@ -25,7 +25,7 @@ impl OutputPin {
             Pin {
                 value: Cell::new(Default::default()),
                 bit_width: 1,
-                direction: Direction::Output,
+                direction: Direction::Input,
                 wire: Cell::new(None),
                 location: Location::new(0, 0),
             }
