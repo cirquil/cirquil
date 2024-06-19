@@ -1,4 +1,5 @@
 use std::cell::Cell;
+
 use serde::{Deserialize, Serialize};
 
 use crate::core::simulation::circuit::CircuitIdx;
@@ -24,7 +25,7 @@ impl Subcircuit {
                     .map(|pin| Pin {
                         value: Cell::new(Default::default()),
                         bit_width: 1,
-                        direction: Direction::Input,
+                        direction: pin.direction,
                         wire: Cell::new(None),
                         location: pin.location,
                     })

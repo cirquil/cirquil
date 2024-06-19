@@ -1,4 +1,5 @@
 use crate::core::canvas::location::Location;
+use crate::core::simulation::pin::Direction;
 use crate::logisim::parser::circuit::LogisimCircuit;
 use crate::logisim::parser::project::LogisimProject;
 use crate::serde::project::{ProjectFile, SavedCircuit, SavedCircuitBounds, SavedCircuitPin};
@@ -52,6 +53,14 @@ pub fn collect_circuits(project_file: &mut ProjectFile, logisim_project: &Logisi
                 SavedCircuitPin {
                     location,
                     label: pin_component.get_param("label").unwrap().to_string(),
+                    bit_width: 1,
+                    direction: {
+                        if let Some("true") = pin_component.get_param("output") {
+                            Direction::Output
+                        } else {
+                            Direction::Input
+                        }
+                    },
                 }
             })
             .collect();

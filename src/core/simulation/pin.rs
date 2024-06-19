@@ -8,7 +8,7 @@ use crate::core::simulation::wire::WireIdx;
 
 pub type PinIdx = usize;
 
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]
 pub enum Direction {
     Input,
     Output,

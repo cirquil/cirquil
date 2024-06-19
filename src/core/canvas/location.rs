@@ -41,7 +41,7 @@ impl AddAssign for Location {
 
 impl Sub for Location {
     type Output = Location;
-    
+
     fn sub(self, rhs: Self) -> Self::Output {
         Location::new(self.x - rhs.x, self.y - rhs.y)
     }

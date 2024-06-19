@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::core::canvas::location::Location;
 use crate::core::simulation::component::Component;
+use crate::core::simulation::pin::Direction;
 use crate::serde::fs::{deserialize_from_file, serialize_to_file};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -30,6 +31,8 @@ pub struct SavedCircuitBounds {
 pub struct SavedCircuitPin {
     pub location: Location,
     pub label: String,
+    pub bit_width: u8,
+    pub direction: Direction,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
