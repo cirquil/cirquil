@@ -10,6 +10,8 @@ use crate::core::simulation::components::tunnel::Tunnel;
 use crate::logisim::parser::component::LogisimComponent;
 
 pub fn convert_logisim_component(logisim_component: &LogisimComponent) -> Component {
+    debug_assert!(logisim_component.lib.is_some());
+
     match (
         logisim_component.lib.unwrap(),
         logisim_component.name.as_str(),
@@ -21,10 +23,12 @@ pub fn convert_logisim_component(logisim_component: &LogisimComponent) -> Compon
         (1, "NOT Gate") => NotGate::from_bit_width(1),
         (0, "Tunnel") => Tunnel::from_name_width(logisim_component.get_param("label").unwrap(), 1),
         (0, "Pin") => {
+            let label = logisim_component.get_param("label").unwrap();
+
             if let Some("true") = logisim_component.get_param("output") {
-                OutputPin::create()
+                OutputPin::create(label)
             } else {
-                InputPin::create()
+                InputPin::create(label)
             }
         }
 

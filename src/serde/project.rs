@@ -29,7 +29,7 @@ pub struct SavedCircuitBounds {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SavedCircuitPin {
     pub location: Location,
-    pub name: String,
+    pub label: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

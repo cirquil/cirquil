@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::core::canvas::location::Location;
 use crate::core::simulation::component::{Behaviour, Component, ComponentModel, ComponentPins, ComponentProperties};
 use crate::core::simulation::pin::{Direction, Pin};
+use crate::core::simulation::property::{Property, StringProperty};
 use crate::core::simulation::value::Value;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -19,7 +20,7 @@ impl Behaviour for OutputPin {
 }
 
 impl OutputPin {
-    pub fn create() -> Component {
+    pub fn create(label: &str) -> Component {
         let pins = vec![
             Pin {
                 value: Cell::new(Default::default()),
@@ -32,7 +33,9 @@ impl OutputPin {
 
         Component {
             pins: ComponentPins::new(pins),
-            properties: ComponentProperties::new(vec![]),
+            properties: ComponentProperties::new(vec![
+                ("label".to_string(), Property::String(StringProperty::new(label.to_string())))
+            ]),
             component: ComponentModel::OutputPin(OutputPin {
                 value: Default::default(),
             }),

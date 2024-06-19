@@ -2,7 +2,7 @@ use serde::Deserialize;
 
 use crate::logisim::parser::circuit::{LogisimCircuit, TopCircuit};
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct LogisimProject {
     #[serde(rename = "circuit")]
     pub circuits: Vec<LogisimCircuit>,

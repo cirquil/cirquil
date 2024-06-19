@@ -4,7 +4,7 @@ use crate::logisim::parser::appear::Appear;
 use crate::logisim::parser::component::LogisimComponent;
 use crate::logisim::parser::wire::LogisimWire;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct LogisimCircuit {
     #[serde(rename = "@name")]
     pub name: String,
@@ -16,7 +16,7 @@ pub struct LogisimCircuit {
     pub appear: Option<Appear>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct TopCircuit {
     #[serde(rename = "@name")]
     pub name: String,

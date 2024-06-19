@@ -4,7 +4,7 @@ use crate::logisim::parser::circ_anchor::CircAnchor;
 use crate::logisim::parser::circ_port::CircPort;
 use crate::logisim::parser::rect::Rect;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct Appear {
     #[serde(rename = "rect")]
     pub rect: Rect,

@@ -2,12 +2,12 @@ use serde::Deserialize;
 
 use crate::logisim::parser::location::LogisimLocation;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct CircPort {
     #[serde(rename = "@height")]
     pub height: u32,
     #[serde(rename = "@pin")]
-    pub pin: LogisimLocation,
+    pub pin_location: LogisimLocation,
     #[serde(rename = "@width")]
     pub width: u32,
     #[serde(rename = "@x")]
