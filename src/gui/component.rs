@@ -65,8 +65,8 @@ impl Component {
             ComponentModel::InputButton(c) => { c.as_shapes() }
             ComponentModel::Tunnel(c) => { c.as_shapes() }
 
-            ComponentModel::InputPin(_) => { vec![] }
-            ComponentModel::OutputPin(_) => { vec![] }
+            ComponentModel::InputPin(c) => { c.as_shapes() }
+            ComponentModel::OutputPin(c) => { c.as_shapes() }
             ComponentModel::Subcircuit(_) => { vec![] }
         }
     }

@@ -30,11 +30,22 @@ impl eframe::App for CirquilPlayerApp {
                     strip.cell(|ui| {
                         ui.centered_and_justified(|ui| {
                             if ui.button("Tick!").clicked() {
-                                circuit.tick();
-                                circuit.propagate_ticked();
+                                self.current_circuit += 1;
+
+                                if self.current_circuit > 2 {
+                                    self.current_circuit = 0;
+                                }
                             };
                         });
                     });
+                    // strip.cell(|ui| {
+                    //     ui.centered_and_justified(|ui| {
+                    //         if ui.button("Tick!").clicked() {
+                    //             circuit.tick();
+                    //             circuit.propagate_ticked();
+                    //         };
+                    //     });
+                    // });
                     strip.cell(|ui| {
                         ui.add(Separator::default().vertical());
                     });

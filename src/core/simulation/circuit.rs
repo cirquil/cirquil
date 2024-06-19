@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 use crate::core::simulation::component::{Component, ComponentIdx, ComponentModel, Tick};
-use crate::core::simulation::pin::Direction;
+use crate::core::simulation::components::subcircuit::Subcircuit;
+use crate::core::simulation::pin::{Direction, PinIdx};
 use crate::core::simulation::value::operations::assign;
 use crate::core::simulation::wire::{Wire, WireIdx};
 
@@ -10,6 +11,8 @@ pub struct Circuit {
     pub components: Vec<Component>,
     pub wires: Vec<Wire>,
     pub clock_generators: Vec<ComponentIdx>,
+    pub input_pins: Vec<(PinIdx, ComponentIdx)>,
+    pub output_pins: Vec<(PinIdx, ComponentIdx)>,
 }
 
 pub type CircuitIdx = usize;
@@ -68,7 +71,31 @@ impl Circuit {
             }
 
             for component in first.iter() {
-                component.propagate();
+                if let ComponentModel::Subcircuit(Subcircuit::Instantiated(circuit)) = &component.component {
+                    let mut initial_components = vec![];
+
+                    for (component_pin, circuit_pin) in circuit.input_pins.iter() {
+                        let pin_comp = circuit.components.get(*circuit_pin).unwrap();
+                        if let ComponentModel::InputPin(p) = &pin_comp.component {
+                            initial_components.push(pin_comp);
+
+                            p.value.set(
+                                component.pins.get_value(*component_pin)
+                            );
+                        }
+                    }
+
+                    circuit.propagate(initial_components);
+
+                    for (component_pin, circuit_pin) in circuit.output_pins.iter() {
+                        let pin_comp = circuit.components.get(*circuit_pin).unwrap();
+                        if let ComponentModel::OutputPin(p) = &pin_comp.component {
+                            component.pins.set_value(*component_pin, p.value.get());
+                        }
+                    }
+                } else {
+                    component.propagate();
+                }
             }
 
             // println!("{:?}", first);

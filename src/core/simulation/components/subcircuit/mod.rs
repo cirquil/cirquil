@@ -1,8 +1,9 @@
 use std::cell::Cell;
+use std::rc::Rc;
 
 use serde::{Deserialize, Serialize};
 
-use crate::core::simulation::circuit::CircuitIdx;
+use crate::core::simulation::circuit::Circuit;
 use crate::core::simulation::component::{Component, ComponentModel, ComponentPins, ComponentProperties};
 use crate::core::simulation::components::subcircuit::Subcircuit::NotInstantiated;
 use crate::core::simulation::pin::Pin;
@@ -13,7 +14,7 @@ pub mod output_pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Subcircuit {
-    Instantiated(CircuitIdx),
+    Instantiated(Rc<Circuit>),
     NotInstantiated(String),
 }
 

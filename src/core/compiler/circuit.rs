@@ -8,8 +8,9 @@ use crate::core::canvas::location::Location;
 use crate::core::canvas::wire::CanvasWire;
 use crate::core::compiler::dfs::{dfs_wires, DfsComponents};
 use crate::core::simulation::circuit::Circuit;
-use crate::core::simulation::component::{Component, ComponentIdx};
+use crate::core::simulation::component::{Component, ComponentIdx, ComponentModel};
 use crate::core::simulation::component::ComponentModel::ClockGenerator;
+use crate::core::simulation::pin::Direction::{Input, Output};
 use crate::core::simulation::pin::PinIdx;
 use crate::core::simulation::wire::{Wire, WireIdx};
 use crate::serde::project::{SavedCircuit, SavedComponent, SavedWire};
@@ -99,7 +100,37 @@ pub fn compile_circuit(saved_circuit: SavedCircuit) -> (Circuit, CanvasCircuit) 
         components.push(component);
     }
 
-    (Circuit { components, wires, clock_generators },
+    let input_pins: Vec<(PinIdx, ComponentIdx)> = saved_circuit.pins.iter().enumerate()
+        .filter(|(_, pin)| pin.direction == Input)
+        .map(|(i, pin)| {
+            let (comp_idx, _) = components.iter().enumerate()
+                .filter(|(_, c)| matches!(c.component, ComponentModel::InputPin(_)))
+                .find(|(_, c)| c.properties.get("label").unwrap().as_string().unwrap().get() == pin.label)
+                .unwrap();
+
+            (i, comp_idx)
+        })
+        .collect();
+
+    let output_pins: Vec<(PinIdx, ComponentIdx)> = saved_circuit.pins.iter().enumerate()
+        .filter(|(_, pin)| pin.direction == Output)
+        .map(|(i, pin)| {
+            let (comp_idx, _) = components.iter().enumerate()
+                .filter(|(_, c)| matches!(c.component, ComponentModel::OutputPin(_)))
+                .find(|(_, c)| c.properties.get("label").unwrap().as_string().unwrap().get() == pin.label)
+                .unwrap();
+
+            (i, comp_idx)
+        })
+        .collect();
+
+    (Circuit {
+        components,
+        wires,
+        clock_generators,
+        input_pins,
+        output_pins,
+    },
      CanvasCircuit {
          components: canvas_components,
          wires: canvas_wires,
