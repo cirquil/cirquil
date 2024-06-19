@@ -67,7 +67,7 @@ impl Component {
 
             ComponentModel::InputPin(c) => { c.as_shapes() }
             ComponentModel::OutputPin(c) => { c.as_shapes() }
-            ComponentModel::Subcircuit(_) => { vec![] }
+            ComponentModel::Subcircuit(c) => { c.as_shapes() }
         }
     }
     pub fn get_bounds(&self) -> Rect {
