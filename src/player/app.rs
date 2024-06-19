@@ -3,8 +3,8 @@ use eframe::Frame;
 use egui::{containers, Context, Pos2, Sense, Separator, Stroke, Vec2};
 use egui_extras::{Size, StripBuilder};
 
-use crate::core::canvas::circuit::CanvasCircuit;
-use crate::core::simulation::circuit::Circuit;
+use crate::core::compiler::project::InstantiatedCircuits;
+use crate::core::simulation::circuit::CircuitIdx;
 use crate::gui::constants::GRID_STEP;
 use crate::gui::grid;
 use crate::gui::value::get_value_color;
@@ -12,12 +12,15 @@ use crate::gui::value::get_value_color;
 const GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
 
 pub struct CirquilPlayerApp {
-    pub circuit: Circuit,
-    pub canvas: CanvasCircuit,
+    pub circuits: InstantiatedCircuits,
+    pub current_circuit: CircuitIdx,
 }
 
 impl eframe::App for CirquilPlayerApp {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
+        let (circuit, canvas_circuit_idx) = self.circuits.instantiated_circuits.get(self.current_circuit).unwrap();
+        let canvas = self.circuits.canvas_circuits.get(*canvas_circuit_idx).unwrap();
+
         egui::CentralPanel::default().show(ctx, |ui| {
             StripBuilder::new(ui)
                 .size(Size::relative(0.15).at_least(50.0))
@@ -27,8 +30,8 @@ impl eframe::App for CirquilPlayerApp {
                     strip.cell(|ui| {
                         ui.centered_and_justified(|ui| {
                             if ui.button("Tick!").clicked() {
-                                self.circuit.tick();
-                                self.circuit.propagate_ticked();
+                                circuit.tick();
+                                circuit.propagate_ticked();
                             };
                         });
                     });
@@ -43,12 +46,12 @@ impl eframe::App for CirquilPlayerApp {
                             grid::draw(&response.rect, &painter);
                             let coords = response.rect.min.to_vec2();
 
-                            for canvas_wire in &self.canvas.wires {
-                                let wire = self.circuit.get_wire(canvas_wire.wire);
+                            for canvas_wire in canvas.wires.iter() {
+                                let wire = circuit.get_wire(canvas_wire.wire);
 
                                 let bit_width = if !wire.connected_components.is_empty() {
                                     let (component_idx, pin_idx) = wire.connected_components.first().unwrap();
-                                    self.circuit.get_component(*component_idx).get_pins().get(*pin_idx).unwrap().bit_width
+                                    circuit.get_component(*component_idx).get_pins().get(*pin_idx).unwrap().bit_width
                                 } else {
                                     1
                                 };
@@ -73,8 +76,8 @@ impl eframe::App for CirquilPlayerApp {
                                 }
                             }
 
-                            for canvas_component in &self.canvas.components {
-                                let component = self.circuit.get_component(canvas_component.component);
+                            for canvas_component in canvas.components.iter() {
+                                let component = circuit.get_component(canvas_component.component);
                                 let component_coords = coords + Vec2::from(canvas_component.loc);
 
                                 if let Some(mut interact_pos) = response.interact_pointer_pos() {
@@ -85,7 +88,7 @@ impl eframe::App for CirquilPlayerApp {
                                         if response.clicked() { component.mouse_clicked(interact_pos) }
                                         if response.dragged() { component.mouse_dragged(response.drag_delta()) }
 
-                                        self.circuit.propagate(vec![component]);
+                                        circuit.propagate(vec![component]);
                                     }
                                 }
 
