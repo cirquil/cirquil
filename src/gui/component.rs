@@ -64,6 +64,10 @@ impl Component {
             ComponentModel::NotGate(c) => { c.as_shapes(context) }
             ComponentModel::InputButton(c) => { c.as_shapes(context) }
             ComponentModel::Tunnel(c) => { c.as_shapes(context) }
+
+            ComponentModel::InputPin(c) => { c.as_shapes(context) }
+            ComponentModel::OutputPin(c) => { c.as_shapes(context) }
+            ComponentModel::Subcircuit(c) => { c.as_shapes(context) }
         }
     }
     pub fn get_bounds(&self) -> Rect {
@@ -74,6 +78,10 @@ impl Component {
             ComponentModel::NotGate(c) => { c.get_bounds() }
             ComponentModel::InputButton(c) => { c.get_bounds() }
             ComponentModel::Tunnel(c) => { c.get_bounds() }
+
+            ComponentModel::InputPin(_) => { Rect::ZERO }
+            ComponentModel::OutputPin(_) => { Rect::ZERO }
+            ComponentModel::Subcircuit(_) => { Rect::ZERO }
         }
     }
 }

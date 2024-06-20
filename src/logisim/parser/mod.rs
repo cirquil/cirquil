@@ -1,8 +1,7 @@
+use std::error::Error;
 use std::fs::File;
-use std::io::Read;
+use std::io::BufReader;
 use std::path::Path;
-
-use quick_xml::de;
 
 use crate::logisim::parser::project::LogisimProject;
 
@@ -11,17 +10,19 @@ pub mod component;
 pub mod location;
 pub mod wire;
 pub mod project;
+pub mod appear;
+pub mod circ_port;
+pub mod rect;
+pub mod circ_anchor;
 
-pub fn parse_logisim<P>(f: P) -> LogisimProject
+pub fn parse_logisim<P>(path: P) -> Result<LogisimProject, Box<dyn Error>>
     where
         P: AsRef<Path>,
 {
-    let mut xml = File::open(f).expect("File invalid");
-    let mut contents = String::new();
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
 
-    xml.read_to_string(&mut contents).expect("Wrong file contents.");
+    let deserialized = quick_xml::de::from_reader(reader)?;
 
-    let doc: LogisimProject = de::from_str(&contents).unwrap();
-
-    doc
+    Ok(deserialized)
 }

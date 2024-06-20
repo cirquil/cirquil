@@ -2,7 +2,7 @@ use serde::Deserialize;
 
 use crate::logisim::parser::location::LogisimLocation;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct LogisimParameter {
     #[serde(rename = "@name")]
     pub name: String,
@@ -10,18 +10,14 @@ pub struct LogisimParameter {
     pub val: String,
 }
 
-fn default_lib() -> String {
-    String::from("current")
-}
-
 fn default_params() -> Vec<LogisimParameter> {
     vec![]
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct LogisimComponent {
-    #[serde(rename = "@lib", default = "default_lib")]
-    pub lib: String,
+    #[serde(rename = "@lib")]
+    pub lib: Option<u32>,
     #[serde(rename = "@loc")]
     pub loc: LogisimLocation,
     #[serde(rename = "@name")]
@@ -32,10 +28,9 @@ pub struct LogisimComponent {
 
 impl LogisimComponent {
     pub fn get_param(&self, name: &str) -> Option<&str> {
-        match self.params.iter().find(|x| x.name == name)
-        {
+        match self.params.iter().find(|x| x.name == name) {
             Some(x) => Some(x.val.as_str()),
-            None => None
+            None => None,
         }
     }
 }

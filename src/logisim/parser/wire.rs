@@ -2,7 +2,7 @@ use serde::Deserialize;
 
 use crate::logisim::parser::location::LogisimLocation;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct LogisimWire {
     #[serde(rename = "@from")]
     pub from: LogisimLocation,

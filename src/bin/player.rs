@@ -3,7 +3,8 @@ use std::process::exit;
 
 use egui::{Style, Visuals};
 
-use cirquil::logisim::converter::convert_circuit;
+use cirquil::core::compiler::project::compile_project;
+use cirquil::logisim::converter::convert_logisim_project;
 use cirquil::logisim::parser::parse_logisim;
 use cirquil::player::CirquilPlayerApp;
 
@@ -11,7 +12,7 @@ fn main() -> Result<(), eframe::Error> {
     let args: Vec<String> = env::args().collect();
 
     let filename = args.get(1).unwrap_or(&"test.circ".to_string()).clone();
-    
+
     if let Err(err) = fs::metadata(&filename) {
         println!("{}: {}", err, filename);
         exit(1);
@@ -32,9 +33,15 @@ fn main() -> Result<(), eframe::Error> {
             };
             cc.egui_ctx.set_style(style);
 
-            let (circuit, canvas) = convert_circuit(parse_logisim(filename), 0);
-            circuit.propagate_all();
-            Box::new(CirquilPlayerApp { circuit, canvas })
+            let logisim_project = convert_logisim_project(parse_logisim(filename).unwrap());
+
+            let (current_circuit, compiled_circuits) = compile_project(logisim_project);
+
+            compiled_circuits.instantiated_circuits.iter().for_each(
+                |(circuit, _)| circuit.propagate_all()
+            );
+
+            Box::new(CirquilPlayerApp { circuits: compiled_circuits, current_circuit })
         }),
     )
 }
