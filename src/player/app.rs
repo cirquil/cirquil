@@ -53,7 +53,7 @@ impl eframe::App for CirquilPlayerApp {
                         containers::Frame::canvas(ui.style()).show(ui, |ui| {
 
                             let (response, painter) =
-                                ui.allocate_painter(ui.available_size_before_wrap(), Sense::drag());
+                                ui.allocate_painter(ui.available_size_before_wrap(), Sense::click_and_drag());
 
                             grid::draw(&response.rect, &painter);
                             let coords = response.rect.min.to_vec2();
