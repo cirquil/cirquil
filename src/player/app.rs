@@ -23,7 +23,7 @@ impl eframe::App for CirquilPlayerApp {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             StripBuilder::new(ui)
-                .size(Size::relative(0.15).at_least(50.0))
+                .size(Size::exact(150.0))
                 .size(Size::exact(5.0))
                 .size(Size::remainder())
                 .horizontal(|mut strip| {
@@ -51,6 +51,7 @@ impl eframe::App for CirquilPlayerApp {
                     });
                     strip.cell(|ui| {
                         containers::Frame::canvas(ui.style()).show(ui, |ui| {
+
                             let (response, painter) =
                                 ui.allocate_painter(ui.available_size_before_wrap(), Sense::click_and_drag());
 
@@ -103,7 +104,7 @@ impl eframe::App for CirquilPlayerApp {
                                     }
                                 }
 
-                                let mut shapes = component.as_shapes();
+                                let mut shapes = component.as_shapes(ctx);
                                 for shape in shapes.iter_mut() {
                                     shape.translate(component_coords)
                                 }

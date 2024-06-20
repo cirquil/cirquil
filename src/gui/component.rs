@@ -1,4 +1,4 @@
-use egui::{Pos2, Rect, Shape, Vec2};
+use egui::{Context, Pos2, Rect, Shape, Vec2};
 
 use crate::core::simulation::component::{Component, ComponentModel};
 
@@ -12,7 +12,7 @@ pub trait Poke {
 }
 
 pub trait AsShapes {
-    fn as_shapes(&self) -> Vec<Shape>;
+    fn as_shapes(&self, context: &Context) -> Vec<Shape>;
 }
 
 pub trait Bounds {
@@ -56,18 +56,18 @@ impl Component {
             _ => {}
         }
     }
-    pub fn as_shapes(&self) -> Vec<Shape> {
+    pub fn as_shapes(&self, context: &Context) -> Vec<Shape> {
         match &self.component {
-            ComponentModel::ClockGenerator(c) => { c.as_shapes() }
-            ComponentModel::AndGate(c) => { c.as_shapes() }
-            ComponentModel::OrGate(c) => { c.as_shapes() }
-            ComponentModel::NotGate(c) => { c.as_shapes() }
-            ComponentModel::InputButton(c) => { c.as_shapes() }
-            ComponentModel::Tunnel(c) => { c.as_shapes() }
+            ComponentModel::ClockGenerator(c) => { c.as_shapes(context) }
+            ComponentModel::AndGate(c) => { c.as_shapes(context) }
+            ComponentModel::OrGate(c) => { c.as_shapes(context) }
+            ComponentModel::NotGate(c) => { c.as_shapes(context) }
+            ComponentModel::InputButton(c) => { c.as_shapes(context) }
+            ComponentModel::Tunnel(c) => { c.as_shapes(context) }
 
-            ComponentModel::InputPin(c) => { c.as_shapes() }
-            ComponentModel::OutputPin(c) => { c.as_shapes() }
-            ComponentModel::Subcircuit(c) => { c.as_shapes() }
+            ComponentModel::InputPin(c) => { c.as_shapes(context) }
+            ComponentModel::OutputPin(c) => { c.as_shapes(context) }
+            ComponentModel::Subcircuit(c) => { c.as_shapes(context) }
         }
     }
     pub fn get_bounds(&self) -> Rect {

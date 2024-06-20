@@ -1,5 +1,6 @@
 use eframe::emath::{Pos2, Rect};
 use eframe::epaint::{Color32, Rounding, Shape, Stroke};
+use egui::Context;
 
 use crate::core::simulation::components::input::button::InputButton;
 use crate::gui::component::{AsShapes, Bounds, Poke};
@@ -17,7 +18,7 @@ impl Poke for InputButton {
 }
 
 impl AsShapes for InputButton {
-    fn as_shapes(&self) -> Vec<Shape> {
+    fn as_shapes(&self, _context: &Context) -> Vec<Shape> {
         match self.state.get() {
             1 => {
                 vec![
