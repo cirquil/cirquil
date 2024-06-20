@@ -49,16 +49,18 @@ pub struct ProjectFile {
     pub circuits: HashMap<String, SavedCircuit>,
 }
 
-pub fn save_project<P>(project_file: &ProjectFile, path: P) -> Result<(), Error>
-    where
-        P: AsRef<Path>,
-{
-    serialize_to_file(project_file, path)
-}
+impl ProjectFile {
+    pub fn save<P>(&self, path: P) -> Result<(), Error>
+        where
+            P: AsRef<Path>,
+    {
+        serialize_to_file(self, path)
+    }
 
-pub fn load_project<P>(path: P) -> Result<ProjectFile, Error>
-    where
-        P: AsRef<Path>,
-{
-    deserialize_from_file(path)
+    pub fn load<P>(path: P) -> Result<Self, Error>
+        where
+            P: AsRef<Path>,
+    {
+        deserialize_from_file(path)
+    }
 }
