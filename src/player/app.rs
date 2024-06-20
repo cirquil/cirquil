@@ -20,7 +20,7 @@ impl eframe::App for CirquilPlayerApp {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             StripBuilder::new(ui)
-                .size(Size::relative(0.15).at_least(50.0))
+                .size(Size::exact(150.0))
                 .size(Size::exact(5.0))
                 .size(Size::remainder())
                 .horizontal(|mut strip| {
@@ -37,8 +37,9 @@ impl eframe::App for CirquilPlayerApp {
                     });
                     strip.cell(|ui| {
                         containers::Frame::canvas(ui.style()).show(ui, |ui| {
+
                             let (response, painter) =
-                                ui.allocate_painter(ui.available_size_before_wrap(), Sense::click_and_drag());
+                                ui.allocate_painter(ui.available_size_before_wrap(), Sense::drag());
 
                             grid::draw(&response.rect, &painter);
                             let coords = response.rect.min.to_vec2();
