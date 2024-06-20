@@ -616,6 +616,7 @@ dependencies = [
  "quick-xml",
  "serde",
  "serde_json",
+ "winapi",
 ]
 
 [[package]]
