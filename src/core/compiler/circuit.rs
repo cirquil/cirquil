@@ -65,7 +65,7 @@ pub fn compile_circuit(saved_circuit: SavedCircuit) -> (Circuit, CanvasCircuit) 
     for (comp_i, SavedComponent { location: loc, component })
     in saved_circuit.components.into_iter().enumerate() {
         canvas_components.push(CanvasComponent { component: comp_i, loc });
-        if let ClockGenerator(_) = component.component {
+        if let ClockGenerator(_) = component.model {
             clock_generators.push(comp_i);
         }
 
@@ -104,7 +104,7 @@ pub fn compile_circuit(saved_circuit: SavedCircuit) -> (Circuit, CanvasCircuit) 
         .filter(|(_, pin)| pin.direction == Input)
         .map(|(i, pin)| {
             let (comp_idx, _) = components.iter().enumerate()
-                .filter(|(_, c)| matches!(c.component, ComponentModel::InputPin(_)))
+                .filter(|(_, c)| matches!(c.model, ComponentModel::InputPin(_)))
                 .find(|(_, c)| c.properties.get("label").unwrap().as_string().unwrap().get() == pin.label)
                 .unwrap();
 
@@ -116,7 +116,7 @@ pub fn compile_circuit(saved_circuit: SavedCircuit) -> (Circuit, CanvasCircuit) 
         .filter(|(_, pin)| pin.direction == Output)
         .map(|(i, pin)| {
             let (comp_idx, _) = components.iter().enumerate()
-                .filter(|(_, c)| matches!(c.component, ComponentModel::OutputPin(_)))
+                .filter(|(_, c)| matches!(c.model, ComponentModel::OutputPin(_)))
                 .find(|(_, c)| c.properties.get("label").unwrap().as_string().unwrap().get() == pin.label)
                 .unwrap();
 

@@ -43,7 +43,7 @@ impl Tunnel {
         Component {
             pins: ComponentPins::new(pins),
             properties,
-            component: ComponentModel::Tunnel(Tunnel { name }),
+            model: ComponentModel::Tunnel(Tunnel { name }),
         }
     }
 

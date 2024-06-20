@@ -48,13 +48,13 @@ fn instantiate_project(name: &str,
                        -> CircuitIdx {
     let mut compiled = compiled_circuits[name].clone();
     for i in compiled.components.iter_mut() {
-        if let ComponentModel::Subcircuit(Subcircuit::NotInstantiated(sub_name)) = &i.component {
+        if let ComponentModel::Subcircuit(Subcircuit::NotInstantiated(sub_name)) = &i.model {
             let sub_idx = instantiate_project(sub_name, compiled_circuits,
                                               name_to_idx, instantiated_circuits);
 
             let (circuit, _) = instantiated_circuits.get(sub_idx).unwrap();
 
-            i.component =
+            i.model =
                 ComponentModel::Subcircuit(
                     Subcircuit::Instantiated(circuit.clone())
                 );

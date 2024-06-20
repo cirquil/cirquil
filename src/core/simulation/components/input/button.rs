@@ -40,7 +40,7 @@ impl InputButton {
         Component {
             pins: ComponentPins::new(pins),
             properties: ComponentProperties::new(vec![]),
-            component: ComponentModel::InputButton(InputButton {
+            model: ComponentModel::InputButton(InputButton {
                 state: Cell::new(0),
             }),
         }

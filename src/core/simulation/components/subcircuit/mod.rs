@@ -27,7 +27,7 @@ impl Behaviour for Subcircuit {
 
             for (component_pin, circuit_pin) in circuit.input_pins.iter() {
                 let pin_comp = circuit.components.get(*circuit_pin).unwrap();
-                if let ComponentModel::InputPin(p) = &pin_comp.component {
+                if let ComponentModel::InputPin(p) = &pin_comp.model {
                     initial_components.push(pin_comp);
 
                     p.value.set(
@@ -40,7 +40,7 @@ impl Behaviour for Subcircuit {
 
             for (component_pin, circuit_pin) in circuit.output_pins.iter() {
                 let pin_comp = circuit.components.get(*circuit_pin).unwrap();
-                if let ComponentModel::OutputPin(p) = &pin_comp.component {
+                if let ComponentModel::OutputPin(p) = &pin_comp.model {
                     pins.set_value(*component_pin, p.value.get());
                 }
             }
@@ -65,7 +65,7 @@ impl Subcircuit {
                 ComponentPins::new(subcircuit_pins)
             },
             properties: ComponentProperties::new(vec![]),
-            component: ComponentModel::Subcircuit(NotInstantiated(subcircuit_name.to_string())),
+            model: ComponentModel::Subcircuit(NotInstantiated(subcircuit_name.to_string())),
         }
     }
 }

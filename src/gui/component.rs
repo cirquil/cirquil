@@ -21,28 +21,28 @@ pub trait Bounds {
 
 impl Component {
     pub fn mouse_pressed(&self, position: Pos2) {
-        match &self.component {
+        match &self.model {
             ComponentModel::ClockGenerator(c) => { c.mouse_pressed(position) }
             ComponentModel::InputButton(c) => { c.mouse_pressed(position) }
             _ => {}
         }
     }
     pub fn mouse_released(&self, position: Pos2) {
-        match &self.component {
+        match &self.model {
             ComponentModel::ClockGenerator(c) => { c.mouse_released(position) }
             ComponentModel::InputButton(c) => { c.mouse_released(position) }
             _ => {}
         }
     }
     pub fn mouse_clicked(&self, position: Pos2) {
-        match &self.component {
+        match &self.model {
             ComponentModel::ClockGenerator(c) => { c.mouse_clicked(position) }
             ComponentModel::InputButton(c) => { c.mouse_clicked(position) }
             _ => {}
         }
     }
     pub fn mouse_dragged(&self, delta: Vec2) {
-        match &self.component {
+        match &self.model {
             ComponentModel::ClockGenerator(c) => { c.mouse_dragged(delta) }
             ComponentModel::InputButton(c) => { c.mouse_dragged(delta) }
             _ => {}
@@ -50,14 +50,14 @@ impl Component {
     }
 
     pub fn key_typed(&self) {
-        match &self.component {
+        match &self.model {
             ComponentModel::ClockGenerator(c) => { c.key_typed() }
             ComponentModel::InputButton(c) => { c.key_typed() }
             _ => {}
         }
     }
     pub fn as_shapes(&self, context: &Context) -> Vec<Shape> {
-        match &self.component {
+        match &self.model {
             ComponentModel::ClockGenerator(c) => { c.as_shapes(context) }
             ComponentModel::AndGate(c) => { c.as_shapes(context) }
             ComponentModel::OrGate(c) => { c.as_shapes(context) }
@@ -71,7 +71,7 @@ impl Component {
         }
     }
     pub fn get_bounds(&self) -> Rect {
-        match &self.component {
+        match &self.model {
             ComponentModel::ClockGenerator(c) => { c.get_bounds() }
             ComponentModel::AndGate(c) => { c.get_bounds() }
             ComponentModel::OrGate(c) => { c.get_bounds() }

@@ -36,7 +36,7 @@ impl InputPin {
             properties: ComponentProperties::new(vec![
                 ("label".to_string(), Property::String(StringProperty::new(label.to_string())))
             ]),
-            component: ComponentModel::InputPin(InputPin {
+            model: ComponentModel::InputPin(InputPin {
                 value: Default::default(),
             }),
         }

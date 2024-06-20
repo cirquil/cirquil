@@ -36,7 +36,7 @@ impl OutputPin {
             properties: ComponentProperties::new(vec![
                 ("label".to_string(), Property::String(StringProperty::new(label.to_string())))
             ]),
-            component: ComponentModel::OutputPin(OutputPin {
+            model: ComponentModel::OutputPin(OutputPin {
                 value: Default::default(),
             }),
         }

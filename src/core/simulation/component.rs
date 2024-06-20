@@ -31,7 +31,7 @@ pub trait Tick {
 pub struct Component {
     pub pins: ComponentPins,
     pub properties: ComponentProperties,
-    pub component: ComponentModel,
+    pub model: ComponentModel,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -62,7 +62,7 @@ impl Component {
     }
 
     pub fn propagate(&self) {
-        match &self.component {
+        match &self.model {
             ComponentModel::ClockGenerator(c) => { c.propagate(&self.pins, &self.properties) }
             ComponentModel::AndGate(c) => { c.propagate(&self.pins, &self.properties) }
             ComponentModel::OrGate(c) => { c.propagate(&self.pins, &self.properties) }

@@ -14,7 +14,7 @@ impl DfsComponents {
     pub(crate) fn new(components: &[SavedComponent]) -> Self {
         let mut tunnel_to_loc: Vec<Option<Vec<Location>>> = Vec::new();
         let mut label_to_tunnel: HashMap<String, usize> = HashMap::new();
-        for (comp, tun) in components.iter().filter_map(|x| match &x.component.component {
+        for (comp, tun) in components.iter().filter_map(|x| match &x.component.model {
             ComponentModel::Tunnel(t) => Some((x, t)),
             _ => None
         })
