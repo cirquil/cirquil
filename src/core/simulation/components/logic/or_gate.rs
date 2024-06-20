@@ -57,7 +57,7 @@ impl OrGate {
         Component {
             pins: ComponentPins::new(pins),
             properties,
-            component: ComponentModel::OrGate(OrGate),
+            model: ComponentModel::OrGate(OrGate),
         }
     }
 

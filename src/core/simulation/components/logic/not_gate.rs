@@ -49,7 +49,7 @@ impl NotGate {
         Component {
             pins: ComponentPins::new(pins),
             properties,
-            component: ComponentModel::NotGate(NotGate),
+            model: ComponentModel::NotGate(NotGate),
         }
     }
 

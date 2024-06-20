@@ -40,7 +40,7 @@ impl ClockGenerator {
         Component {
             pins: ComponentPins::new(pins),
             properties: ComponentProperties::new(vec![]),
-            component: ComponentModel::ClockGenerator(ClockGenerator {
+            model: ComponentModel::ClockGenerator(ClockGenerator {
                 value: Cell::new(0),
             }),
         }

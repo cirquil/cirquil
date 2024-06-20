@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::core::simulation::component::{Component, ComponentIdx, ComponentModel, Tick};
-use crate::core::simulation::pin::Direction;
+use crate::core::simulation::pin::{Direction, PinIdx};
 use crate::core::simulation::value::operations::assign;
 use crate::core::simulation::wire::{Wire, WireIdx};
 
@@ -10,7 +10,11 @@ pub struct Circuit {
     pub components: Vec<Component>,
     pub wires: Vec<Wire>,
     pub clock_generators: Vec<ComponentIdx>,
+    pub input_pins: Vec<(PinIdx, ComponentIdx)>,
+    pub output_pins: Vec<(PinIdx, ComponentIdx)>,
 }
+
+pub type CircuitIdx = usize;
 
 impl Circuit {
     const ITERATIONS_TIMEOUT: u16 = 1000;
@@ -29,7 +33,7 @@ impl Circuit {
         for clock_idx in self.clock_generators.iter() {
             let clock = self.get_component(*clock_idx);
 
-            if let ComponentModel::ClockGenerator(c) = &clock.component {
+            if let ComponentModel::ClockGenerator(c) = &clock.model {
                 c.tick()
             }
         }

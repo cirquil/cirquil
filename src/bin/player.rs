@@ -1,9 +1,11 @@
+#![windows_subsystem = "windows"]
+
 use std::{env, fs};
 use std::process::exit;
 
 use egui::{Style, Visuals};
 
-use cirquil::core::compiler::{compile_circuit};
+use cirquil::core::compiler::project::compile_project;
 use cirquil::logisim::converter::convert_logisim_project;
 use cirquil::logisim::parser::parse_logisim;
 use cirquil::player::CirquilPlayerApp;
@@ -33,11 +35,15 @@ fn main() -> Result<(), eframe::Error> {
             };
             cc.egui_ctx.set_style(style);
 
-            let mut logisim_project = convert_logisim_project(parse_logisim(filename).unwrap());
-            let saved_circuit = logisim_project.circuits.remove(&logisim_project.top_circuit).unwrap();
-            let (circuit, canvas) = compile_circuit(saved_circuit);
-            circuit.propagate_all();
-            Box::new(CirquilPlayerApp { circuit, canvas })
+            let logisim_project = convert_logisim_project(parse_logisim(filename).unwrap());
+
+            let (current_circuit, compiled_circuits) = compile_project(logisim_project);
+
+            compiled_circuits.instantiated_circuits.iter().for_each(
+                |(circuit, _)| circuit.propagate_all()
+            );
+
+            Box::new(CirquilPlayerApp { circuits: compiled_circuits, current_circuit })
         }),
     )
 }

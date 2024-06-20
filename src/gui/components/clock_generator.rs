@@ -1,4 +1,4 @@
-use egui::{Color32, Pos2, Rect, Rounding, Shape, Stroke};
+use egui::{Color32, Context, Pos2, Rect, Rounding, Shape, Stroke};
 
 use crate::core::simulation::component::Tick;
 use crate::core::simulation::components::clock_generator::ClockGenerator;
@@ -13,7 +13,7 @@ impl Poke for ClockGenerator {
 }
 
 impl AsShapes for ClockGenerator {
-    fn as_shapes(&self) -> Vec<Shape> {
+    fn as_shapes(&self, _context: &Context) -> Vec<Shape> {
         let color = match self.value.get() {
             0 => Color32::DARK_GREEN,
             1 => Color32::LIGHT_GREEN,

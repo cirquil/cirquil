@@ -57,7 +57,7 @@ impl AndGate {
         Component {
             pins: ComponentPins::new(pins),
             properties,
-            component: ComponentModel::AndGate(AndGate),
+            model: ComponentModel::AndGate(AndGate),
         }
     }
 

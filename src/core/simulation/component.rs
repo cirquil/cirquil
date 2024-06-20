@@ -8,6 +8,9 @@ use crate::core::simulation::components::input::button::InputButton;
 use crate::core::simulation::components::logic::and_gate::AndGate;
 use crate::core::simulation::components::logic::not_gate::NotGate;
 use crate::core::simulation::components::logic::or_gate::OrGate;
+use crate::core::simulation::components::subcircuit::input_pin::InputPin;
+use crate::core::simulation::components::subcircuit::output_pin::OutputPin;
+use crate::core::simulation::components::subcircuit::Subcircuit;
 use crate::core::simulation::components::tunnel::Tunnel;
 use crate::core::simulation::pin::{Pin, PinIdx};
 use crate::core::simulation::property::Property;
@@ -28,7 +31,7 @@ pub trait Tick {
 pub struct Component {
     pub pins: ComponentPins,
     pub properties: ComponentProperties,
-    pub component: ComponentModel,
+    pub model: ComponentModel,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -39,6 +42,10 @@ pub enum ComponentModel {
     NotGate(NotGate),
     InputButton(InputButton),
     Tunnel(Tunnel),
+
+    InputPin(InputPin),
+    OutputPin(OutputPin),
+    Subcircuit(Subcircuit),
 }
 
 impl Component {
@@ -55,13 +62,17 @@ impl Component {
     }
 
     pub fn propagate(&self) {
-        match &self.component {
+        match &self.model {
             ComponentModel::ClockGenerator(c) => { c.propagate(&self.pins, &self.properties) }
             ComponentModel::AndGate(c) => { c.propagate(&self.pins, &self.properties) }
             ComponentModel::OrGate(c) => { c.propagate(&self.pins, &self.properties) }
             ComponentModel::NotGate(c) => { c.propagate(&self.pins, &self.properties) }
             ComponentModel::InputButton(c) => { c.propagate(&self.pins, &self.properties) }
             ComponentModel::Tunnel(_) => {}
+
+            ComponentModel::InputPin(c) => { c.propagate(&self.pins, &self.properties) }
+            ComponentModel::OutputPin(c) => { c.propagate(&self.pins, &self.properties) }
+            ComponentModel::Subcircuit(c) => { c.propagate(&self.pins, &self.properties) }
         }
     }
 }

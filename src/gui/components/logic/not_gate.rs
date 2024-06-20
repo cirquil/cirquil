@@ -1,11 +1,12 @@
 use eframe::emath::{Pos2, Rect};
 use eframe::epaint::{Color32, Shape, Stroke};
+use egui::Context;
 
 use crate::core::simulation::components::logic::not_gate::NotGate;
 use crate::gui::component::{AsShapes, Bounds};
 
 impl AsShapes for NotGate {
-    fn as_shapes(&self) -> Vec<Shape> {
+    fn as_shapes(&self, _context: &Context) -> Vec<Shape> {
         vec![
             Shape::convex_polygon(vec![
                 Pos2::new(-6f32, 0f32),

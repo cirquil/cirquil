@@ -34,7 +34,7 @@ impl Tunnel {
             Pin {
                 value: Cell::new(Default::default()),
                 bit_width,
-                direction: Direction::Output,
+                direction: Direction::Input,
                 wire: Cell::new(None),
                 location: Location::new(0, 0),
             }
@@ -43,7 +43,7 @@ impl Tunnel {
         Component {
             pins: ComponentPins::new(pins),
             properties,
-            component: ComponentModel::Tunnel(Tunnel { name }),
+            model: ComponentModel::Tunnel(Tunnel { name }),
         }
     }
 
