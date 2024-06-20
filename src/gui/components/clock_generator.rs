@@ -13,7 +13,7 @@ impl Poke for ClockGenerator {
 }
 
 impl AsShapes for ClockGenerator {
-    fn as_shapes(&self, context: &Context) -> Vec<Shape> {
+    fn as_shapes(&self, _context: &Context) -> Vec<Shape> {
         let color = match self.value.get() {
             0 => Color32::DARK_GREEN,
             1 => Color32::LIGHT_GREEN,

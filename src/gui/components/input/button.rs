@@ -18,7 +18,7 @@ impl Poke for InputButton {
 }
 
 impl AsShapes for InputButton {
-    fn as_shapes(&self, context: &Context) -> Vec<Shape> {
+    fn as_shapes(&self, _context: &Context) -> Vec<Shape> {
         match self.state.get() {
             1 => {
                 vec![

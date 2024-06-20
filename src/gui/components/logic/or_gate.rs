@@ -6,7 +6,7 @@ use crate::core::simulation::components::logic::or_gate::OrGate;
 use crate::gui::component::{AsShapes, Bounds};
 
 impl AsShapes for OrGate {
-    fn as_shapes(&self, context: &Context) -> Vec<Shape> {
+    fn as_shapes(&self, _context: &Context) -> Vec<Shape> {
         vec![
             Shape::QuadraticBezier(QuadraticBezierShape::from_points_stroke(
                 [
