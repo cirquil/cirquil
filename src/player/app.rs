@@ -29,10 +29,10 @@ impl eframe::App for CirquilPlayerApp {
                 .horizontal(|mut strip| {
                     strip.cell(|ui| {
                         ui.centered_and_justified(|ui| {
-                            if ui.button("Tick!").clicked() {
+                            if ui.button("Change circuit!").clicked() {
                                 self.current_circuit += 1;
 
-                                if self.current_circuit > 2 {
+                                if self.current_circuit >= self.circuits.instantiated_circuits.len() {
                                     self.current_circuit = 0;
                                 }
                             };
