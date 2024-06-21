@@ -74,14 +74,14 @@ impl eframe::App for CirquilPlayerApp {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
         if let Some(path) = &self.needs_reloading {
             self.load_project(path.clone()).unwrap();
-            self.current_file = self.needs_reloading.clone();
+            self.current_file.clone_from(&self.needs_reloading);
             self.needs_reloading = None;
         }
 
         let (circuit, canvas_circuit_idx) = self.circuits.instantiated_circuits.get(self.current_circuit).unwrap();
         let canvas = self.circuits.canvas_circuits.get(*canvas_circuit_idx).unwrap();
 
-        egui::TopBottomPanel::top("menu_panel").min_height(20.0).show(ctx, |ui| {
+        egui::TopBottomPanel::top("menu_panel").exact_height(20.0).show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
                     if ui.button("Open project").clicked() {
@@ -100,7 +100,7 @@ impl eframe::App for CirquilPlayerApp {
             });
         });
 
-        egui::TopBottomPanel::top("top_panel").min_height(50.0).show(ctx, |ui| {
+        egui::TopBottomPanel::top("top_panel").exact_height(50.0).show(ctx, |ui| {
             ui.centered_and_justified(|ui| {
                 ui.horizontal(|ui| {
                     if ui.add(Button::new("Open project").min_size(BUTTON_SIZE)).clicked() {
@@ -136,9 +136,12 @@ impl eframe::App for CirquilPlayerApp {
             })
         });
 
-        egui::SidePanel::left("left_panel").show(ctx, |ui| {
-            ui.heading("Simulation tree");
-        });
+        egui::SidePanel::left("left_panel")
+            .resizable(false)
+            .exact_width(150.0)
+            .show(ctx, |ui| {
+                ui.heading("Simulation tree");
+            });
 
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::Window::new("Oscilloscope").open(&mut self.osc_visible).show(ctx, draw_osc);
