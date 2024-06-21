@@ -4,10 +4,11 @@ use std::rc::Rc;
 
 use eframe::epaint::Shape;
 use eframe::Frame;
-use egui::{Button, containers, Context, Pos2, Sense, Separator, Stroke, Ui, Vec2};
+use egui::{Button, containers, Context, Label, Pos2, Sense, Separator, Stroke, Ui, Vec2, Widget};
+use egui::collapsing_header::CollapsingState;
 
 use crate::core::canvas::circuit::CanvasCircuit;
-use crate::core::compiler::project::InstantiatedCircuits;
+use crate::core::compiler::project::{InstantiatedCircuits, SimulationTreeNode};
 use crate::core::simulation::circuit::{Circuit, CircuitIdx};
 use crate::gui::constants::GRID_STEP;
 use crate::gui::grid;
@@ -54,7 +55,9 @@ impl CirquilPlayerApp {
                     input_pins: vec![],
                     output_pins: vec![],
                 }),
-                                             0)],
+                                             0),
+                ],
+                simulation_tree: SimulationTreeNode::Leaf(0),
             },
             current_circuit: 0,
             osc_visible: false,
@@ -141,12 +144,33 @@ impl eframe::App for CirquilPlayerApp {
             .exact_width(150.0)
             .show(ctx, |ui| {
                 ui.heading("Simulation tree");
+
+                traverse_simulation_tree(&self.circuits.simulation_tree, ui);
             });
 
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::Window::new("Oscilloscope").open(&mut self.osc_visible).show(ctx, draw_osc);
             containers::Frame::canvas(ui.style()).show(ui, |ui| draw_canvas(ui, ctx, canvas, circuit));
         });
+    }
+}
+
+fn traverse_simulation_tree(node: &SimulationTreeNode, ui: &mut Ui) {
+    match node {
+        SimulationTreeNode::Leaf(l) => {
+            if Label::new(l.to_string()).sense(Sense::click()).ui(ui).clicked() {}
+        }
+        SimulationTreeNode::Node(i, ch) => {
+            CollapsingState::load_with_default_open(ui.ctx(), ui.next_auto_id(), false)
+                .show_header(ui, |ui| {
+                    if Label::new(i.to_string()).sense(Sense::click()).ui(ui).clicked() {}
+                })
+                .body(|ui| {
+                    for c in ch {
+                        traverse_simulation_tree(c, ui);
+                    }
+                });
+        }
     }
 }
 

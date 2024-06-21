@@ -11,9 +11,18 @@ use crate::core::simulation::components::subcircuit::Subcircuit;
 use crate::serde::project::ProjectFile;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum SimulationTreeNode {
+    Leaf(CircuitIdx),
+    Node(CircuitIdx, Vec<SimulationTreeNode>),
+}
+
+pub type SimulationTreeRoot = SimulationTreeNode;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InstantiatedCircuits {
     pub canvas_circuits: Vec<CanvasCircuit>,
     pub instantiated_circuits: Vec<(Rc<Circuit>, CircuitIdx)>,
+    pub simulation_tree: SimulationTreeRoot,
 }
 
 pub fn compile_project(project: ProjectFile) -> (CircuitIdx, InstantiatedCircuits) {
@@ -32,11 +41,15 @@ pub fn compile_project(project: ProjectFile) -> (CircuitIdx, InstantiatedCircuit
                         &compiled_circuits, &name_to_idx,
                         &mut instantiated_circuits);
 
+    // TODO: Implement this
+    let simulation_tree = SimulationTreeNode::Leaf(0);
+    
     (
         instantiated_circuits.len() - 1,
         InstantiatedCircuits {
             canvas_circuits,
             instantiated_circuits,
+            simulation_tree,
         }
     )
 }
