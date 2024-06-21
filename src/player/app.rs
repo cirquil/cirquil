@@ -24,6 +24,7 @@ const BUTTON_SIZE: Vec2 = Vec2::new(40.0, 40.0);
 pub struct CirquilPlayerApp {
     pub circuits: InstantiatedCircuits,
     pub current_circuit: CircuitIdx,
+    pub top_circuit: CircuitIdx,
     pub osc_visible: bool,
     pub project_file: OpenedFile,
     pub simulation_ticker: SimulationTicker,
@@ -68,6 +69,7 @@ impl CirquilPlayerApp {
                 simulation_tree: SimulationTreeNode::Leaf(0),
             },
             current_circuit: 0,
+            top_circuit: 0,
             osc_visible: false,
             project_file: OpenedFile::new(initial_file.map(|x| PathBuf::from(x.as_ref()))),
             simulation_ticker: SimulationTicker {
@@ -96,7 +98,8 @@ impl eframe::App for CirquilPlayerApp {
             self.load_project(path).unwrap();
         }
 
-        let (circuit, canvas_circuit_idx) = self.circuits.instantiated_circuits.get(self.current_circuit).unwrap();
+        let (top_circuit, _) = self.circuits.instantiated_circuits.get(self.top_circuit).unwrap();
+        let (current_circuit, canvas_circuit_idx) = self.circuits.instantiated_circuits.get(self.current_circuit).unwrap();
         let canvas = self.circuits.canvas_circuits.get(*canvas_circuit_idx).unwrap();
 
         egui::TopBottomPanel::top("menu_panel").exact_height(20.0).show(ctx, |ui| {
@@ -139,8 +142,8 @@ impl eframe::App for CirquilPlayerApp {
                         self.clock_state = ClockState::Running;
                     }
                     if ui.add(Button::new("Tick").min_size(BUTTON_SIZE)).clicked() {
-                        circuit.tick();
-                        circuit.propagate_ticked();
+                        top_circuit.tick();
+                        top_circuit.propagate_ticked();
                     }
 
                     ui.add(egui::Slider::new(&mut self.simulation_ticker.clock_speed, 1..=100).text("Clock speed (Hz)"));
@@ -148,8 +151,8 @@ impl eframe::App for CirquilPlayerApp {
 
                     if self.clock_state == ClockState::Running
                         && (self.simulation_ticker.timer.elapsed() > self.simulation_ticker.clock_period) {
-                        circuit.tick();
-                        circuit.propagate_ticked();
+                        top_circuit.tick();
+                        top_circuit.propagate_ticked();
 
                         self.simulation_ticker.timer = Instant::now();
                     }
@@ -176,7 +179,7 @@ impl eframe::App for CirquilPlayerApp {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::Window::new("Oscilloscope").open(&mut self.osc_visible).show(ctx, draw_osc);
-            containers::Frame::canvas(ui.style()).show(ui, |ui| draw_canvas(ui, ctx, canvas, circuit));
+            containers::Frame::canvas(ui.style()).show(ui, |ui| draw_canvas(ui, ctx, canvas, current_circuit));
         });
     }
 }

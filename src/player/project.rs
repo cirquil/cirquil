@@ -68,14 +68,15 @@ impl CirquilPlayerApp {
             }
         };
 
-        let (current_circuit, compiled_circuits) = compile_project(project_file);
+        let (top_circuit, compiled_circuits) = compile_project(project_file);
 
         compiled_circuits.instantiated_circuits.iter().for_each(
             |(circuit, _)| circuit.propagate_all()
         );
 
         self.circuits = compiled_circuits;
-        self.current_circuit = current_circuit;
+        self.top_circuit = top_circuit;
+        self.current_circuit = top_circuit;
 
         Ok(())
     }
