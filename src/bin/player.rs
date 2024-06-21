@@ -1,25 +1,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{env, fs};
-use std::process::exit;
+use std::env;
 
 use egui::{Style, Visuals};
 
-use cirquil::core::compiler::project::compile_project;
-use cirquil::logisim::converter::convert_logisim_project;
-use cirquil::logisim::parser::parse_logisim;
 use cirquil::player::CirquilPlayerApp;
 
 fn main() -> Result<(), eframe::Error> {
-    let args: Vec<String> = env::args().collect();
-
-    let filename = args.get(1).unwrap_or(&"test.circ".to_string()).clone();
-
-    if let Err(err) = fs::metadata(&filename) {
-        println!("{}: {}", err, filename);
-        exit(1);
-    }
-
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default().with_inner_size([1000.0, 600.0]),
         ..Default::default()
@@ -35,15 +22,18 @@ fn main() -> Result<(), eframe::Error> {
             };
             cc.egui_ctx.set_style(style);
 
-            let logisim_project = convert_logisim_project(parse_logisim(filename).unwrap());
+            let args: Vec<String> = env::args().collect();
 
-            let (current_circuit, compiled_circuits) = compile_project(logisim_project);
+            let filename = args.get(1);
 
-            compiled_circuits.instantiated_circuits.iter().for_each(
-                |(circuit, _)| circuit.propagate_all()
-            );
-
-            Box::new(CirquilPlayerApp { circuits: compiled_circuits, current_circuit, osc_visible: false })
+            match filename {
+                Some(filename) => {
+                    Box::new(CirquilPlayerApp::new_with_file(filename))
+                }
+                None => {
+                    Box::new(CirquilPlayerApp::new())
+                }
+            }
         }),
     )
 }

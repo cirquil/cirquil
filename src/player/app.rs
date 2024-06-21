@@ -1,4 +1,6 @@
+use std::path::{Path, PathBuf};
 use std::process::exit;
+use std::rc::Rc;
 
 use eframe::epaint::Shape;
 use eframe::Frame;
@@ -11,7 +13,7 @@ use crate::gui::constants::GRID_STEP;
 use crate::gui::grid;
 use crate::gui::value::get_value_color;
 
-const GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
+const _GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
 
 const BUTTON_SIZE: Vec2 = Vec2::new(40.0, 40.0);
 
@@ -19,17 +21,74 @@ pub struct CirquilPlayerApp {
     pub circuits: InstantiatedCircuits,
     pub current_circuit: CircuitIdx,
     pub osc_visible: bool,
+    pub needs_reloading: Option<PathBuf>,
+    pub current_file: Option<PathBuf>,
+}
+
+impl CirquilPlayerApp {
+    pub fn new() -> Self {
+        Self::from_file_option::<PathBuf>(None)
+    }
+
+    pub fn new_with_file<P>(initial_file: P) -> Self
+        where P: AsRef<Path>
+    {
+        Self::from_file_option(Some(initial_file))
+    }
+
+    fn from_file_option<P>(initial_file: Option<P>) -> Self
+        where P: AsRef<Path>
+    {
+        Self {
+            circuits: InstantiatedCircuits {
+                canvas_circuits: vec![CanvasCircuit {
+                    components: vec![],
+                    wires: vec![],
+                    appearance: (),
+                    pins: (),
+                }],
+                instantiated_circuits: vec![(Rc::new(Circuit {
+                    components: vec![],
+                    wires: vec![],
+                    clock_generators: vec![],
+                    input_pins: vec![],
+                    output_pins: vec![],
+                }),
+                                             0)],
+            },
+            current_circuit: 0,
+            osc_visible: false,
+            needs_reloading: initial_file.map(|x| PathBuf::from(x.as_ref())),
+            current_file: None,
+        }
+    }
+}
+
+impl Default for CirquilPlayerApp {
+    fn default() -> Self {
+        Self::from_file_option::<PathBuf>(None)
+    }
 }
 
 impl eframe::App for CirquilPlayerApp {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
+        if let Some(path) = &self.needs_reloading {
+            self.load_project(path.clone()).unwrap();
+            self.current_file = self.needs_reloading.clone();
+            self.needs_reloading = None;
+        }
+
         let (circuit, canvas_circuit_idx) = self.circuits.instantiated_circuits.get(self.current_circuit).unwrap();
         let canvas = self.circuits.canvas_circuits.get(*canvas_circuit_idx).unwrap();
 
         egui::TopBottomPanel::top("menu_panel").min_height(20.0).show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
-                    let _ = ui.button("Open project");
+                    if ui.button("Open project").clicked() {
+                        if let Some(path) = rfd::FileDialog::new().pick_file() {
+                            self.needs_reloading = Some(path)
+                        }
+                    };
                     let _ = ui.button("Open workbench");
 
                     ui.add(Separator::default().horizontal());
@@ -44,7 +103,11 @@ impl eframe::App for CirquilPlayerApp {
         egui::TopBottomPanel::top("top_panel").min_height(50.0).show(ctx, |ui| {
             ui.centered_and_justified(|ui| {
                 ui.horizontal(|ui| {
-                    ui.add(Button::new("Open project").min_size(BUTTON_SIZE));
+                    if ui.add(Button::new("Open project").min_size(BUTTON_SIZE)).clicked() {
+                        if let Some(path) = rfd::FileDialog::new().pick_file() {
+                            self.needs_reloading = Some(path)
+                        }
+                    };
                     ui.add(Button::new("Open workbench").min_size(BUTTON_SIZE));
 
                     ui.add(Separator::default().vertical());
