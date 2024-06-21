@@ -18,6 +18,7 @@ const BUTTON_SIZE: Vec2 = Vec2::new(40.0, 40.0);
 pub struct CirquilPlayerApp {
     pub circuits: InstantiatedCircuits,
     pub current_circuit: CircuitIdx,
+    pub osc_visible: bool,
 }
 
 impl eframe::App for CirquilPlayerApp {
@@ -45,7 +46,9 @@ impl eframe::App for CirquilPlayerApp {
                 ui.horizontal(|ui| {
                     ui.add(Button::new("Open project").min_size(BUTTON_SIZE));
                     ui.add(Button::new("Open workbench").min_size(BUTTON_SIZE));
+
                     ui.add(Separator::default().vertical());
+
                     ui.add(Button::new("Record").min_size(BUTTON_SIZE));
                     ui.add_enabled(false, Button::new("Stop").min_size(BUTTON_SIZE));
                     ui.add(Button::new("Play").min_size(BUTTON_SIZE));
@@ -53,12 +56,18 @@ impl eframe::App for CirquilPlayerApp {
                         circuit.tick();
                         circuit.propagate_ticked();
                     }
+
+                    ui.add(Separator::default().vertical());
+
                     if ui.add(Button::new("Change circuit").min_size(BUTTON_SIZE)).clicked() {
                         self.current_circuit += 1;
 
                         if self.current_circuit >= self.circuits.instantiated_circuits.len() {
                             self.current_circuit = 0;
                         }
+                    }
+                    if ui.add(Button::new("Osc").min_size(BUTTON_SIZE)).clicked() {
+                        self.osc_visible = !self.osc_visible;
                     }
                 })
             })
@@ -69,9 +78,14 @@ impl eframe::App for CirquilPlayerApp {
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
+            egui::Window::new("Oscilloscope").open(&mut self.osc_visible).show(ctx, draw_osc);
             containers::Frame::canvas(ui.style()).show(ui, |ui| draw_canvas(ui, ctx, canvas, circuit));
         });
     }
+}
+
+fn draw_osc(ui: &mut Ui) {
+    ui.label("I am Osc");
 }
 
 fn draw_canvas(ui: &mut Ui, ctx: &Context, canvas: &CanvasCircuit, circuit: &Circuit) {

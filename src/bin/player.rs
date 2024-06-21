@@ -43,7 +43,7 @@ fn main() -> Result<(), eframe::Error> {
                 |(circuit, _)| circuit.propagate_all()
             );
 
-            Box::new(CirquilPlayerApp { circuits: compiled_circuits, current_circuit })
+            Box::new(CirquilPlayerApp { circuits: compiled_circuits, current_circuit, osc_visible: false })
         }),
     )
 }
