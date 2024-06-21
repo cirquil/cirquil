@@ -177,12 +177,12 @@ fn draw_canvas(ui: &mut Ui, ctx: &Context, canvas: &CanvasCircuit, circuit: &Cir
             let (s, e) = *segment;
             painter.line_segment(
                 [Pos2::from(s) + coords, Pos2::from(e) + coords],
-                Stroke::new(2f32, color),
+                Stroke::new(2.0, color),
             );
         }
         for node in &canvas_wire.nodes {
             painter.circle_filled(
-                Pos2::from(*node) + coords, 3.5f32,
+                Pos2::from(*node) + coords, 3.5,
                 color,
             );
         }
@@ -215,7 +215,7 @@ fn draw_canvas(ui: &mut Ui, ctx: &Context, canvas: &CanvasCircuit, circuit: &Cir
 
             shapes.push(Shape::circle_filled(
                 pin_coords.to_pos2(),
-                2f32,
+                2.0,
                 color,
             ));
         }

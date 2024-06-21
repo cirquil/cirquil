@@ -30,25 +30,25 @@ impl AsShapes for InputButton {
                 vec![
                     Shape::convex_polygon(
                         vec![
-                            Pos2::new(0f32, -10f32),
-                            Pos2::new(0f32, 10f32),
-                            Pos2::new(-20f32, 10f32),
-                            Pos2::new(-25f32, 5f32),
-                            Pos2::new(-5f32, 5f32),
-                            Pos2::new(-5f32, -15f32),
+                            Pos2::new(0.0, -10.0),
+                            Pos2::new(0.0, 10.0),
+                            Pos2::new(-20.0, 10.0),
+                            Pos2::new(-25.0, 5.0),
+                            Pos2::new(-5.0, 5.0),
+                            Pos2::new(-5.0, -15.0),
                         ],
                         Color32::WHITE, Stroke::new(2.0, Color32::BLACK),
                     ),
                     Shape::line(
                         vec![
-                            Pos2::new(-5f32, -15f32),
-                            Pos2::new(-25f32, -15f32),
-                            Pos2::new(-25f32, 5f32),
+                            Pos2::new(-5.0, -15.0),
+                            Pos2::new(-25.0, -15.0),
+                            Pos2::new(-25.0, 5.0),
                         ],
                         Stroke::new(2.0, Color32::BLACK),
                     ),
                     Shape::line_segment(
-                        [Pos2::new(-5f32, 5f32), Pos2::new(0f32, 10f32)],
+                        [Pos2::new(-5.0, 5.0), Pos2::new(0.0, 10.0)],
                         Stroke::new(2.0, Color32::BLACK),
                     ),
                 ]

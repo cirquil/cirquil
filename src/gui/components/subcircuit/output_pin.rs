@@ -9,8 +9,8 @@ impl AsShapes for OutputPin {
     fn as_shapes(&self, _context: &Context) -> Vec<Shape> {
         vec![
             Shape::rect_stroke(
-                Rect::from_x_y_ranges(0f32..=20f32, -10f32..=10f32),
-                Rounding::same(15f32), Stroke::new(2f32, Color32::GRAY),
+                Rect::from_x_y_ranges(0.0..=20.0, -10.0..=10.0),
+                Rounding::same(15.0), Stroke::new(2.0, Color32::GRAY),
             )
         ]
     }
