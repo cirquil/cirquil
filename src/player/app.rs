@@ -1,6 +1,7 @@
 use std::path::{Path, PathBuf};
 use std::process::exit;
 use std::rc::Rc;
+use std::time::{Duration, Instant};
 
 use eframe::epaint::Shape;
 use eframe::Frame;
@@ -13,6 +14,7 @@ use crate::core::simulation::circuit::{Circuit, CircuitIdx};
 use crate::gui::constants::GRID_STEP;
 use crate::gui::grid;
 use crate::gui::value::get_value_color;
+use crate::player::clock::{ClockState, SimulationTicker};
 use crate::player::file::OpenedFile;
 
 const _GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
@@ -24,6 +26,8 @@ pub struct CirquilPlayerApp {
     pub current_circuit: CircuitIdx,
     pub osc_visible: bool,
     pub project_file: OpenedFile,
+    pub simulation_ticker: SimulationTicker,
+    pub clock_state: ClockState,
 }
 
 impl CirquilPlayerApp {
@@ -66,6 +70,12 @@ impl CirquilPlayerApp {
             current_circuit: 0,
             osc_visible: false,
             project_file: OpenedFile::new(initial_file.map(|x| PathBuf::from(x.as_ref()))),
+            simulation_ticker: SimulationTicker {
+                clock_speed: 1,
+                clock_period: Duration::from_micros(1_000_000),
+                timer: Instant::now(),
+            },
+            clock_state: ClockState::Stopped,
         }
     }
 }
@@ -78,6 +88,10 @@ impl Default for CirquilPlayerApp {
 
 impl eframe::App for CirquilPlayerApp {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
+        if self.clock_state == ClockState::Running {
+            ctx.request_repaint_after(self.simulation_ticker.clock_period);
+        }
+
         if let Some(path) = self.project_file.check_load() {
             self.load_project(path).unwrap();
         }
@@ -117,11 +131,27 @@ impl eframe::App for CirquilPlayerApp {
                     ui.add(Separator::default().vertical());
 
                     ui.add(Button::new("Record").min_size(BUTTON_SIZE));
-                    ui.add_enabled(false, Button::new("Stop").min_size(BUTTON_SIZE));
-                    ui.add(Button::new("Play").min_size(BUTTON_SIZE));
+
+                    if ui.add_enabled(self.clock_state == ClockState::Running, Button::new("Stop").min_size(BUTTON_SIZE)).clicked() {
+                        self.clock_state = ClockState::Stopped;
+                    }
+                    if ui.add_enabled(self.clock_state == ClockState::Stopped, Button::new("Play").min_size(BUTTON_SIZE)).clicked() {
+                        self.clock_state = ClockState::Running;
+                    }
                     if ui.add(Button::new("Tick").min_size(BUTTON_SIZE)).clicked() {
                         circuit.tick();
                         circuit.propagate_ticked();
+                    }
+
+                    ui.add(egui::Slider::new(&mut self.simulation_ticker.clock_speed, 1..=100).text("Clock speed (Hz)"));
+                    self.simulation_ticker.clock_period = Duration::from_micros(1_000_000 / self.simulation_ticker.clock_speed);
+
+                    if self.clock_state == ClockState::Running
+                        && (self.simulation_ticker.timer.elapsed() > self.simulation_ticker.clock_period) {
+                        circuit.tick();
+                        circuit.propagate_ticked();
+
+                        self.simulation_ticker.timer = Instant::now();
                     }
 
                     ui.add(Separator::default().vertical());
