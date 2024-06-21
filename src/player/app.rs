@@ -4,7 +4,7 @@ use std::rc::Rc;
 
 use eframe::epaint::Shape;
 use eframe::Frame;
-use egui::{Button, containers, Context, Label, Pos2, Sense, Separator, Stroke, Ui, Vec2, Widget};
+use egui::{Button, containers, Context, Pos2, Sense, Separator, Stroke, Ui, Vec2};
 use egui::collapsing_header::CollapsingState;
 
 use crate::core::canvas::circuit::CanvasCircuit;
@@ -139,7 +139,7 @@ impl eframe::App for CirquilPlayerApp {
             .show(ctx, |ui| {
                 ui.heading("Simulation tree");
 
-                if let Some(i) = traverse_simulation_tree(ui, &self.circuits.simulation_tree, &self.circuits) {
+                if let Some(i) = traverse_simulation_tree(ui, &self.circuits.simulation_tree, &self.circuits, self.current_circuit) {
                     self.current_circuit = i;
                 }
             });
@@ -151,25 +151,25 @@ impl eframe::App for CirquilPlayerApp {
     }
 }
 
-fn traverse_simulation_tree(ui: &mut Ui, node: &SimulationTreeNode, circuits: &InstantiatedCircuits) -> Option<CircuitIdx> {
+fn traverse_simulation_tree(ui: &mut Ui, node: &SimulationTreeNode, circuits: &InstantiatedCircuits, current_circuit: CircuitIdx) -> Option<CircuitIdx> {
     let mut clicked_circuit = None;
 
     match node {
         SimulationTreeNode::Leaf(l) => {
-            if Label::new(circuits.get_circuit_name(*l)).sense(Sense::click()).ui(ui).clicked() {
+            if ui.selectable_label(*l == current_circuit, circuits.get_circuit_name(*l)).clicked() {
                 clicked_circuit = Some(*l);
             }
         }
         SimulationTreeNode::Node(i, ch) => {
             CollapsingState::load_with_default_open(ui.ctx(), ui.next_auto_id(), true)
                 .show_header(ui, |ui| {
-                    if Label::new(circuits.get_circuit_name(*i)).sense(Sense::click()).ui(ui).clicked() {
+                    if ui.selectable_label(*i == current_circuit, circuits.get_circuit_name(*i)).clicked() {
                         clicked_circuit = Some(*i);
                     }
                 })
                 .body(|ui| {
                     for c in ch {
-                        clicked_circuit = traverse_simulation_tree(ui, c, circuits).or(clicked_circuit);
+                        clicked_circuit = traverse_simulation_tree(ui, c, circuits, current_circuit).or(clicked_circuit);
                     }
                 });
         }
