@@ -13,6 +13,7 @@ use crate::core::simulation::circuit::{Circuit, CircuitIdx};
 use crate::gui::constants::GRID_STEP;
 use crate::gui::grid;
 use crate::gui::value::get_value_color;
+use crate::player::file::OpenedFile;
 
 const _GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
 
@@ -22,8 +23,7 @@ pub struct CirquilPlayerApp {
     pub circuits: InstantiatedCircuits,
     pub current_circuit: CircuitIdx,
     pub osc_visible: bool,
-    pub needs_reloading: Option<PathBuf>,
-    pub current_file: Option<PathBuf>,
+    pub project_file: OpenedFile,
 }
 
 impl CirquilPlayerApp {
@@ -65,8 +65,7 @@ impl CirquilPlayerApp {
             },
             current_circuit: 0,
             osc_visible: false,
-            needs_reloading: initial_file.map(|x| PathBuf::from(x.as_ref())),
-            current_file: None,
+            project_file: OpenedFile::new(initial_file.map(|x| PathBuf::from(x.as_ref()))),
         }
     }
 }
@@ -79,10 +78,8 @@ impl Default for CirquilPlayerApp {
 
 impl eframe::App for CirquilPlayerApp {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
-        if let Some(path) = &self.needs_reloading {
-            self.load_project(path.clone()).unwrap();
-            self.current_file.clone_from(&self.needs_reloading);
-            self.needs_reloading = None;
+        if let Some(path) = self.project_file.check_load() {
+            self.load_project(path).unwrap();
         }
 
         let (circuit, canvas_circuit_idx) = self.circuits.instantiated_circuits.get(self.current_circuit).unwrap();
@@ -93,7 +90,7 @@ impl eframe::App for CirquilPlayerApp {
                 ui.menu_button("File", |ui| {
                     if ui.button("Open project").clicked() {
                         if let Some(path) = rfd::FileDialog::new().pick_file() {
-                            self.needs_reloading = Some(path)
+                            self.project_file.request_open(path);
                         }
                     };
                     let _ = ui.button("Open workbench");
@@ -112,7 +109,7 @@ impl eframe::App for CirquilPlayerApp {
                 ui.horizontal(|ui| {
                     if ui.add(Button::new("Open project").min_size(BUTTON_SIZE)).clicked() {
                         if let Some(path) = rfd::FileDialog::new().pick_file() {
-                            self.needs_reloading = Some(path)
+                            self.project_file.request_open(path);
                         }
                     };
                     ui.add(Button::new("Open workbench").min_size(BUTTON_SIZE));

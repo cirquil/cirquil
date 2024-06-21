@@ -15,7 +15,7 @@ impl AsShapes for Tunnel {
         );
         let rect = label.visual_bounding_rect();
 
-        let polygon =  Shape::convex_polygon(
+        let polygon = Shape::convex_polygon(
             vec![
                 Pos2::ZERO,
                 Pos2::new(7.5, -10.0),
@@ -24,7 +24,7 @@ impl AsShapes for Tunnel {
                 Pos2::new(7.5, 10.0),
             ],
             Color32::WHITE,
-            Stroke::new(1.5, Color32::BLACK)
+            Stroke::new(1.5, Color32::BLACK),
         );
 
         vec![polygon, label]
