@@ -37,13 +37,9 @@ pub fn compile_project(project: ProjectFile) -> (CircuitIdx, InstantiatedCircuit
     }
     let mut instantiated_circuits: Vec<(Rc<Circuit>, CircuitIdx)> = Vec::new();
 
-    instantiate_project(project.top_circuit.as_str(),
-                        &compiled_circuits, &name_to_idx,
-                        &mut instantiated_circuits);
-
-    // TODO: Implement this
-    let simulation_tree = SimulationTreeNode::Leaf(0);
-    
+    let simulation_tree = instantiate_tree(project.top_circuit.as_str(),
+                                           &compiled_circuits, &name_to_idx,
+                                           &mut instantiated_circuits);
     (
         instantiated_circuits.len() - 1,
         InstantiatedCircuits {
@@ -54,19 +50,24 @@ pub fn compile_project(project: ProjectFile) -> (CircuitIdx, InstantiatedCircuit
     )
 }
 
-fn instantiate_project(name: &str,
-                       compiled_circuits: &HashMap<String, Circuit>,
-                       name_to_idx: &HashMap<String, CircuitIdx>,
-                       instantiated_circuits: &mut Vec<(Rc<Circuit>, CircuitIdx)>)
-                       -> CircuitIdx {
+fn instantiate_tree(name: &str,
+                    compiled_circuits: &HashMap<String, Circuit>,
+                    name_to_idx: &HashMap<String, CircuitIdx>,
+                    instantiated_circuits: &mut Vec<(Rc<Circuit>, CircuitIdx)>)
+                    -> SimulationTreeNode {
     let mut compiled = compiled_circuits[name].clone();
+    let mut children_trees: Vec<SimulationTreeNode> = Vec::new();
+
     for i in compiled.components.iter_mut() {
         if let ComponentModel::Subcircuit(Subcircuit::NotInstantiated(sub_name)) = &i.model {
-            let sub_idx = instantiate_project(sub_name, compiled_circuits,
-                                              name_to_idx, instantiated_circuits);
-
+            let sub_tree = instantiate_tree(sub_name, compiled_circuits,
+                                            name_to_idx, instantiated_circuits);
+            let sub_idx = match sub_tree {
+                SimulationTreeNode::Leaf(idx) => { idx }
+                SimulationTreeNode::Node(idx, _) => { idx }
+            };
+            children_trees.push(sub_tree);
             let (circuit, _) = instantiated_circuits.get(sub_idx).unwrap();
-
             i.model =
                 ComponentModel::Subcircuit(
                     Subcircuit::Instantiated(circuit.clone())
@@ -76,5 +77,9 @@ fn instantiate_project(name: &str,
 
     let idx: ComponentIdx = instantiated_circuits.len();
     instantiated_circuits.push((Rc::new(compiled), name_to_idx[name]));
-    idx
+    if children_trees.is_empty() {
+        SimulationTreeNode::Leaf(idx)
+    } else {
+        SimulationTreeNode::Node(idx, children_trees)
+    }
 }
