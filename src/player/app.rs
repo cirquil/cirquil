@@ -129,13 +129,6 @@ impl eframe::App for CirquilPlayerApp {
 
                     ui.add(Separator::default().vertical());
 
-                    if ui.add(Button::new("Change circuit").min_size(BUTTON_SIZE)).clicked() {
-                        self.current_circuit += 1;
-
-                        if self.current_circuit >= self.circuits.instantiated_circuits.len() {
-                            self.current_circuit = 0;
-                        }
-                    }
                     if ui.add(Button::new("Osc").min_size(BUTTON_SIZE)).clicked() {
                         self.osc_visible = !self.osc_visible;
                     }
@@ -149,7 +142,9 @@ impl eframe::App for CirquilPlayerApp {
             .show(ctx, |ui| {
                 ui.heading("Simulation tree");
 
-                traverse_simulation_tree(&self.circuits.simulation_tree, ui);
+                if let Some(i) = traverse_simulation_tree(ui, &self.circuits.simulation_tree, &self.circuits) {
+                    self.current_circuit = i;
+                }
             });
 
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -159,23 +154,31 @@ impl eframe::App for CirquilPlayerApp {
     }
 }
 
-fn traverse_simulation_tree(node: &SimulationTreeNode, ui: &mut Ui) {
+fn traverse_simulation_tree(ui: &mut Ui, node: &SimulationTreeNode, circuits: &InstantiatedCircuits) -> Option<CircuitIdx> {
+    let mut clicked_circuit = None;
+
     match node {
         SimulationTreeNode::Leaf(l) => {
-            if Label::new(l.to_string()).sense(Sense::click()).ui(ui).clicked() {}
+            if Label::new(circuits.get_circuit_name(*l)).sense(Sense::click()).ui(ui).clicked() {
+                clicked_circuit = Some(*l);
+            }
         }
         SimulationTreeNode::Node(i, ch) => {
-            CollapsingState::load_with_default_open(ui.ctx(), ui.next_auto_id(), false)
+            CollapsingState::load_with_default_open(ui.ctx(), ui.next_auto_id(), true)
                 .show_header(ui, |ui| {
-                    if Label::new(i.to_string() + "1").sense(Sense::click()).ui(ui).clicked() {}
+                    if Label::new(circuits.get_circuit_name(*i)).sense(Sense::click()).ui(ui).clicked() {
+                        clicked_circuit = Some(*i);
+                    }
                 })
                 .body(|ui| {
                     for c in ch {
-                        traverse_simulation_tree(c, ui);
+                        clicked_circuit = traverse_simulation_tree(ui, c, circuits).or(clicked_circuit);
                     }
                 });
         }
-    }
+    };
+
+    clicked_circuit
 }
 
 fn draw_osc(ui: &mut Ui) {

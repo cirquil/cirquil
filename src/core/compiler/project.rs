@@ -25,6 +25,14 @@ pub struct InstantiatedCircuits {
     pub simulation_tree: SimulationTreeRoot,
 }
 
+impl InstantiatedCircuits {
+    pub fn get_circuit_name(&self, idx: CircuitIdx) -> &str {
+        let (_, canvas_idx) = self.instantiated_circuits.get(idx).unwrap();
+
+        self.canvas_circuits.get(*canvas_idx).unwrap().name.as_str()
+    }
+}
+
 pub fn compile_project(project: ProjectFile) -> (CircuitIdx, InstantiatedCircuits) {
     let mut canvas_circuits: Vec<CanvasCircuit> = Vec::new();
     let mut compiled_circuits: Vec<Circuit> = Vec::new();
