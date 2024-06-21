@@ -30,7 +30,7 @@ pub fn compile_project(project: ProjectFile) -> (CircuitIdx, InstantiatedCircuit
     let mut compiled_circuits: Vec<Circuit> = Vec::new();
     let mut name_to_idx: HashMap<String, CircuitIdx> = HashMap::new();
     for (name, circ) in project.circuits.into_iter() {
-        let (compiled, canvas) = compile_circuit(circ.clone());
+        let (compiled, canvas) = compile_circuit(name.clone(), circ.clone());
         name_to_idx.insert(name, canvas_circuits.len());
         canvas_circuits.push(canvas);
         compiled_circuits.push(compiled);

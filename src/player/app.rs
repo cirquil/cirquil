@@ -43,19 +43,23 @@ impl CirquilPlayerApp {
         Self {
             circuits: InstantiatedCircuits {
                 canvas_circuits: vec![CanvasCircuit {
+                    name: String::new(),
                     components: vec![],
                     wires: vec![],
                     appearance: (),
                     pins: (),
                 }],
-                instantiated_circuits: vec![(Rc::new(Circuit {
-                    components: vec![],
-                    wires: vec![],
-                    clock_generators: vec![],
-                    input_pins: vec![],
-                    output_pins: vec![],
-                }),
-                                             0),
+                instantiated_circuits: vec![
+                    (
+                        Rc::new(Circuit {
+                            components: vec![],
+                            wires: vec![],
+                            clock_generators: vec![],
+                            input_pins: vec![],
+                            output_pins: vec![],
+                        }),
+                        0
+                    ),
                 ],
                 simulation_tree: SimulationTreeNode::Leaf(0),
             },
@@ -163,7 +167,7 @@ fn traverse_simulation_tree(node: &SimulationTreeNode, ui: &mut Ui) {
         SimulationTreeNode::Node(i, ch) => {
             CollapsingState::load_with_default_open(ui.ctx(), ui.next_auto_id(), false)
                 .show_header(ui, |ui| {
-                    if Label::new(i.to_string()).sense(Sense::click()).ui(ui).clicked() {}
+                    if Label::new(i.to_string() + "1").sense(Sense::click()).ui(ui).clicked() {}
                 })
                 .body(|ui| {
                     for c in ch {

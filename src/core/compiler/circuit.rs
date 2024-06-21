@@ -15,7 +15,7 @@ use crate::core::simulation::pin::PinIdx;
 use crate::core::simulation::wire::{Wire, WireIdx};
 use crate::serde::project::{SavedCircuit, SavedComponent, SavedWire};
 
-pub fn compile_circuit(saved_circuit: SavedCircuit) -> (Circuit, CanvasCircuit) {
+pub fn compile_circuit(name: String, saved_circuit: SavedCircuit) -> (Circuit, CanvasCircuit) {
     let mut wires_map: HashMap<Location, Vec<&SavedWire>> = HashMap::new();
     for i in saved_circuit.wires.iter() {
         match wires_map.get_mut(&i.start) {
@@ -132,6 +132,7 @@ pub fn compile_circuit(saved_circuit: SavedCircuit) -> (Circuit, CanvasCircuit) 
         output_pins,
     },
      CanvasCircuit {
+         name,
          components: canvas_components,
          wires: canvas_wires,
          appearance: (),
