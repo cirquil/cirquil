@@ -10,28 +10,28 @@ impl AsShapes for AndGate {
         vec![
             Shape::QuadraticBezier(QuadraticBezierShape::from_points_stroke(
                 [
-                    Pos2::new(0f32, 0f32),
-                    Pos2::new(-1f32, 14f32),
-                    Pos2::new(-13f32, 15f32)
+                    Pos2::new(0.0, 0.0),
+                    Pos2::new(-1.0, 14.0),
+                    Pos2::new(-13.0, 15.0)
                 ],
                 false,
-                Color32::WHITE, Stroke::new(2f32, Color32::BLACK),
+                Color32::WHITE, Stroke::new(2.0, Color32::BLACK),
             )),
             Shape::QuadraticBezier(QuadraticBezierShape::from_points_stroke(
                 [
-                    Pos2::new(0f32, 0f32),
-                    Pos2::new(-1f32, -14f32),
-                    Pos2::new(-13f32, -15f32)
+                    Pos2::new(0.0, 0.0),
+                    Pos2::new(-1.0, -14.0),
+                    Pos2::new(-13.0, -15.0)
                 ],
                 false,
-                Color32::WHITE, Stroke::new(2f32, Color32::BLACK),
+                Color32::WHITE, Stroke::new(2.0, Color32::BLACK),
             )),
             Shape::line(vec![
-                Pos2::new(-13f32, -15f32),
-                Pos2::new(-30f32, -15f32),
-                Pos2::new(-30f32, 15f32),
-                Pos2::new(-13f32, 15f32),
-            ], Stroke::new(2f32, Color32::BLACK)),
+                Pos2::new(-13.0, -15.0),
+                Pos2::new(-30.0, -15.0),
+                Pos2::new(-30.0, 15.0),
+                Pos2::new(-13.0, 15.0),
+            ], Stroke::new(2.0, Color32::BLACK)),
             // Shape::rect_filled(RECT, Rounding::ZERO, Color32::GREEN),
             // Shape::rect_stroke(RECT, Rounding::ZERO, Stroke::new(1.0, Color32::BLACK)),
         ]

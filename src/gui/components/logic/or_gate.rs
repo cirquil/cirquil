@@ -10,30 +10,30 @@ impl AsShapes for OrGate {
         vec![
             Shape::QuadraticBezier(QuadraticBezierShape::from_points_stroke(
                 [
-                    Pos2::new(0f32, 0f32),
-                    Pos2::new(-9f32, 16f32),
-                    Pos2::new(-30f32, 15f32)
+                    Pos2::new(0.0, 0.0),
+                    Pos2::new(-9.0, 16.0),
+                    Pos2::new(-30.0, 15.0)
                 ],
                 false,
-                Color32::TRANSPARENT, Stroke::new(2f32, Color32::BLACK),
+                Color32::TRANSPARENT, Stroke::new(2.0, Color32::BLACK),
             )),
             Shape::QuadraticBezier(QuadraticBezierShape::from_points_stroke(
                 [
-                    Pos2::new(0f32, 0f32),
-                    Pos2::new(-9f32, -16f32),
-                    Pos2::new(-30f32, -15f32)
+                    Pos2::new(0.0, 0.0),
+                    Pos2::new(-9.0, -16.0),
+                    Pos2::new(-30.0, -15.0)
                 ],
                 false,
-                Color32::TRANSPARENT, Stroke::new(2f32, Color32::BLACK),
+                Color32::TRANSPARENT, Stroke::new(2.0, Color32::BLACK),
             )),
             Shape::QuadraticBezier(QuadraticBezierShape::from_points_stroke(
                 [
-                    Pos2::new(-30f32, 15f32),
-                    Pos2::new(-20f32, -0f32),
-                    Pos2::new(-30f32, -15f32)
+                    Pos2::new(-30.0, 15.0),
+                    Pos2::new(-20.0, -0.0),
+                    Pos2::new(-30.0, -15.0)
                 ],
                 false,
-                Color32::TRANSPARENT, Stroke::new(2f32, Color32::BLACK),
+                Color32::TRANSPARENT, Stroke::new(2.0, Color32::BLACK),
             )),
         ]
     }

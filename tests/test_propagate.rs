@@ -35,6 +35,8 @@ pub fn test_propagate() {
         components: vec![and_a, and_b, clock],
         wires: vec![wire1, wire2],
         clock_generators: vec![2],
+        input_pins: vec![],
+        output_pins: vec![],
     };
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
@@ -78,6 +80,8 @@ pub fn test_or() {
         components: vec![or, clock],
         wires: vec![wire],
         clock_generators: vec![1],
+        input_pins: vec![],
+        output_pins: vec![],
     };
 
     println!("{:?} {:?}", circuit.components, circuit.wires);
@@ -117,6 +121,8 @@ pub fn test_not() {
         components: vec![clock, not],
         wires: vec![wire],
         clock_generators: vec![0],
+        input_pins: vec![],
+        output_pins: vec![],
     };
 
     println!("{:?} {:?}", circuit.components, circuit.wires);

@@ -5,6 +5,7 @@ use crate::core::canvas::wire::CanvasWire;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CanvasCircuit {
+    pub name: String,
     pub components: Vec<CanvasComponent>,
     pub wires: Vec<CanvasWire>,
     pub appearance: (),
