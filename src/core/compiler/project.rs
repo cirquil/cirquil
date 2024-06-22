@@ -1,7 +1,9 @@
+use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::rc::Rc;
 
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::core::canvas::circuit::CanvasCircuit;
 use crate::core::compiler::circuit::compile_circuit;
@@ -23,6 +25,7 @@ pub struct InstantiatedCircuits {
     pub canvas_circuits: Vec<CanvasCircuit>,
     pub instantiated_circuits: Vec<(Rc<Circuit>, CircuitIdx)>,
     pub simulation_tree: SimulationTreeRoot,
+    pub by_uuid: HashMap<Uuid, (CircuitIdx, ComponentIdx)>,
 }
 
 impl InstantiatedCircuits {
@@ -48,13 +51,15 @@ pub fn compile_project(project: ProjectFile) -> (CircuitIdx, InstantiatedCircuit
     let simulation_tree = instantiate_tree(project.top_circuit.as_str(), &name_to_idx,
                                            &compiled_circuits,
                                            &mut instantiated_circuits);
+    let by_uuid = traverse_uuid(&instantiated_circuits);
     (
         instantiated_circuits.len() - 1,
         InstantiatedCircuits {
             canvas_circuits,
             instantiated_circuits,
             simulation_tree,
-        }
+            by_uuid,
+        },
     )
 }
 
@@ -91,4 +96,24 @@ fn instantiate_tree(name: &str,
     } else {
         SimulationTreeNode::Node(idx, children_trees)
     }
+}
+
+// CircuitIdx in instantiated_circuits is index in canvas_circuits
+// while in return value it is index in instantiated_circuits
+fn traverse_uuid(instantiated_circuits: &Vec<(Rc<Circuit>, CircuitIdx)>)
+                 -> HashMap<Uuid, (CircuitIdx, ComponentIdx)> {
+    let mut ret: HashMap<Uuid, (CircuitIdx, ComponentIdx)> = HashMap::new();
+    for (circ_idx, circuit) in instantiated_circuits.iter().enumerate() {
+        for (comp_idx, component) in circuit.0.components.iter().enumerate() {
+            match ret.entry(component.uuid) {
+                Entry::Occupied(_) => {
+                    panic!("UUID {} clash!!!", component.uuid.to_string())
+                }
+                Entry::Vacant(vac) => {
+                    vac.insert((circ_idx, comp_idx));
+                }
+            }
+        }
+    }
+    ret
 }

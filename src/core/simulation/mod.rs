@@ -7,3 +7,4 @@ pub mod wire;
 pub mod value;
 pub mod components;
 pub mod probe;
+pub mod workbench;

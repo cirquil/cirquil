@@ -1,4 +1,5 @@
 use std::cmp::max;
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::process::exit;
 use std::rc::Rc;
@@ -14,7 +15,7 @@ use crate::core::canvas::circuit::CanvasCircuit;
 use crate::core::canvas::location::Location;
 use crate::core::compiler::project::{InstantiatedCircuits, SimulationTreeNode};
 use crate::core::simulation::circuit::{Circuit, CircuitIdx};
-use crate::core::simulation::probe::Probe;
+use crate::core::simulation::probe::{CanvasProbe, Probe};
 use crate::gui::component::AsShapes;
 use crate::gui::constants::GRID_STEP;
 use crate::gui::grid;
@@ -24,7 +25,8 @@ use crate::player::file::OpenedFile;
 use crate::player::instrument::Instrument;
 use crate::player::project::show_load_project_file_dialog;
 use crate::serde::fs::{deserialize_from_file, serialize_to_file};
-use crate::serde::workbench::{SavedProbe, show_load_workbench_file_dialogue, show_save_workbench_file_dialogue, WorkbenchFile};
+use crate::serde::workbench::{show_load_workbench_file_dialogue, show_save_workbench_file_dialogue, WorkbenchFile};
+use crate::core::simulation::workbench;
 
 const _GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
 
@@ -39,7 +41,7 @@ pub struct CirquilPlayerApp {
     pub project_file: OpenedFile,
     pub simulation_ticker: SimulationTicker,
     pub clock_state: ClockState,
-    pub probes: Vec<SavedProbe>,
+    pub probes: Vec<CanvasProbe>,
     pub probe_max_id: usize,
     pub workbench_file: OpenedFile,
     pub current_instrument: Instrument,
@@ -51,13 +53,15 @@ impl CirquilPlayerApp {
     }
 
     pub fn new_with_file<P>(initial_file: P) -> Self
-        where P: AsRef<Path>
+    where
+        P: AsRef<Path>,
     {
         Self::from_file_option(Some(initial_file))
     }
 
     fn from_file_option<P>(initial_file: Option<P>) -> Self
-        where P: AsRef<Path>
+    where
+        P: AsRef<Path>,
     {
         Self {
             circuits: InstantiatedCircuits {
@@ -81,6 +85,7 @@ impl CirquilPlayerApp {
                     ),
                 ],
                 simulation_tree: SimulationTreeNode::Leaf(0),
+                by_uuid: HashMap::new(),
             },
             current_circuit: 0,
             top_circuit: 0,
@@ -136,8 +141,7 @@ impl eframe::App for CirquilPlayerApp {
                         if let Some(path) = show_load_workbench_file_dialogue()
                         {
                             let workbench_file: WorkbenchFile = deserialize_from_file(path).unwrap();
-
-                            self.probes = workbench_file.probes;
+                            self.probes = workbench::from_workbench_file(workbench_file, &self.circuits).unwrap();
                         }
 
                         ui.close_menu();
@@ -145,10 +149,7 @@ impl eframe::App for CirquilPlayerApp {
 
                     if ui.button("Save workbench").clicked() {
                         if let Some(path) = show_save_workbench_file_dialogue() {
-                            let workbench_file = WorkbenchFile {
-                                probes: self.probes.clone(),
-                            };
-
+                            let workbench_file = workbench::to_workbench_file(&self.probes, &self.circuits);
                             serialize_to_file(&workbench_file, path).unwrap();
                         }
 
@@ -176,8 +177,7 @@ impl eframe::App for CirquilPlayerApp {
                         if let Some(path) = show_load_workbench_file_dialogue()
                         {
                             let workbench_file: WorkbenchFile = deserialize_from_file(path).unwrap();
-
-                            self.probes = workbench_file.probes;
+                            self.probes = workbench::from_workbench_file(workbench_file, &self.circuits).unwrap();
                         }
                     }
 
@@ -198,7 +198,7 @@ impl eframe::App for CirquilPlayerApp {
                         top_circuit.tick();
                         top_circuit.propagate_ticked();
 
-                        for SavedProbe { probe, .. } in &self.probes {
+                        for CanvasProbe { probe, .. } in &self.probes {
                             let (circuit, _) = self.circuits.instantiated_circuits.get(probe.circuit).unwrap();
 
                             let value = circuit.wires.get(probe.wire).unwrap().value.get();
@@ -278,10 +278,10 @@ impl eframe::App for CirquilPlayerApp {
     }
 }
 
-fn traverse_probes(ui: &mut Ui, probes: &mut Vec<SavedProbe>, current_circuit: &mut CircuitIdx) {
+fn traverse_probes(ui: &mut Ui, probes: &mut Vec<CanvasProbe>, current_circuit: &mut CircuitIdx) {
     let mut remove_idx = None;
 
-    for (idx, SavedProbe { probe, .. }) in probes.iter_mut().enumerate() {
+    for (idx, CanvasProbe { probe, .. }) in probes.iter_mut().enumerate() {
         let label = ui.selectable_label(false, probe.name.as_str());
 
         if label.clicked() {
@@ -351,7 +351,7 @@ fn calculate_canvas_bounds(canvas: &CanvasCircuit) -> Vec2 {
     Vec2::new(max_coord as f32, max_coord as f32)
 }
 
-fn draw_canvas(ui: &mut Ui, ctx: &Context, current_circuit: CircuitIdx, instantiated_circuits: &InstantiatedCircuits, probes: &mut Vec<SavedProbe>, probe_id: &mut usize, current_instrument: &Instrument) {
+fn draw_canvas(ui: &mut Ui, ctx: &Context, current_circuit: CircuitIdx, instantiated_circuits: &InstantiatedCircuits, probes: &mut Vec<CanvasProbe>, probe_id: &mut usize, current_instrument: &Instrument) {
     let (circuit, canvas_idx) = instantiated_circuits.instantiated_circuits.get(current_circuit).unwrap();
     let canvas = instantiated_circuits.canvas_circuits.get(*canvas_idx).unwrap();
 
@@ -443,7 +443,7 @@ fn draw_canvas(ui: &mut Ui, ctx: &Context, current_circuit: CircuitIdx, instanti
                 probe_location.y = probe_location.y - (probe_location.y % (2 * margin)) + margin;
 
                 probes.push(
-                    SavedProbe {
+                    CanvasProbe {
                         location: probe_location,
                         probe: Probe {
                             name: format!("probe_{}", probe_id),
@@ -458,7 +458,7 @@ fn draw_canvas(ui: &mut Ui, ctx: &Context, current_circuit: CircuitIdx, instanti
         }
     }
 
-    for SavedProbe { location, probe } in probes {
+    for CanvasProbe { location, probe } in probes {
         if current_circuit == probe.circuit {
             let mut shapes = probe.as_shapes(ctx);
             for shape in shapes.iter_mut() {

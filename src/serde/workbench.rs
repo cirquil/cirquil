@@ -1,14 +1,23 @@
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::core::canvas::location::Location;
+use crate::core::simulation::pin::PinIdx;
 use crate::core::simulation::probe::Probe;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SavedProbe {
+    pub name: String,
     pub location: Location,
-    pub probe: Probe,
+    pub pins: Vec<ProbePin>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProbePin {
+    pub component: Uuid,
+    pub pin: PinIdx,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
