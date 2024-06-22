@@ -26,6 +26,7 @@ pub struct CirquilPlayerApp {
     pub current_circuit: CircuitIdx,
     pub top_circuit: CircuitIdx,
     pub osc_visible: bool,
+    pub record_armed: bool,
     pub project_file: OpenedFile,
     pub simulation_ticker: SimulationTicker,
     pub clock_state: ClockState,
@@ -71,6 +72,7 @@ impl CirquilPlayerApp {
             current_circuit: 0,
             top_circuit: 0,
             osc_visible: false,
+            record_armed: false,
             project_file: OpenedFile::new(initial_file.map(|x| PathBuf::from(x.as_ref()))),
             simulation_ticker: SimulationTicker {
                 clock_speed: 1,
@@ -133,7 +135,9 @@ impl eframe::App for CirquilPlayerApp {
 
                     ui.add(Separator::default().vertical());
 
-                    ui.add(Button::new("Record").min_size(BUTTON_SIZE));
+                    if ui.add(Button::new("Record").min_size(BUTTON_SIZE).selected(self.record_armed)).clicked() {
+                        self.record_armed = !self.record_armed;
+                    }
 
                     if ui.add_enabled(self.clock_state == ClockState::Running, Button::new("Stop").min_size(BUTTON_SIZE)).clicked() {
                         self.clock_state = ClockState::Stopped;
@@ -141,7 +145,8 @@ impl eframe::App for CirquilPlayerApp {
                     if ui.add_enabled(self.clock_state == ClockState::Stopped, Button::new("Play").min_size(BUTTON_SIZE)).clicked() {
                         self.clock_state = ClockState::Running;
                     }
-                    if ui.add(Button::new("Tick").min_size(BUTTON_SIZE)).clicked() {
+                    
+                    if ui.add_enabled(self.clock_state == ClockState::Stopped, Button::new("Tick").min_size(BUTTON_SIZE)).clicked() {
                         top_circuit.tick();
                         top_circuit.propagate_ticked();
                     }
