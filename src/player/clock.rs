@@ -3,7 +3,7 @@ use std::time::{Duration, Instant};
 #[derive(Debug, Eq, PartialEq)]
 pub enum ClockState {
     Stopped,
-    Running
+    Running,
 }
 
 #[derive(Debug, Clone)]

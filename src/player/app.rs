@@ -1,3 +1,4 @@
+use std::cmp::max;
 use std::path::{Path, PathBuf};
 use std::process::exit;
 use std::rc::Rc;
@@ -5,17 +6,23 @@ use std::time::{Duration, Instant};
 
 use eframe::epaint::Shape;
 use eframe::Frame;
-use egui::{Button, containers, Context, Pos2, Sense, Separator, Stroke, Ui, Vec2};
+use egui::{Button, containers, Context, Pos2, ScrollArea, Sense, Separator, Stroke, Ui, Vec2, Vec2b};
 use egui::collapsing_header::CollapsingState;
+use egui_extras::{Size, StripBuilder};
 
 use crate::core::canvas::circuit::CanvasCircuit;
+use crate::core::canvas::location::Location;
 use crate::core::compiler::project::{InstantiatedCircuits, SimulationTreeNode};
 use crate::core::simulation::circuit::{Circuit, CircuitIdx};
+use crate::core::simulation::probe::Probe;
+use crate::gui::component::AsShapes;
 use crate::gui::constants::GRID_STEP;
 use crate::gui::grid;
 use crate::gui::value::get_value_color;
 use crate::player::clock::{ClockState, SimulationTicker};
 use crate::player::file::OpenedFile;
+use crate::player::instrument::Instrument;
+use crate::serde::workbench::SavedProbe;
 
 const _GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
 
@@ -30,6 +37,10 @@ pub struct CirquilPlayerApp {
     pub project_file: OpenedFile,
     pub simulation_ticker: SimulationTicker,
     pub clock_state: ClockState,
+    pub probes: Vec<SavedProbe>,
+    pub probe_max_id: usize,
+    pub workbench_file: OpenedFile,
+    pub current_instrument: Instrument,
 }
 
 impl CirquilPlayerApp {
@@ -49,7 +60,7 @@ impl CirquilPlayerApp {
         Self {
             circuits: InstantiatedCircuits {
                 canvas_circuits: vec![CanvasCircuit {
-                    name: String::new(),
+                    name: "main".to_string(),
                     components: vec![],
                     wires: vec![],
                     appearance: (),
@@ -80,6 +91,10 @@ impl CirquilPlayerApp {
                 timer: Instant::now(),
             },
             clock_state: ClockState::Stopped,
+            probes: vec![],
+            probe_max_id: 0,
+            workbench_file: OpenedFile::new(None),
+            current_instrument: Instrument::None,
         }
     }
 }
@@ -101,8 +116,6 @@ impl eframe::App for CirquilPlayerApp {
         }
 
         let (top_circuit, _) = self.circuits.instantiated_circuits.get(self.top_circuit).unwrap();
-        let (current_circuit, canvas_circuit_idx) = self.circuits.instantiated_circuits.get(self.current_circuit).unwrap();
-        let canvas = self.circuits.canvas_circuits.get(*canvas_circuit_idx).unwrap();
 
         egui::TopBottomPanel::top("menu_panel").exact_height(20.0).show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
@@ -111,6 +124,8 @@ impl eframe::App for CirquilPlayerApp {
                         if let Some(path) = rfd::FileDialog::new().pick_file() {
                             self.project_file.request_open(path);
                         }
+
+                        ui.close_menu()
                     };
                     let _ = ui.button("Open workbench");
 
@@ -145,10 +160,18 @@ impl eframe::App for CirquilPlayerApp {
                     if ui.add_enabled(self.clock_state == ClockState::Stopped, Button::new("Play").min_size(BUTTON_SIZE)).clicked() {
                         self.clock_state = ClockState::Running;
                     }
-                    
+
                     if ui.add_enabled(self.clock_state == ClockState::Stopped, Button::new("Tick").min_size(BUTTON_SIZE)).clicked() {
                         top_circuit.tick();
                         top_circuit.propagate_ticked();
+
+                        for SavedProbe { probe, .. } in &self.probes {
+                            let (circuit, _) = self.circuits.instantiated_circuits.get(probe.circuit).unwrap();
+
+                            let value = circuit.wires.get(probe.wire).unwrap().value.get();
+
+                            println!("{}: {:?}", probe.name, value);
+                        }
                     }
 
                     ui.add(egui::Slider::new(&mut self.simulation_ticker.clock_speed, 1..=100).text("Clock speed (Hz)"));
@@ -164,6 +187,13 @@ impl eframe::App for CirquilPlayerApp {
 
                     ui.add(Separator::default().vertical());
 
+                    if ui.add(Button::new("Probe").min_size(BUTTON_SIZE).selected(self.current_instrument == Instrument::Probe)).clicked() {
+                        self.current_instrument = match &self.current_instrument {
+                            Instrument::None => Instrument::Probe,
+                            Instrument::Probe => Instrument::None,
+                        }
+                    }
+
                     if ui.add(Button::new("Osc").min_size(BUTTON_SIZE)).clicked() {
                         self.osc_visible = !self.osc_visible;
                     }
@@ -175,17 +205,69 @@ impl eframe::App for CirquilPlayerApp {
             .resizable(false)
             .exact_width(150.0)
             .show(ctx, |ui| {
-                ui.heading("Simulation tree");
+                StripBuilder::new(ui)
+                    .size(Size::relative(0.5))
+                    .size(Size::exact(15.0))
+                    .size(Size::remainder())
+                    .vertical(|mut strip| {
+                        strip.cell(|ui| {
+                            ui.heading("Simulation tree");
 
-                if let Some(i) = traverse_simulation_tree(ui, &self.circuits.simulation_tree, &self.circuits, self.current_circuit) {
-                    self.current_circuit = i;
-                }
+                            ScrollArea::vertical().id_source("simulation_tree_scroll").auto_shrink(Vec2b::new(false, false)).show(ui, |ui| {
+                                if let Some(i) = traverse_simulation_tree(ui, &self.circuits.simulation_tree, &self.circuits, self.current_circuit) {
+                                    self.current_circuit = i;
+                                }
+                            });
+                        });
+
+                        strip.cell(|ui| {
+                            ui.centered_and_justified(|ui| {
+                                ui.add(Separator::default().horizontal());
+                            });
+                        });
+
+                        strip.cell(|ui| {
+                            ui.heading("Probes");
+
+                            ScrollArea::vertical().id_source("probes_scroll").auto_shrink(Vec2b::new(false, false)).show(ui, |ui| {
+                                traverse_probes(ui, &mut self.probes, &mut self.current_circuit);
+                            });
+                        })
+                    });
             });
 
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::Window::new("Oscilloscope").open(&mut self.osc_visible).show(ctx, draw_osc);
-            containers::Frame::canvas(ui.style()).show(ui, |ui| draw_canvas(ui, ctx, canvas, current_circuit));
+            ScrollArea::both().id_source("canvas_scroll").show(ui, |ui| {
+                containers::Frame::canvas(ui.style()).show(ui, |ui| draw_canvas(ui, ctx, self.current_circuit, &self.circuits, &mut self.probes, &mut self.probe_max_id, &self.current_instrument));
+            });
         });
+    }
+}
+
+fn traverse_probes(ui: &mut Ui, probes: &mut Vec<SavedProbe>, current_circuit: &mut CircuitIdx) {
+    let mut remove_idx = None;
+
+    for (idx, SavedProbe { probe, .. }) in probes.iter_mut().enumerate() {
+        let label = ui.selectable_label(false, probe.name.as_str());
+
+        if label.clicked() {
+            *current_circuit = probe.circuit;
+        }
+
+        label.context_menu(|ui| {
+            ui.text_edit_singleline(&mut probe.name);
+
+            if ui.button("Remove").clicked() {
+                remove_idx = Some(idx);
+
+                ui.close_menu();
+            }
+        });
+    }
+
+    if let Some(idx) = remove_idx {
+        probes.remove(idx);
     }
 }
 
@@ -220,9 +302,30 @@ fn draw_osc(ui: &mut Ui) {
     ui.label("I am Osc");
 }
 
-fn draw_canvas(ui: &mut Ui, ctx: &Context, canvas: &CanvasCircuit, circuit: &Circuit) {
+fn calculate_canvas_bounds(canvas: &CanvasCircuit) -> Vec2 {
+    let max_component_x = canvas.components.iter()
+        .max_by(|a, b| a.loc.x.cmp(&b.loc.x))
+        .map(|comp| comp.loc.x * 2)
+        .unwrap_or(1000);
+
+    let max_component_y = canvas.components.iter()
+        .max_by(|a, b| a.loc.x.cmp(&b.loc.x))
+        .map(|comp| comp.loc.y * 2)
+        .unwrap_or(1000);
+
+    let max_coord = max(max_component_x, max_component_y);
+
+    Vec2::new(max_coord as f32, max_coord as f32)
+}
+
+fn draw_canvas(ui: &mut Ui, ctx: &Context, current_circuit: CircuitIdx, instantiated_circuits: &InstantiatedCircuits, probes: &mut Vec<SavedProbe>, probe_id: &mut usize, current_instrument: &Instrument) {
+    let (circuit, canvas_idx) = instantiated_circuits.instantiated_circuits.get(current_circuit).unwrap();
+    let canvas = instantiated_circuits.canvas_circuits.get(*canvas_idx).unwrap();
+
+    let canvas_bounds = calculate_canvas_bounds(canvas);
+
     let (response, painter) =
-        ui.allocate_painter(ui.available_size_before_wrap(), Sense::click_and_drag());
+        ui.allocate_painter(canvas_bounds, Sense::click_and_drag());
 
     grid::draw(&response.rect, &painter);
     let coords = response.rect.min.to_vec2();
@@ -290,5 +393,46 @@ fn draw_canvas(ui: &mut Ui, ctx: &Context, canvas: &CanvasCircuit, circuit: &Cir
         }
 
         painter.extend(shapes);
+    }
+
+    if *current_instrument == Instrument::Probe && response.clicked() {
+        if let Some(mut interact_pos) = response.interact_pointer_pos() {
+            interact_pos -= coords;
+
+            let margin = 10;
+
+            if let Some(wire) = canvas.wires.iter()
+                .find(|wire| wire.contains(Location::from(interact_pos), margin))
+            {
+                let mut probe_location = Location::from(interact_pos);
+
+                probe_location.x = probe_location.x - (probe_location.x % (2 * margin)) + margin;
+                probe_location.y = probe_location.y - (probe_location.y % (2 * margin)) + margin;
+
+                probes.push(
+                    SavedProbe {
+                        location: probe_location,
+                        probe: Probe {
+                            name: format!("probe_{}", probe_id),
+                            circuit: current_circuit,
+                            wire: wire.wire,
+                        },
+                    }
+                );
+
+                *probe_id += 1;
+            }
+        }
+    }
+
+    for SavedProbe { location, probe } in probes {
+        if current_circuit == probe.circuit {
+            let mut shapes = probe.as_shapes(ctx);
+            for shape in shapes.iter_mut() {
+                shape.translate(coords + Vec2::from(*location))
+            }
+
+            painter.extend(shapes);
+        }
     }
 }

@@ -77,6 +77,8 @@ impl CirquilPlayerApp {
         self.circuits = compiled_circuits;
         self.top_circuit = top_circuit;
         self.current_circuit = top_circuit;
+        self.probes = vec![];
+        self.probe_max_id = 0;
 
         Ok(())
     }
