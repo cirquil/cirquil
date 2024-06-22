@@ -7,6 +7,7 @@ use crate::core::simulation::circuit::Circuit;
 use crate::core::simulation::component::{Behaviour, Component, ComponentModel, ComponentPins, ComponentProperties};
 use crate::core::simulation::components::subcircuit::Subcircuit::NotInstantiated;
 use crate::core::simulation::pin::Pin;
+use crate::core::uuid::make_uuid;
 use crate::serde::project::SavedCircuit;
 
 pub mod input_pin;
@@ -66,6 +67,7 @@ impl Subcircuit {
             },
             properties: ComponentProperties::new(vec![]),
             model: ComponentModel::Subcircuit(NotInstantiated(subcircuit_name.to_string())),
+            uuid: make_uuid(),
         }
     }
 }

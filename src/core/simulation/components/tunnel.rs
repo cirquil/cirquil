@@ -6,6 +6,7 @@ use crate::core::canvas::location::Location;
 use crate::core::simulation::component::{Component, ComponentModel, ComponentPins, ComponentProperties};
 use crate::core::simulation::pin::{Direction, Pin};
 use crate::core::simulation::property::{BoundedIntegerProperty, IntegerProperty, Property, StringProperty};
+use crate::core::uuid::make_uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Tunnel {
@@ -44,6 +45,7 @@ impl Tunnel {
             pins: ComponentPins::new(pins),
             properties,
             model: ComponentModel::Tunnel(Tunnel { name }),
+            uuid: make_uuid(),
         }
     }
 

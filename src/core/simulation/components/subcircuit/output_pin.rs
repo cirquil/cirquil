@@ -7,6 +7,7 @@ use crate::core::simulation::component::{Behaviour, Component, ComponentModel, C
 use crate::core::simulation::pin::{Direction, Pin};
 use crate::core::simulation::property::{Property, StringProperty};
 use crate::core::simulation::value::Value;
+use crate::core::uuid::make_uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OutputPin {
@@ -39,6 +40,7 @@ impl OutputPin {
             model: ComponentModel::OutputPin(OutputPin {
                 value: Default::default(),
             }),
+            uuid: make_uuid(),
         }
     }
 }
