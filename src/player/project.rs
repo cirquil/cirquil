@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::io::Error as StdIoError;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::core::compiler::project::compile_project;
 use crate::logisim::converter::convert_logisim_project;
@@ -82,4 +82,12 @@ impl CirquilPlayerApp {
 
         Ok(())
     }
+}
+
+pub fn show_load_project_file_dialog() -> Option<PathBuf> {
+    rfd::FileDialog::new()
+        .add_filter("All supported formats", vec!["cirq", "circ"].as_slice())
+        .add_filter("Cirquil Project", vec!["cirq"].as_slice())
+        .add_filter("Logisim Project", vec!["circ"].as_slice())
+        .pick_file()
 }

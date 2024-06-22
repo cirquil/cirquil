@@ -22,7 +22,9 @@ use crate::gui::value::get_value_color;
 use crate::player::clock::{ClockState, SimulationTicker};
 use crate::player::file::OpenedFile;
 use crate::player::instrument::Instrument;
-use crate::serde::workbench::SavedProbe;
+use crate::player::project::show_load_project_file_dialog;
+use crate::serde::fs::{deserialize_from_file, serialize_to_file};
+use crate::serde::workbench::{SavedProbe, show_load_workbench_file_dialogue, show_save_workbench_file_dialogue, WorkbenchFile};
 
 const _GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
 
@@ -121,13 +123,37 @@ impl eframe::App for CirquilPlayerApp {
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
                     if ui.button("Open project").clicked() {
-                        if let Some(path) = rfd::FileDialog::new().pick_file() {
+                        if let Some(path) = show_load_project_file_dialog() {
                             self.project_file.request_open(path);
                         }
 
                         ui.close_menu()
                     };
-                    let _ = ui.button("Open workbench");
+
+                    ui.add(Separator::default().horizontal());
+
+                    if ui.button("Open workbench").clicked() {
+                        if let Some(path) = show_load_workbench_file_dialogue()
+                        {
+                            let workbench_file: WorkbenchFile = deserialize_from_file(path).unwrap();
+
+                            self.probes = workbench_file.probes;
+                        }
+
+                        ui.close_menu();
+                    }
+
+                    if ui.button("Save workbench").clicked() {
+                        if let Some(path) = show_save_workbench_file_dialogue() {
+                            let workbench_file = WorkbenchFile {
+                                probes: self.probes.clone(),
+                            };
+
+                            serialize_to_file(&workbench_file, path).unwrap();
+                        }
+
+                        ui.close_menu();
+                    }
 
                     ui.add(Separator::default().horizontal());
 
@@ -142,11 +168,18 @@ impl eframe::App for CirquilPlayerApp {
             ui.centered_and_justified(|ui| {
                 ui.horizontal(|ui| {
                     if ui.add(Button::new("Open project").min_size(BUTTON_SIZE)).clicked() {
-                        if let Some(path) = rfd::FileDialog::new().pick_file() {
+                        if let Some(path) = show_load_project_file_dialog() {
                             self.project_file.request_open(path);
                         }
                     };
-                    ui.add(Button::new("Open workbench").min_size(BUTTON_SIZE));
+                    if ui.add(Button::new("Open workbench").min_size(BUTTON_SIZE)).clicked() {
+                        if let Some(path) = show_load_workbench_file_dialogue()
+                        {
+                            let workbench_file: WorkbenchFile = deserialize_from_file(path).unwrap();
+
+                            self.probes = workbench_file.probes;
+                        }
+                    }
 
                     ui.add(Separator::default().vertical());
 
