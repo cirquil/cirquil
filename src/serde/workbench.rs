@@ -34,4 +34,5 @@ pub struct OscilloscopeRow {
 pub struct WorkbenchFile {
     pub probes: Vec<SavedProbe>,
     pub oscilloscope_config: OscilloscopeConfig,
+    pub last_probe_id: usize,
 }

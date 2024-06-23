@@ -13,8 +13,9 @@ impl CirquilPlayerApp {
     {
         let workbench_file: WorkbenchFile = deserialize_from_file(path).unwrap();
 
-        let (probes, osc) = from_workbench_file(workbench_file, &self.circuits);
+        let (probes, osc, last_probe_id) = from_workbench_file(workbench_file, &self.circuits);
         self.osc = osc;
+        self.probe_max_id = last_probe_id;
 
         let verified_probes: Vec<CanvasProbe> = probes.iter()
             .filter(|probe| probe.is_ok())
@@ -39,7 +40,8 @@ impl CirquilPlayerApp {
     where
         P: AsRef<Path>,
     {
-        let workbench_file = to_workbench_file(&self.probes, &self.osc, &self.circuits);
+        let workbench_file = to_workbench_file(&self.probes, &self.osc,
+                                               &self.circuits, self.probe_max_id);
         serialize_to_file(&workbench_file, path).unwrap();
     }
 }

@@ -114,7 +114,8 @@ impl CanvasProbe {
 pub fn from_workbench_file(workbench_file: WorkbenchFile,
                            circuits: &InstantiatedCircuits)
                            -> (Vec<Result<CanvasProbe, String>>,
-                               osc::Oscilloscope) {
+                               osc::Oscilloscope,
+                               usize) {
     let canvas_probes: Vec<Result<CanvasProbe, String>> = workbench_file.probes
         .into_iter()
         .map(|x| CanvasProbe::from_saved(x, circuits))
@@ -135,12 +136,13 @@ pub fn from_workbench_file(workbench_file: WorkbenchFile,
         })
     }
 
-    (canvas_probes, osciloscope)
+    (canvas_probes, osciloscope, workbench_file.last_probe_id)
 }
 
 pub fn to_workbench_file(canvas_probes: &[CanvasProbe],
                          oscilloscope: &osc::Oscilloscope,
-                         circuits: &InstantiatedCircuits)
+                         circuits: &InstantiatedCircuits,
+                         last_probe_id: usize)
                          -> WorkbenchFile {
     let saved_probes: Vec<SavedProbe> = canvas_probes
         .iter()
@@ -161,5 +163,6 @@ pub fn to_workbench_file(canvas_probes: &[CanvasProbe],
     WorkbenchFile {
         probes: saved_probes,
         oscilloscope_config,
+        last_probe_id,
     }
 }
