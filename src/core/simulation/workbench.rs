@@ -49,7 +49,7 @@ impl CanvasProbe {
             match wire {
                 Some(prev) => {
                     if cur_wire != prev {
-                        return Err(format!("Probe {}: two components were connected to one wire, now they don't", saved.name));
+                        return Err(format!("Probe {}: multiple components were connected to one wire, now they don't", saved.name));
                     }
                 }
                 None => {
@@ -111,8 +111,8 @@ impl CanvasProbe {
 
 pub fn from_workbench_file(workbench_file: WorkbenchFile,
                            circuits: &InstantiatedCircuits)
-                           -> Result<Vec<CanvasProbe>, String> {
-    let canvas_probes: Result<Vec<CanvasProbe>, String> = workbench_file.probes
+                           -> Vec<Result<CanvasProbe, String>> {
+    let canvas_probes: Vec<Result<CanvasProbe, String>> = workbench_file.probes
         .into_iter()
         .map(|x| CanvasProbe::from_saved(x, circuits))
         .collect();
