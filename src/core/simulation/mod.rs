@@ -8,3 +8,4 @@ pub mod value;
 pub mod components;
 pub mod probe;
 pub mod workbench;
+pub mod trace;

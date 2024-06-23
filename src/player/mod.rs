@@ -5,3 +5,4 @@ mod project;
 mod file;
 mod clock;
 mod instrument;
+mod trace;
