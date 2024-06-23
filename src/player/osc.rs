@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
-use egui::{ComboBox, ScrollArea, Ui};
+use egui::{Color32, ComboBox, RichText, ScrollArea, Ui};
 
 use crate::core::compiler::project::InstantiatedCircuits;
 use crate::core::simulation::probe::CanvasProbe;
 use crate::core::simulation::trace::Trace;
 use crate::core::simulation::value::Value;
+use crate::gui::value::get_value_color;
 
 #[derive(Debug, Clone, Default)]
 pub struct OscilloscopeRow {
@@ -125,16 +126,41 @@ pub fn draw_osc(ui: &mut Ui, osc: &mut Oscilloscope, probes: &[CanvasProbe]) {
             ScrollArea::horizontal().id_source(ui.next_auto_id()).stick_to_right(true).show(ui, |ui| {
                 ui.vertical(|ui| {
                     for OscilloscopeRow { trace_idx, .. } in osc.rows.iter() {
+                        let spacing = 7.0;
+
+                        ui.add_space(spacing);
+
                         ui.horizontal(|ui| {
                             let trace = osc.trace.traces.get(*trace_idx).unwrap();
 
                             for value in trace.iter() {
-                                match value {
-                                    Some(v) => ui.monospace(v.get_defined_value().to_string()),
-                                    None => ui.monospace("-".to_string()),
+                                let (text, color) = match value {
+                                    Some(v) => {
+                                        (
+                                            v.get_defined_value().to_string(),
+                                            get_value_color(*v, 1)
+                                        )
+                                    }
+                                    None => {
+                                        (
+                                            "-".to_string(),
+                                            Color32::BLACK,
+                                        )
+                                    }
                                 };
+                                ui.monospace(
+                                    RichText::new(text)
+                                        .size(25.0)
+                                        .color(color)
+                                );
+
+                                ui.separator();
                             }
                         });
+
+                        ui.add_space(spacing);
+
+                        ui.separator();
                     }
                 });
             });
