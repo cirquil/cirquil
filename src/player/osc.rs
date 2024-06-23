@@ -129,7 +129,10 @@ pub fn draw_osc(ui: &mut Ui, osc: &mut Oscilloscope, probes: &[CanvasProbe]) {
                             let trace = osc.trace.traces.get(*trace_idx).unwrap();
 
                             for value in trace.iter() {
-                                ui.label(value.get_defined_value().to_string());
+                                match value {
+                                    Some(v) => ui.monospace(v.get_defined_value().to_string()),
+                                    None => ui.monospace("-".to_string()),
+                                };
                             }
                         });
                     }
