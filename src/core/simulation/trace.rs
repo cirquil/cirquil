@@ -1,34 +1,28 @@
-use std::collections::HashMap;
-
 use crate::core::simulation::value::Value;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Trace {
     pub recorded_samples: u64,
-    pub traces: HashMap<String, Vec<Value>>,
-}
-
-impl Default for Trace {
-    fn default() -> Self {
-        Self {
-            recorded_samples: 0,
-            traces: HashMap::new(),
-        }
-    }
+    pub traces: Vec<Vec<Value>>,
 }
 
 impl Trace {
-    pub fn add_sample(&mut self, sample: Vec<(&str, Value)>) {
-        for (name, value) in sample {
-            self.traces.get_mut(name).unwrap().push(value);
+    pub fn add_sample(&mut self, sample: Vec<(usize, Value)>) {
+        for (idx, value) in sample {
+            self.traces.get_mut(idx).unwrap().push(value);
         }
+
+        self.recorded_samples += 1;
     }
 
-    pub fn add_row(&mut self, name: &str) {
-        self.traces.insert(name.to_string(), vec![Value::default(); self.recorded_samples as usize]);
+    pub fn add_row(&mut self) -> usize {
+        self.traces.push(vec![Value::default(); self.recorded_samples as usize]);
+
+        self.traces.len() - 1
     }
 
-    pub fn remove_row(&mut self, name: &str) {
-        self.traces.remove(name);
-    }
+    // pub fn remove_row(&mut self, trace: Rc<Vec<Value>>) {
+    //     let idx = self.traces.iter().position(|x| **x == *trace).unwrap();
+    //     self.traces.remove(idx);
+    // }
 }

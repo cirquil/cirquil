@@ -15,7 +15,6 @@ use crate::core::canvas::location::Location;
 use crate::core::compiler::project::{InstantiatedCircuits, SimulationTreeNode};
 use crate::core::simulation::circuit::{Circuit, CircuitIdx};
 use crate::core::simulation::probe::{CanvasProbe, Probe};
-use crate::core::simulation::trace::Trace;
 use crate::core::simulation::workbench;
 use crate::gui::component::AsShapes;
 use crate::gui::constants::GRID_STEP;
@@ -24,6 +23,7 @@ use crate::gui::value::get_value_color;
 use crate::player::clock::{ClockState, SimulationTicker};
 use crate::player::file::OpenedFile;
 use crate::player::instrument::Instrument;
+use crate::player::osc::{draw_osc, Oscilloscope};
 use crate::player::project::show_load_project_file_dialog;
 use crate::serde::fs::{deserialize_from_file, serialize_to_file};
 use crate::serde::workbench::{show_load_workbench_file_dialogue, show_save_workbench_file_dialogue, WorkbenchFile};
@@ -45,7 +45,7 @@ pub struct CirquilPlayerApp {
     pub probe_max_id: usize,
     pub workbench_file: OpenedFile,
     pub current_instrument: Instrument,
-    pub trace: Trace,
+    pub osc: Oscilloscope,
 }
 
 impl CirquilPlayerApp {
@@ -104,7 +104,7 @@ impl CirquilPlayerApp {
             probe_max_id: 0,
             workbench_file: OpenedFile::new(None),
             current_instrument: Instrument::None,
-            trace: Trace::default(),
+            osc: Oscilloscope::default(),
         }
     }
 }
@@ -128,11 +128,9 @@ impl eframe::App for CirquilPlayerApp {
         let (top_circuit, _) = self.circuits.instantiated_circuits.get(self.top_circuit).unwrap();
 
         if self.simulation_ticker.check_tick_needed() {
-            self.tick(&top_circuit);
+            self.tick(top_circuit);
 
-            self.collect_probe_values();
-
-            println!("{:?}", &self.trace.recorded_samples);
+            self.osc.collect_probe_values(self.probes.as_slice(), &self.circuits);
         }
 
         egui::TopBottomPanel::top("menu_panel").exact_height(20.0).show(ctx, |ui| {
@@ -271,9 +269,14 @@ impl eframe::App for CirquilPlayerApp {
             });
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            egui::Window::new("Oscilloscope").open(&mut self.osc_visible).show(ctx, draw_osc);
+            egui::Window::new("Oscilloscope")
+                .min_size(Vec2::new(300.0, 200.0))
+                .max_size(Vec2::new(1400.0, 600.0))
+                .open(&mut self.osc_visible)
+                .show(ctx, |ui| draw_osc(ui, &mut self.osc, self.probes.as_slice()));
+
             ScrollArea::both().id_source("canvas_scroll").show(ui, |ui| {
-                containers::Frame::canvas(ui.style()).show(ui, |ui| draw_canvas(ui, ctx, self.current_circuit, &self.circuits, &mut self.probes, &mut self.probe_max_id, &self.current_instrument, &mut self.trace));
+                containers::Frame::canvas(ui.style()).show(ui, |ui| draw_canvas(ui, ctx, self.current_circuit, &self.circuits, &mut self.probes, &mut self.probe_max_id, &self.current_instrument));
             });
         });
     }
@@ -332,10 +335,6 @@ fn traverse_simulation_tree(ui: &mut Ui, node: &SimulationTreeNode, circuits: &I
     clicked_circuit
 }
 
-fn draw_osc(ui: &mut Ui) {
-    ui.label("I am Osc");
-}
-
 fn calculate_canvas_bounds(canvas: &CanvasCircuit) -> Vec2 {
     let max_component_x = canvas.components.iter()
         .max_by(|a, b| a.loc.x.cmp(&b.loc.x))
@@ -352,7 +351,7 @@ fn calculate_canvas_bounds(canvas: &CanvasCircuit) -> Vec2 {
     Vec2::new(max_coord as f32, max_coord as f32)
 }
 
-fn draw_canvas(ui: &mut Ui, ctx: &Context, current_circuit: CircuitIdx, instantiated_circuits: &InstantiatedCircuits, probes: &mut Vec<CanvasProbe>, probe_id: &mut usize, current_instrument: &Instrument, trace: &mut Trace) {
+fn draw_canvas(ui: &mut Ui, ctx: &Context, current_circuit: CircuitIdx, instantiated_circuits: &InstantiatedCircuits, probes: &mut Vec<CanvasProbe>, probe_id: &mut usize, current_instrument: &Instrument) {
     let (circuit, canvas_idx) = instantiated_circuits.instantiated_circuits.get(current_circuit).unwrap();
     let canvas = instantiated_circuits.canvas_circuits.get(*canvas_idx).unwrap();
 
@@ -455,8 +454,6 @@ fn draw_canvas(ui: &mut Ui, ctx: &Context, current_circuit: CircuitIdx, instanti
                         },
                     }
                 );
-
-                trace.add_row(probe_name.as_str());
 
                 *probe_id += 1;
             }
