@@ -5,12 +5,12 @@ use uuid::Uuid;
 
 use crate::core::canvas::location::Location;
 use crate::core::simulation::pin::PinIdx;
-use crate::core::simulation::probe::Probe;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SavedProbe {
     pub name: String,
     pub location: Location,
+    pub subcircuit_path: Vec<Uuid>,
     pub pins: Vec<ProbePin>,
 }
 

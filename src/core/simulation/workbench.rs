@@ -13,6 +13,7 @@ impl CanvasProbe {
         return SavedProbe {
             name: self.probe.name.clone(),
             location: self.location,
+            subcircuit_path: vec![],
             pins: vec![],
         };
     }

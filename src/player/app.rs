@@ -1,5 +1,4 @@
 use std::cmp::max;
-use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::process::exit;
 use std::rc::Rc;
@@ -16,6 +15,7 @@ use crate::core::canvas::location::Location;
 use crate::core::compiler::project::{InstantiatedCircuits, SimulationTreeNode};
 use crate::core::simulation::circuit::{Circuit, CircuitIdx};
 use crate::core::simulation::probe::{CanvasProbe, Probe};
+use crate::core::simulation::workbench;
 use crate::gui::component::AsShapes;
 use crate::gui::constants::GRID_STEP;
 use crate::gui::grid;
@@ -26,7 +26,6 @@ use crate::player::instrument::Instrument;
 use crate::player::project::show_load_project_file_dialog;
 use crate::serde::fs::{deserialize_from_file, serialize_to_file};
 use crate::serde::workbench::{show_load_workbench_file_dialogue, show_save_workbench_file_dialogue, WorkbenchFile};
-use crate::core::simulation::workbench;
 
 const _GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
 
@@ -85,7 +84,7 @@ impl CirquilPlayerApp {
                     ),
                 ],
                 simulation_tree: SimulationTreeNode::Leaf(0),
-                by_uuid: HashMap::new(),
+                by_uuid: vec![],
             },
             current_circuit: 0,
             top_circuit: 0,

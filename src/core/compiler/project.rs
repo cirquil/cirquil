@@ -25,7 +25,7 @@ pub struct InstantiatedCircuits {
     pub canvas_circuits: Vec<CanvasCircuit>,
     pub instantiated_circuits: Vec<(Rc<Circuit>, CircuitIdx)>,
     pub simulation_tree: SimulationTreeRoot,
-    pub by_uuid: HashMap<Uuid, (CircuitIdx, ComponentIdx)>,
+    pub by_uuid: Vec<HashMap<Uuid, ComponentIdx>>,
 }
 
 impl InstantiatedCircuits {
@@ -41,17 +41,19 @@ pub fn compile_project(project: ProjectFile) -> (CircuitIdx, InstantiatedCircuit
     let mut compiled_circuits: Vec<Circuit> = Vec::new();
     let mut name_to_idx: HashMap<String, CircuitIdx> = HashMap::new();
     for (name, circ) in project.circuits.into_iter() {
-        let (compiled, canvas) = compile_circuit(name.clone(), circ.clone());
+        let (compiled, canvas) = compile_circuit(name.clone(), circ);
         name_to_idx.insert(name, canvas_circuits.len());
         canvas_circuits.push(canvas);
         compiled_circuits.push(compiled);
     }
-    let mut instantiated_circuits: Vec<(Rc<Circuit>, CircuitIdx)> = Vec::new();
+    let by_uuid = compiled_circuits.iter()
+        .map(traverse_uuids)
+        .collect();
 
+    let mut instantiated_circuits: Vec<(Rc<Circuit>, CircuitIdx)> = Vec::new();
     let simulation_tree = instantiate_tree(project.top_circuit.as_str(), &name_to_idx,
                                            &compiled_circuits,
                                            &mut instantiated_circuits);
-    let by_uuid = traverse_uuid(&instantiated_circuits);
     (
         instantiated_circuits.len() - 1,
         InstantiatedCircuits {
@@ -98,20 +100,16 @@ fn instantiate_tree(name: &str,
     }
 }
 
-// CircuitIdx in instantiated_circuits is index in canvas_circuits
-// while in return value it is index in instantiated_circuits
-fn traverse_uuid(instantiated_circuits: &Vec<(Rc<Circuit>, CircuitIdx)>)
-                 -> HashMap<Uuid, (CircuitIdx, ComponentIdx)> {
-    let mut ret: HashMap<Uuid, (CircuitIdx, ComponentIdx)> = HashMap::new();
-    for (circ_idx, circuit) in instantiated_circuits.iter().enumerate() {
-        for (comp_idx, component) in circuit.0.components.iter().enumerate() {
-            match ret.entry(component.uuid) {
-                Entry::Occupied(_) => {
-                    panic!("UUID {} clash!!!", component.uuid.to_string())
-                }
-                Entry::Vacant(vac) => {
-                    vac.insert((circ_idx, comp_idx));
-                }
+fn traverse_uuids(circuit: &Circuit)
+                  -> HashMap<Uuid, ComponentIdx> {
+    let mut ret: HashMap<Uuid, ComponentIdx> = HashMap::new();
+    for (comp_idx, component) in circuit.components.iter().enumerate() {
+        match ret.entry(component.uuid) {
+            Entry::Occupied(_) => {
+                panic!("UUID {} clash!!!", component.uuid.to_string())
+            }
+            Entry::Vacant(vac) => {
+                vac.insert(comp_idx);
             }
         }
     }

@@ -1,9 +1,6 @@
-use std::collections::HashMap;
-use uuid::Uuid;
 use crate::core::canvas::location::Location;
 use crate::core::simulation::circuit::CircuitIdx;
 use crate::core::simulation::wire::WireIdx;
-use crate::serde::workbench::SavedProbe;
 
 #[derive(Debug, Clone)]
 pub struct CanvasProbe {
