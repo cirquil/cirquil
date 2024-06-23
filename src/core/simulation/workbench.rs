@@ -56,14 +56,14 @@ impl CanvasProbe {
             }
         }
 
-        return Ok(CanvasProbe {
+        Ok(CanvasProbe {
             location: saved.location,
             probe: Probe {
                 name: saved.name,
                 circuit: circ_instance,
                 wire: wire.unwrap(),
             },
-        });
+        })
     }
     fn to_saved(&self, circuits: &InstantiatedCircuits)
                 -> SavedProbe {
@@ -88,12 +88,12 @@ impl CanvasProbe {
                 }
             })
             .collect();
-        return SavedProbe {
+        SavedProbe {
             name: self.probe.name.clone(),
             location: self.location,
             subcircuit_path: vec![],
             pins,
-        };
+        }
     }
 }
 
@@ -108,7 +108,7 @@ pub fn from_workbench_file(workbench_file: WorkbenchFile,
     canvas_probes
 }
 
-pub fn to_workbench_file(canvas_probes: &Vec<CanvasProbe>,
+pub fn to_workbench_file(canvas_probes: &[CanvasProbe],
                          circuits: &InstantiatedCircuits)
                          -> WorkbenchFile {
     let saved_probes: Vec<SavedProbe> = canvas_probes

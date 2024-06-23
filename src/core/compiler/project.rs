@@ -115,7 +115,7 @@ fn traverse_uuids(circuit: &Circuit)
     for (comp_idx, component) in circuit.components.iter().enumerate() {
         match ret.entry(component.uuid) {
             Entry::Occupied(_) => {
-                panic!("UUID {} clash!!!", component.uuid.to_string())
+                panic!("UUID {} clash!!!", component.uuid)
             }
             Entry::Vacant(vac) => {
                 vac.insert(comp_idx);
