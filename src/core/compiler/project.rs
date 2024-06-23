@@ -18,6 +18,15 @@ pub enum SimulationTreeNode {
     Node(CircuitIdx, Vec<SimulationTreeNode>),
 }
 
+impl SimulationTreeNode {
+    pub fn get_circuit(&self) -> CircuitIdx {
+        match self {
+            SimulationTreeNode::Leaf(idx) => *idx,
+            SimulationTreeNode::Node(idx, _) => *idx
+        }
+    }
+}
+
 pub type SimulationTreeRoot = SimulationTreeNode;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -86,7 +95,7 @@ fn instantiate_tree(name: &str,
             let (circuit, _) = instantiated_circuits.get(sub_idx).unwrap();
             i.model =
                 ComponentModel::Subcircuit(
-                    Subcircuit::Instantiated(circuit.clone())
+                    Subcircuit::Instantiated(circuit.clone(), sub_idx)
                 );
         }
     }
