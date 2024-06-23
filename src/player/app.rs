@@ -279,7 +279,7 @@ impl eframe::App for CirquilPlayerApp {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::Window::new("Oscilloscope")
-                .min_size(Vec2::new(300.0, 200.0))
+                .min_size(Vec2::new(600.0, 300.0))
                 .max_size(Vec2::new(1400.0, 600.0))
                 .open(&mut self.osc_visible)
                 .show(ctx, |ui| draw_osc(ui, &mut self.osc, self.probes.as_slice()));
