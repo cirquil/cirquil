@@ -59,7 +59,9 @@ pub fn draw_osc(ui: &mut Ui, osc: &mut Oscilloscope, probes: &[CanvasProbe]) {
                     .map(|probe| probe.probe.name.as_str())
                     .collect();
 
-                for row in osc.rows.iter_mut() {
+                let mut row_to_remove = None;
+
+                for (row_idx, row) in osc.rows.iter_mut().enumerate() {
                     ui.vertical(|ui| {
                         ui.group(|ui| {
                             ui.horizontal(|ui| {
@@ -89,9 +91,17 @@ pub fn draw_osc(ui: &mut Ui, osc: &mut Oscilloscope, probes: &[CanvasProbe]) {
                                 } else {
                                     ui.label("No probes present");
                                 }
+
+                                if ui.button("Remove").clicked() {
+                                    row_to_remove = Some(row_idx);
+                                }
                             });
                         });
                     });
+                }
+
+                if let Some(idx) = row_to_remove {
+                    osc.rows.remove(idx);
                 }
 
                 ui.group(|ui| {
