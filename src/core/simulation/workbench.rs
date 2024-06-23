@@ -6,7 +6,9 @@ use crate::core::simulation::components::subcircuit::Subcircuit;
 use crate::core::simulation::pin::Direction;
 use crate::core::simulation::probe::{CanvasProbe, Probe};
 use crate::core::simulation::wire::WireIdx;
-use crate::serde::workbench::{ProbePin, SavedProbe, WorkbenchFile};
+use crate::serde::workbench::{OscilloscopeConfig, OscilloscopeRow, ProbePin, SavedProbe, WorkbenchFile};
+use crate::player::osc;
+
 
 impl CanvasProbe {
     fn from_saved(saved: SavedProbe,
@@ -111,16 +113,33 @@ impl CanvasProbe {
 
 pub fn from_workbench_file(workbench_file: WorkbenchFile,
                            circuits: &InstantiatedCircuits)
-                           -> Vec<Result<CanvasProbe, String>> {
+                           -> (Vec<Result<CanvasProbe, String>>,
+                               osc::Oscilloscope) {
     let canvas_probes: Vec<Result<CanvasProbe, String>> = workbench_file.probes
         .into_iter()
         .map(|x| CanvasProbe::from_saved(x, circuits))
         .collect();
 
-    canvas_probes
+    let mut osciloscope = osc::Oscilloscope {
+        rows: Vec::new(),
+        trace: Default::default(),
+        last_row_id: workbench_file.oscilloscope_config.last_row_id,
+    };
+    for i in workbench_file.oscilloscope_config.rows {
+        let idx = osciloscope.trace.add_row();
+        osciloscope.rows.push(osc::OscilloscopeRow {
+            name: i.name,
+            source: i.source,
+            repr: (),
+            trace_idx: idx,
+        })
+    }
+
+    (canvas_probes, osciloscope)
 }
 
 pub fn to_workbench_file(canvas_probes: &[CanvasProbe],
+                         oscilloscope: &osc::Oscilloscope,
                          circuits: &InstantiatedCircuits)
                          -> WorkbenchFile {
     let saved_probes: Vec<SavedProbe> = canvas_probes
@@ -128,7 +147,19 @@ pub fn to_workbench_file(canvas_probes: &[CanvasProbe],
         .map(|x| CanvasProbe::to_saved(x, circuits))
         .collect();
 
+    let oscilloscope_config = OscilloscopeConfig {
+        rows: oscilloscope.rows.iter().map(|x| {
+            OscilloscopeRow {
+                name: x.name.clone(),
+                source: x.source.clone(),
+            }
+        })
+            .collect(),
+        last_row_id: oscilloscope.last_row_id,
+    };
+
     WorkbenchFile {
         probes: saved_probes,
+        oscilloscope_config,
     }
 }

@@ -5,5 +5,5 @@ mod project;
 mod file;
 mod clock;
 mod instrument;
-mod osc;
+pub mod osc;
 mod workbench;

@@ -10,10 +10,10 @@ use crate::gui::value::get_value_color;
 
 #[derive(Debug, Clone, Default)]
 pub struct OscilloscopeRow {
-    name: String,
-    source: String,
-    repr: (),
-    trace_idx: usize,
+    pub name: String,
+    pub source: String,
+    pub repr: (),
+    pub trace_idx: usize,
 }
 
 #[derive(Debug, Clone, Default)]

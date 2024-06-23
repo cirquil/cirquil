@@ -19,7 +19,19 @@ pub struct ProbePin {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OscilloscopeConfig {
+    pub rows: Vec<OscilloscopeRow>,
+    pub last_row_id: usize,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OscilloscopeRow {
+    pub name: String,
+    pub source: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WorkbenchFile {
-    // checksum: (),
     pub probes: Vec<SavedProbe>,
+    pub oscilloscope_config: OscilloscopeConfig,
 }
