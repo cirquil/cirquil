@@ -24,7 +24,7 @@ use crate::player::file::OpenedFile;
 use crate::player::instrument::Instrument;
 use crate::player::osc::{draw_osc, Oscilloscope};
 use crate::player::project::show_load_project_file_dialog;
-use crate::serde::workbench::{show_load_workbench_file_dialogue, show_save_workbench_file_dialogue};
+use crate::player::workbench::{show_load_workbench_file_dialogue, show_save_workbench_file_dialogue};
 
 const _GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
 

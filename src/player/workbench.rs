@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::core::simulation::probe::CanvasProbe;
 use crate::core::simulation::workbench::{from_workbench_file, to_workbench_file};
@@ -39,4 +39,16 @@ impl CirquilPlayerApp {
         let workbench_file = to_workbench_file(&self.probes, &self.circuits);
         serialize_to_file(&workbench_file, path).unwrap();
     }
+}
+
+pub fn show_load_workbench_file_dialogue() -> Option<PathBuf> {
+    rfd::FileDialog::new()
+        .add_filter("Cirquil Workbench", vec!["cwb"].as_slice())
+        .pick_file()
+}
+
+pub fn show_save_workbench_file_dialogue() -> Option<PathBuf> {
+    rfd::FileDialog::new()
+        .add_filter("Cirquil Workbench", vec!["cwb"].as_slice())
+        .save_file()
 }
