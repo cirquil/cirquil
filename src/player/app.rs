@@ -15,7 +15,6 @@ use crate::core::canvas::location::Location;
 use crate::core::compiler::project::{InstantiatedCircuits, SimulationTreeNode};
 use crate::core::simulation::circuit::{Circuit, CircuitIdx};
 use crate::core::simulation::probe::{CanvasProbe, Probe};
-use crate::core::simulation::workbench;
 use crate::gui::component::AsShapes;
 use crate::gui::constants::GRID_STEP;
 use crate::gui::grid;
@@ -25,8 +24,7 @@ use crate::player::file::OpenedFile;
 use crate::player::instrument::Instrument;
 use crate::player::osc::{draw_osc, Oscilloscope};
 use crate::player::project::show_load_project_file_dialog;
-use crate::serde::fs::{deserialize_from_file, serialize_to_file};
-use crate::serde::workbench::{show_load_workbench_file_dialogue, show_save_workbench_file_dialogue, WorkbenchFile};
+use crate::serde::workbench::{show_load_workbench_file_dialogue, show_save_workbench_file_dialogue};
 
 const _GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
 
@@ -46,6 +44,7 @@ pub struct CirquilPlayerApp {
     pub workbench_file: OpenedFile,
     pub current_instrument: Instrument,
     pub osc: Oscilloscope,
+    pub failed_probe_errors: Option<Vec<String>>,
 }
 
 impl CirquilPlayerApp {
@@ -54,15 +53,15 @@ impl CirquilPlayerApp {
     }
 
     pub fn new_with_file<P>(initial_file: P) -> Self
-    where
-        P: AsRef<Path>,
+        where
+            P: AsRef<Path>,
     {
         Self::from_file_option(Some(initial_file))
     }
 
     fn from_file_option<P>(initial_file: Option<P>) -> Self
-    where
-        P: AsRef<Path>,
+        where
+            P: AsRef<Path>,
     {
         Self {
             circuits: InstantiatedCircuits {
@@ -106,6 +105,7 @@ impl CirquilPlayerApp {
             workbench_file: OpenedFile::new(None),
             current_instrument: Instrument::None,
             osc: Oscilloscope::default(),
+            failed_probe_errors: None,
         }
     }
 }
@@ -134,6 +134,32 @@ impl eframe::App for CirquilPlayerApp {
             self.osc.collect_probe_values(self.probes.as_slice(), &self.circuits);
         }
 
+        if let Some(failed_probe_errors) = &self.failed_probe_errors {
+            let mut should_clear_errors = false;
+
+            egui::Window::new("Workbench Errors")
+                .min_width(500.0)
+                .resizable(false)
+                .collapsible(false)
+                .show(ctx, |ui| {
+                    ui.heading("Some probes loaded with errors: ");
+
+                    for error in failed_probe_errors {
+                        ui.label((*error).as_str());
+                    }
+
+                    ui.separator();
+
+                    if ui.button("Ok").clicked() {
+                        should_clear_errors = true;
+                    }
+                });
+
+            if should_clear_errors {
+                self.failed_probe_errors = None;
+            }
+        }
+
         egui::TopBottomPanel::top("menu_panel").exact_height(20.0).show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
@@ -148,10 +174,8 @@ impl eframe::App for CirquilPlayerApp {
                     ui.add(Separator::default().horizontal());
 
                     if ui.button("Open workbench").clicked() {
-                        if let Some(path) = show_load_workbench_file_dialogue()
-                        {
-                            let workbench_file: WorkbenchFile = deserialize_from_file(path).unwrap();
-                            self.probes = workbench::from_workbench_file(workbench_file, &self.circuits).unwrap();
+                        if let Some(path) = show_load_workbench_file_dialogue() {
+                            self.failed_probe_errors = self.load_workbench(path);
                         }
 
                         ui.close_menu();
@@ -159,8 +183,7 @@ impl eframe::App for CirquilPlayerApp {
 
                     if ui.button("Save workbench").clicked() {
                         if let Some(path) = show_save_workbench_file_dialogue() {
-                            let workbench_file = workbench::to_workbench_file(&self.probes, &self.circuits);
-                            serialize_to_file(&workbench_file, path).unwrap();
+                            self.save_workbench(path);
                         }
 
                         ui.close_menu();
@@ -184,10 +207,8 @@ impl eframe::App for CirquilPlayerApp {
                         }
                     };
                     if ui.add(Button::new("Open workbench").min_size(BUTTON_SIZE)).clicked() {
-                        if let Some(path) = show_load_workbench_file_dialogue()
-                        {
-                            let workbench_file: WorkbenchFile = deserialize_from_file(path).unwrap();
-                            self.probes = workbench::from_workbench_file(workbench_file, &self.circuits).unwrap();
+                        if let Some(path) = show_load_workbench_file_dialogue() {
+                            self.failed_probe_errors = self.load_workbench(path);
                         }
                     }
 

@@ -6,3 +6,4 @@ mod file;
 mod clock;
 mod instrument;
 mod osc;
+mod workbench;
