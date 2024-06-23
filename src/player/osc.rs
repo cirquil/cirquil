@@ -81,11 +81,7 @@ pub fn draw_osc(ui: &mut Ui, osc: &mut Oscilloscope, probes: &[CanvasProbe]) {
                             });
                             ui.horizontal(|ui| {
                                 if !probes.is_empty() {
-                                    let mut selected = if let Some(selected) = probes.iter().position(|x| *x == row.source) {
-                                        selected
-                                    } else {
-                                        0
-                                    };
+                                    let mut selected = probes.iter().position(|x| *x == row.source).unwrap_or(0);
 
                                     ui.label("Source: ");
 

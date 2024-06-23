@@ -18,8 +18,7 @@ impl CirquilPlayerApp {
         self.probe_max_id = last_probe_id;
 
         let verified_probes: Vec<CanvasProbe> = probes.iter()
-            .filter(|probe| probe.is_ok())
-            .map(|probe| probe.clone().unwrap())
+            .filter_map(|probe| probe.clone().ok())
             .collect();
 
         let failed_probe_errors: Vec<String> = probes.into_iter()

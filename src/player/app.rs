@@ -214,10 +214,8 @@ impl eframe::App for CirquilPlayerApp {
 
                     ui.add(Separator::default().vertical());
 
-                    if ui.add(Button::new("Reset circuit").min_size(BUTTON_SIZE)).clicked() {
-                        if self.project_file.current_file.is_some() {
-                            self.project_file.request_open(self.project_file.current_file.clone().unwrap());
-                        }
+                    if ui.add(Button::new("Reset circuit").min_size(BUTTON_SIZE)).clicked() && self.project_file.current_file.is_some() {
+                        self.project_file.request_open(self.project_file.current_file.clone().unwrap());
                     }
 
                     ui.add(Separator::default().vertical());
