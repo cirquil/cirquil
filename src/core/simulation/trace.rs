@@ -21,8 +21,8 @@ impl Trace {
         self.traces.len() - 1
     }
 
-    // pub fn remove_row(&mut self, trace: Rc<Vec<Value>>) {
-    //     let idx = self.traces.iter().position(|x| **x == *trace).unwrap();
-    //     self.traces.remove(idx);
-    // }
+    pub fn clear_traces(&mut self) {
+        self.traces.iter_mut().for_each(|trace| trace.clear());
+        self.recorded_samples = 0;
+    }
 }

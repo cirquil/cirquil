@@ -50,6 +50,12 @@ pub fn draw_osc(ui: &mut Ui, osc: &mut Oscilloscope, probes: &[CanvasProbe]) {
     egui::menu::bar(ui, |ui| {
         ui.menu_button("File", |ui| {
             let _ = ui.button("Save CSV");
+
+            ui.separator();
+
+            if ui.button("Clear traces").clicked() {
+                osc.trace.clear_traces();
+            }
         });
     });
 
