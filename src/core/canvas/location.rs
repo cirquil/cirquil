@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
 
 use serde::{Deserialize, Serialize};
 
@@ -51,5 +51,20 @@ impl SubAssign for Location {
     fn sub_assign(&mut self, rhs: Self) {
         self.x -= rhs.x;
         self.y -= rhs.y;
+    }
+}
+
+impl Mul<i16> for Location {
+    type Output = Location;
+
+    fn mul(self, rhs: i16) -> Self::Output {
+        Location::new(self.x * rhs, self.y * rhs)
+    }
+}
+
+impl MulAssign<i16> for Location {
+    fn mul_assign(&mut self, rhs: i16) {
+        self.x *= rhs;
+        self.y *= rhs;
     }
 }

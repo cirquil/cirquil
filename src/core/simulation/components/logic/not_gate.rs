@@ -6,6 +6,7 @@ use crate::core::canvas::location::Location;
 use crate::core::simulation::component::{Behaviour, Component, ComponentModel, ComponentPins, ComponentProperties};
 use crate::core::simulation::pin::{Direction, Pin};
 use crate::core::simulation::property::{BoundedIntegerProperty, IntegerProperty, Property};
+use crate::core::uuid::make_uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NotGate;
@@ -50,6 +51,7 @@ impl NotGate {
             pins: ComponentPins::new(pins),
             properties,
             model: ComponentModel::NotGate(NotGate),
+            uuid: make_uuid(),
         }
     }
 

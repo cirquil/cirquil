@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::fmt::Debug;
 
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::core::simulation::components::clock_generator::ClockGenerator;
 use crate::core::simulation::components::input::button::InputButton;
@@ -32,6 +33,7 @@ pub struct Component {
     pub pins: ComponentPins,
     pub properties: ComponentProperties,
     pub model: ComponentModel,
+    pub uuid: Uuid,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

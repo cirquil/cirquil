@@ -7,6 +7,7 @@ use crate::core::canvas::location::Location;
 use crate::core::simulation::component::{Behaviour, Component, ComponentModel, ComponentPins, ComponentProperties, Tick};
 use crate::core::simulation::pin::{Direction, Pin};
 use crate::core::simulation::value::Value;
+use crate::core::uuid::make_uuid;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ClockGenerator {
@@ -43,6 +44,7 @@ impl ClockGenerator {
             model: ComponentModel::ClockGenerator(ClockGenerator {
                 value: Cell::new(0),
             }),
+            uuid: make_uuid(),
         }
     }
 }

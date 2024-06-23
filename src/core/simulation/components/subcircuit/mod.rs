@@ -3,10 +3,11 @@ use std::rc::Rc;
 
 use serde::{Deserialize, Serialize};
 
-use crate::core::simulation::circuit::Circuit;
+use crate::core::simulation::circuit::{Circuit, CircuitIdx};
 use crate::core::simulation::component::{Behaviour, Component, ComponentModel, ComponentPins, ComponentProperties};
 use crate::core::simulation::components::subcircuit::Subcircuit::NotInstantiated;
 use crate::core::simulation::pin::Pin;
+use crate::core::uuid::make_uuid;
 use crate::serde::project::SavedCircuit;
 
 pub mod input_pin;
@@ -14,15 +15,15 @@ pub mod output_pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Subcircuit {
-    Instantiated(Rc<Circuit>),
+    Instantiated(Rc<Circuit>, CircuitIdx),
     NotInstantiated(String),
 }
 
 impl Behaviour for Subcircuit {
     fn propagate(&self, pins: &ComponentPins, _properties: &ComponentProperties) {
-        debug_assert!(matches!(self, Subcircuit::Instantiated(_)));
+        debug_assert!(matches!(self, Subcircuit::Instantiated(_, _)));
 
-        if let Subcircuit::Instantiated(circuit) = self {
+        if let Subcircuit::Instantiated(circuit, _) = self {
             let mut initial_components = vec![];
 
             for (component_pin, circuit_pin) in circuit.input_pins.iter() {
@@ -66,6 +67,7 @@ impl Subcircuit {
             },
             properties: ComponentProperties::new(vec![]),
             model: ComponentModel::Subcircuit(NotInstantiated(subcircuit_name.to_string())),
+            uuid: make_uuid(),
         }
     }
 }
