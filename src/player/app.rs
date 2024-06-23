@@ -54,15 +54,15 @@ impl CirquilPlayerApp {
     }
 
     pub fn new_with_file<P>(initial_file: P) -> Self
-        where
-            P: AsRef<Path>,
+    where
+        P: AsRef<Path>,
     {
         Self::from_file_option(Some(initial_file))
     }
 
     fn from_file_option<P>(initial_file: Option<P>) -> Self
-        where
-            P: AsRef<Path>,
+    where
+        P: AsRef<Path>,
     {
         Self {
             circuits: InstantiatedCircuits {
@@ -87,6 +87,7 @@ impl CirquilPlayerApp {
                 ],
                 simulation_tree: SimulationTreeNode::Leaf(0),
                 by_uuid: vec![],
+                parents: vec![],
             },
             current_circuit: 0,
             top_circuit: 0,
@@ -197,7 +198,7 @@ impl eframe::App for CirquilPlayerApp {
                             self.project_file.request_open(self.project_file.current_file.clone().unwrap());
                         }
                     }
-                    
+
                     ui.add(Separator::default().vertical());
 
                     if ui.add(Button::new("Record").min_size(BUTTON_SIZE).selected(self.record_armed)).clicked() {

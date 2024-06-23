@@ -1,3 +1,5 @@
+use uuid::Uuid;
+
 use crate::core::compiler::project::InstantiatedCircuits;
 use crate::core::simulation::component::ComponentModel;
 use crate::core::simulation::components::subcircuit::Subcircuit;
@@ -10,7 +12,7 @@ impl CanvasProbe {
     fn from_saved(saved: SavedProbe,
                   circuits: &InstantiatedCircuits)
                   -> Result<CanvasProbe, String> {
-        let mut circ_instance = circuits.simulation_tree.get_circuit();
+        let mut circ_instance = circuits.simulation_tree.get_idx();
         for uuid in saved.subcircuit_path.iter() {
             // Not tested
             let (circ, c_type) = &circuits.instantiated_circuits[circ_instance];
@@ -67,10 +69,20 @@ impl CanvasProbe {
     }
     fn to_saved(&self, circuits: &InstantiatedCircuits)
                 -> SavedProbe {
-        if self.probe.circuit != circuits.simulation_tree.get_circuit() {
-            panic!("Currently probes not in top circuit are not supported");
-            // Because no way to know parent circuit
+        let mut subcircuit_path: Vec<Uuid> = Vec::new();
+        {
+            let mut cur_circ = self.probe.circuit;
+            loop {
+                match circuits.parents[cur_circ] {
+                    None => break,
+                    Some((parent, comp)) => {
+                        subcircuit_path.push(circuits.instantiated_circuits[parent].0.components[comp].uuid);
+                        cur_circ = parent;
+                    }
+                }
+            }
         }
+        subcircuit_path.reverse();
         let circult = &circuits.instantiated_circuits[self.probe.circuit].0;
         let pins: Vec<ProbePin> = circult.wires[self.probe.wire].connected_components
             .iter()
@@ -91,7 +103,7 @@ impl CanvasProbe {
         SavedProbe {
             name: self.probe.name.clone(),
             location: self.location,
-            subcircuit_path: vec![],
+            subcircuit_path,
             pins,
         }
     }

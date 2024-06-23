@@ -1,5 +1,6 @@
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::iter::zip;
 use std::rc::Rc;
 
 use serde::{Deserialize, Serialize};
@@ -19,7 +20,7 @@ pub enum SimulationTreeNode {
 }
 
 impl SimulationTreeNode {
-    pub fn get_circuit(&self) -> CircuitIdx {
+    pub fn get_idx(&self) -> CircuitIdx {
         match self {
             SimulationTreeNode::Leaf(idx) => *idx,
             SimulationTreeNode::Node(idx, _) => *idx
@@ -35,6 +36,7 @@ pub struct InstantiatedCircuits {
     pub instantiated_circuits: Vec<(Rc<Circuit>, CircuitIdx)>,
     pub simulation_tree: SimulationTreeRoot,
     pub by_uuid: Vec<HashMap<Uuid, ComponentIdx>>,
+    pub parents: Vec<Option<(CircuitIdx, ComponentIdx)>>,
 }
 
 impl InstantiatedCircuits {
@@ -60,9 +62,11 @@ pub fn compile_project(project: ProjectFile) -> (CircuitIdx, InstantiatedCircuit
         .collect();
 
     let mut instantiated_circuits: Vec<(Rc<Circuit>, CircuitIdx)> = Vec::new();
+    let mut parents: Vec<Option<(CircuitIdx, ComponentIdx)>> = Vec::new();
     let simulation_tree = instantiate_tree(project.top_circuit.as_str(), &name_to_idx,
                                            &compiled_circuits,
-                                           &mut instantiated_circuits);
+                                           &mut instantiated_circuits,
+                                           &mut parents);
     (
         instantiated_circuits.len() - 1,
         InstantiatedCircuits {
@@ -70,6 +74,7 @@ pub fn compile_project(project: ProjectFile) -> (CircuitIdx, InstantiatedCircuit
             instantiated_circuits,
             simulation_tree,
             by_uuid,
+            parents,
         },
     )
 }
@@ -77,35 +82,43 @@ pub fn compile_project(project: ProjectFile) -> (CircuitIdx, InstantiatedCircuit
 fn instantiate_tree(name: &str,
                     name_to_idx: &HashMap<String, CircuitIdx>,
                     compiled_circuits: &Vec<Circuit>,
-                    instantiated_circuits: &mut Vec<(Rc<Circuit>, CircuitIdx)>)
+                    instantiated_circuits: &mut Vec<(Rc<Circuit>, CircuitIdx)>,
+                    parents: &mut Vec<Option<(CircuitIdx, ComponentIdx)>>)
                     -> SimulationTreeNode {
     let circuit_idx = name_to_idx[name];
     let mut compiled = compiled_circuits[circuit_idx].clone();
     let mut children_trees: Vec<SimulationTreeNode> = Vec::new();
+    let mut children_comp_idx: Vec<CircuitIdx> = Vec::new();
 
-    for i in compiled.components.iter_mut() {
-        if let ComponentModel::Subcircuit(Subcircuit::NotInstantiated(sub_name)) = &i.model {
+    for (comp_idx, comp) in compiled.components.iter_mut().enumerate() {
+        if let ComponentModel::Subcircuit(Subcircuit::NotInstantiated(sub_name)) = &comp.model {
             let sub_tree = instantiate_tree(sub_name,
-                                            name_to_idx, compiled_circuits, instantiated_circuits);
+                                            name_to_idx, compiled_circuits,
+                                            instantiated_circuits, parents);
             let sub_idx = match sub_tree {
                 SimulationTreeNode::Leaf(idx) => { idx }
                 SimulationTreeNode::Node(idx, _) => { idx }
             };
             children_trees.push(sub_tree);
+            children_comp_idx.push(comp_idx);
             let (circuit, _) = instantiated_circuits.get(sub_idx).unwrap();
-            i.model =
+            comp.model =
                 ComponentModel::Subcircuit(
                     Subcircuit::Instantiated(circuit.clone(), sub_idx)
                 );
         }
     }
 
-    let idx: ComponentIdx = instantiated_circuits.len();
+    let self_idx: ComponentIdx = instantiated_circuits.len();
     instantiated_circuits.push((Rc::new(compiled), circuit_idx));
+    parents.push(None);
     if children_trees.is_empty() {
-        SimulationTreeNode::Leaf(idx)
+        SimulationTreeNode::Leaf(self_idx)
     } else {
-        SimulationTreeNode::Node(idx, children_trees)
+        for (circ_idx, &comp_idx) in zip(children_trees.iter(), children_comp_idx.iter()) {
+            parents[circ_idx.get_idx()] = Some((self_idx, comp_idx));
+        }
+        SimulationTreeNode::Node(self_idx, children_trees)
     }
 }
 
