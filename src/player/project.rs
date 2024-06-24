@@ -47,8 +47,8 @@ impl From<StdIoError> for ProjectLoadError {
 }
 
 fn load_from_file<P>(path: P) -> Result<ProjectFile, ProjectLoadError>
-where
-    P: AsRef<Path>,
+    where
+        P: AsRef<Path>,
 {
     match path.as_ref().extension() {
         None => { Err(ProjectLoadError::from(LoadErrorKind::UnknownFileType)) }
@@ -72,8 +72,8 @@ where
 
 impl CirquilPlayerApp {
     pub fn load_project<P>(&mut self, path: P) -> Result<(), ProjectLoadError>
-    where
-        P: AsRef<Path>,
+        where
+            P: AsRef<Path>,
     {
         let project_file = load_from_file(path)?;
 
@@ -88,15 +88,15 @@ impl CirquilPlayerApp {
         self.current_circuit = top_circuit;
         self.probes = vec![];
         self.probe_max_id = 0;
-        
+
         self.osc = Oscilloscope::default();
 
         Ok(())
     }
 
     pub fn convert<P>(&mut self, path: P, cirq_path: P) -> Result<(), ProjectLoadError>
-    where
-        P: AsRef<Path>,
+        where
+            P: AsRef<Path>,
     {
         let project_file = load_from_file(path)?;
         project_file.save(cirq_path)?;

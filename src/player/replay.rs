@@ -50,7 +50,7 @@ impl CirquilPlayerApp {
         self.circuit_manager = CircuitManager::create_replay(replay_file);
         self.probes = vec![];
         self.probe_max_id = 0;
-        
+
         self.osc = Oscilloscope::default();
     }
 }
