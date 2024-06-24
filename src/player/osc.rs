@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fs::File;
 
 use egui::{Color32, ComboBox, RichText, ScrollArea, Ui};
 use serde::{Deserialize, Serialize};
@@ -91,7 +92,30 @@ impl Oscilloscope {
 pub fn draw_osc(ui: &mut Ui, osc: &mut Oscilloscope, probes: &[CanvasProbe]) {
     egui::menu::bar(ui, |ui| {
         ui.menu_button("File", |ui| {
-            if ui.button("Save CSV").clicked() {}
+            if ui.button("Save CSV").clicked() {
+                let file = File::create("osc.csv").unwrap();
+                let mut wtr = csv::Writer::from_writer(file);
+                let row_names: Vec<&str> = osc.rows.iter().map(|row| row.name.as_str()).collect();
+                let _ = wtr.write_record(row_names);
+                for i in 0..osc.trace.recorded_samples {
+                    let record: Vec<String> = osc
+                        .rows
+                        .iter()
+                        .map(|row| {
+                            if let Some(value) = osc.trace.traces[row.trace_idx][i as usize] {
+                                value.get_defined_value().to_string()
+                            } else {
+                                Value::default().get_undefined().to_string()
+                            }
+                        })
+                        .collect();
+                    let _ = wtr.write_record(record);
+                }
+
+                let _ = wtr.flush();
+
+                ui.close_menu();
+            }
 
             ui.separator();
 
