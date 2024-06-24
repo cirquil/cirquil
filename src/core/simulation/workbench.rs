@@ -6,10 +6,9 @@ use crate::core::simulation::components::subcircuit::Subcircuit;
 use crate::core::simulation::pin::Direction;
 use crate::core::simulation::probe::{CanvasProbe, Probe};
 use crate::core::simulation::wire::WireIdx;
-use crate::serde::workbench::{OscilloscopeConfig, OscilloscopeRow, ProbePin, SavedProbe, WorkbenchFile};
 use crate::player::osc;
 use crate::player::probe_location::fix_loaded_probe;
-
+use crate::serde::workbench::{OscilloscopeConfig, OscilloscopeRow, ProbePin, SavedProbe, WorkbenchFile};
 
 impl CanvasProbe {
     fn from_saved(saved: SavedProbe,
@@ -130,6 +129,9 @@ pub fn from_workbench_file(workbench_file: WorkbenchFile,
         rows: Vec::new(),
         trace: Default::default(),
         last_row_id: workbench_file.oscilloscope_config.last_row_id,
+        trigger_type: workbench_file.oscilloscope_config.trigger_type,
+        trigger_source: workbench_file.oscilloscope_config.trigger_source,
+        trigger_value: 0,
     };
     for i in workbench_file.oscilloscope_config.rows {
         let idx = osciloscope.trace.add_row();
@@ -163,6 +165,8 @@ pub fn to_workbench_file(canvas_probes: &[CanvasProbe],
         })
             .collect(),
         last_row_id: oscilloscope.last_row_id,
+        trigger_source: oscilloscope.trigger_source.clone(),
+        trigger_type: oscilloscope.trigger_type,
     };
 
     WorkbenchFile {

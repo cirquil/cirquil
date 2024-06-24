@@ -6,7 +6,9 @@ use std::path::{Path, PathBuf};
 use crate::core::compiler::project::compile_project;
 use crate::logisim::converter::convert_logisim_project;
 use crate::logisim::parser::parse_logisim;
+use crate::player::circuit::CircuitManager;
 use crate::player::CirquilPlayerApp;
+use crate::player::osc::Oscilloscope;
 use crate::serde::project::ProjectFile;
 
 #[derive(Debug)]
@@ -81,11 +83,13 @@ impl CirquilPlayerApp {
             |(circuit, _)| circuit.propagate_all()
         );
 
-        self.circuits = compiled_circuits;
+        self.circuit_manager = CircuitManager::create_simulation(compiled_circuits);
         self.top_circuit = top_circuit;
         self.current_circuit = top_circuit;
         self.probes = vec![];
         self.probe_max_id = 0;
+        
+        self.osc = Oscilloscope::default();
 
         Ok(())
     }
