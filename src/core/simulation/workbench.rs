@@ -7,6 +7,7 @@ use crate::core::simulation::pin::Direction;
 use crate::core::simulation::probe::{CanvasProbe, Probe};
 use crate::core::simulation::wire::WireIdx;
 use crate::player::osc;
+use crate::player::osc::TriggerType;
 use crate::serde::workbench::{OscilloscopeConfig, OscilloscopeRow, ProbePin, SavedProbe, WorkbenchFile};
 
 impl CanvasProbe {
@@ -124,6 +125,9 @@ pub fn from_workbench_file(workbench_file: WorkbenchFile,
         rows: Vec::new(),
         trace: Default::default(),
         last_row_id: workbench_file.oscilloscope_config.last_row_id,
+        trigger_type: TriggerType::Both,
+        trigger_source: Default::default(),
+        trigger_value: 0,
     };
     for i in workbench_file.oscilloscope_config.rows {
         let idx = osciloscope.trace.add_row();
