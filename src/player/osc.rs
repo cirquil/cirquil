@@ -8,6 +8,7 @@ use crate::core::simulation::probe::CanvasProbe;
 use crate::core::simulation::trace::Trace;
 use crate::core::simulation::value::Value;
 use crate::gui::value::get_value_color;
+use crate::player::csv::{save_csv_from_oscilloscope, show_save_csv_file_dialog};
 
 #[derive(Debug, Copy, Clone, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub enum TriggerType {
@@ -91,7 +92,13 @@ impl Oscilloscope {
 pub fn draw_osc(ui: &mut Ui, osc: &mut Oscilloscope, probes: &[CanvasProbe]) {
     egui::menu::bar(ui, |ui| {
         ui.menu_button("File", |ui| {
-            if ui.button("Save CSV").clicked() {}
+            if ui.button("Save CSV").clicked() {
+                if let Some(path) = show_save_csv_file_dialog() {
+                    save_csv_from_oscilloscope(path, osc);
+                }
+
+                ui.close_menu();
+            }
 
             ui.separator();
 
