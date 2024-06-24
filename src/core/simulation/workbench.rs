@@ -8,6 +8,8 @@ use crate::core::simulation::probe::{CanvasProbe, Probe};
 use crate::core::simulation::wire::WireIdx;
 use crate::player::osc;
 use crate::serde::workbench::{OscilloscopeConfig, OscilloscopeRow, ProbePin, SavedProbe, WorkbenchFile};
+use crate::player::probe_location::fix_loaded_probe;
+
 
 impl CanvasProbe {
     fn from_saved(saved: SavedProbe,
@@ -59,15 +61,19 @@ impl CanvasProbe {
             }
         }
 
-        Ok(CanvasProbe {
+        let mut probe = CanvasProbe {
             location: saved.location,
             probe: Probe {
                 name: saved.name,
                 circuit: circ_instance,
                 wire: wire.unwrap(),
             },
-        })
+        };
+        let circuit_idx = circuits.instantiated_circuits[probe.probe.circuit].1;
+        fix_loaded_probe(&mut probe, &circuits.canvas_circuits[circuit_idx]);
+        Ok(probe)
     }
+
     fn to_saved(&self, circuits: &InstantiatedCircuits)
                 -> SavedProbe {
         let mut subcircuit_path: Vec<Uuid> = Vec::new();
