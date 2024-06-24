@@ -11,7 +11,6 @@ use egui::collapsing_header::CollapsingState;
 use egui_extras::{Size, StripBuilder};
 
 use crate::core::canvas::circuit::CanvasCircuit;
-use crate::core::canvas::location::Location;
 use crate::core::compiler::project::{InstantiatedCircuits, SimulationTreeNode};
 use crate::core::simulation::circuit::{Circuit, CircuitIdx};
 use crate::core::simulation::probe::{CanvasProbe, Probe};
@@ -24,7 +23,8 @@ use crate::player::clock::{ClockState, SimulationTicker};
 use crate::player::file::OpenedFile;
 use crate::player::instrument::Instrument;
 use crate::player::osc::{draw_osc, Oscilloscope};
-use crate::player::project::show_load_project_file_dialog;
+use crate::player::probe_location::place_new_probe;
+use crate::player::project::{show_load_logisim_file_dialog, show_load_project_file_dialog, show_save_project_file_dialog};
 use crate::player::replay::{ReplayManager, show_load_replay_file_dialogue, show_save_replay_file_dialogue};
 use crate::player::workbench::{show_load_workbench_file_dialogue, show_save_workbench_file_dialogue};
 
@@ -57,15 +57,15 @@ impl CirquilPlayerApp {
     }
 
     pub fn new_with_file<P>(initial_file: P) -> Self
-        where
-            P: AsRef<Path>,
+    where
+        P: AsRef<Path>,
     {
         Self::from_file_option(Some(initial_file))
     }
 
     fn from_file_option<P>(initial_file: Option<P>) -> Self
-        where
-            P: AsRef<Path>,
+    where
+        P: AsRef<Path>,
     {
         Self {
             circuit_manager: CircuitManager {
@@ -194,7 +194,18 @@ impl eframe::App for CirquilPlayerApp {
                         }
 
                         ui.close_menu()
-                    };
+                    }
+
+                    if ui.button("Convert .circ to .cirq").clicked() {
+                        if let Some(logisim_path) = show_load_logisim_file_dialog() {
+                            if let Some(cirq_path) = show_save_project_file_dialog() {
+                                self.convert(logisim_path, cirq_path)
+                                    .expect("Error converting .circ to .cirq");
+                            }
+                        }
+
+                        ui.close_menu();
+                    }
 
                     ui.add(Separator::default().horizontal());
 
@@ -254,7 +265,7 @@ impl eframe::App for CirquilPlayerApp {
                     }
 
                     ui.add(Separator::default().vertical());
-                    
+
                     if ui.add_enabled(self.circuit_manager.playback_type.is_simulation(), Button::new("Record").min_size(BUTTON_SIZE).selected(self.record_armed)).clicked() {
                         self.record_armed = match self.record_armed {
                             true => {
@@ -513,25 +524,17 @@ fn draw_canvas(ui: &mut Ui, ctx: &Context, current_circuit: CircuitIdx, instanti
         if let Some(mut interact_pos) = response.interact_pointer_pos() {
             interact_pos -= coords;
 
-            let margin = 10;
-
-            if let Some(wire) = canvas.wires.iter()
-                .find(|wire| wire.contains(Location::from(interact_pos), margin))
+            if let Some((wire_idx, new_location)) = place_new_probe(interact_pos, canvas)
             {
-                let mut probe_location = Location::from(interact_pos);
-
-                probe_location.x = probe_location.x - (probe_location.x % (2 * margin)) + margin;
-                probe_location.y = probe_location.y - (probe_location.y % (2 * margin)) + margin;
-
                 let probe_name = format!("probe_{}", probe_id);
 
                 probes.push(
                     CanvasProbe {
-                        location: probe_location,
+                        location: new_location,
                         probe: Probe {
                             name: probe_name.clone(),
                             circuit: current_circuit,
-                            wire: wire.wire,
+                            wire: wire_idx,
                         },
                     }
                 );
