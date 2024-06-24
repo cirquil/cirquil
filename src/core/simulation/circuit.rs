@@ -5,7 +5,7 @@ use crate::core::simulation::pin::{Direction, PinIdx};
 use crate::core::simulation::value::operations::assign;
 use crate::core::simulation::wire::{Wire, WireIdx};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Circuit {
     pub components: Vec<Component>,
     pub wires: Vec<Wire>,

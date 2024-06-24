@@ -69,20 +69,11 @@ impl CirquilPlayerApp {
             circuits: InstantiatedCircuits {
                 canvas_circuits: vec![CanvasCircuit {
                     name: "main".to_string(),
-                    components: vec![],
-                    wires: vec![],
-                    appearance: (),
-                    pins: (),
+                    ..Default::default()
                 }],
                 instantiated_circuits: vec![
                     (
-                        Rc::new(Circuit {
-                            components: vec![],
-                            wires: vec![],
-                            clock_generators: vec![],
-                            input_pins: vec![],
-                            output_pins: vec![],
-                        }),
+                        Rc::new(Circuit::default()),
                         0
                     ),
                 ],
