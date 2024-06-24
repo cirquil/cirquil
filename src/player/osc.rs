@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::fs::File;
 
 use egui::{Color32, ComboBox, RichText, ScrollArea, Ui};
 use serde::{Deserialize, Serialize};
@@ -9,6 +8,7 @@ use crate::core::simulation::probe::CanvasProbe;
 use crate::core::simulation::trace::Trace;
 use crate::core::simulation::value::Value;
 use crate::gui::value::get_value_color;
+use crate::player::csv::{save_csv_from_oscilloscope, show_save_csv_file_dialog};
 
 #[derive(Debug, Copy, Clone, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub enum TriggerType {
@@ -93,26 +93,9 @@ pub fn draw_osc(ui: &mut Ui, osc: &mut Oscilloscope, probes: &[CanvasProbe]) {
     egui::menu::bar(ui, |ui| {
         ui.menu_button("File", |ui| {
             if ui.button("Save CSV").clicked() {
-                let file = File::create("osc.csv").unwrap();
-                let mut wtr = csv::Writer::from_writer(file);
-                let row_names: Vec<&str> = osc.rows.iter().map(|row| row.name.as_str()).collect();
-                let _ = wtr.write_record(row_names);
-                for i in 0..osc.trace.recorded_samples {
-                    let record: Vec<String> = osc
-                        .rows
-                        .iter()
-                        .map(|row| {
-                            if let Some(value) = osc.trace.traces[row.trace_idx][i as usize] {
-                                value.get_defined_value().to_string()
-                            } else {
-                                Value::default().get_undefined().to_string()
-                            }
-                        })
-                        .collect();
-                    let _ = wtr.write_record(record);
+                if let Some(path) = show_save_csv_file_dialog() {
+                    save_csv_from_oscilloscope(path, osc);
                 }
-
-                let _ = wtr.flush();
 
                 ui.close_menu();
             }
