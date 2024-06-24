@@ -5,6 +5,17 @@ use crate::editor::canvas::grid::{grid_normalize_end, nearest_grid_anchor};
 use super::Action;
 
 #[derive(Default)]
+pub struct PointerCursor {
+    
+}
+
+impl Action for PointerCursor {
+    fn act(&mut self, state: &mut State, response: &Response, painter: &Painter, viewport: Rect) {
+        
+    }
+}
+
+#[derive(Default)]
 pub struct WireCursor {
     dragged_from: Option<Pos2>,
 }

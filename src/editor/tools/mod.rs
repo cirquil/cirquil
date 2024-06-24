@@ -2,6 +2,7 @@ mod tree;
 mod cursors;
 mod tool;
 mod component;
+mod circuit;
 
 use eframe::emath::Rect;
 use egui::{Painter, Response};

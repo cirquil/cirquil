@@ -79,7 +79,7 @@ impl Component {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct ComponentProperties(HashMap<String, Property>);
 
 impl ComponentProperties {
@@ -100,7 +100,7 @@ impl ComponentProperties {
     // }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct ComponentPins(Vec<Pin>);
 
 impl ComponentPins {

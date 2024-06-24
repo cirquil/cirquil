@@ -4,49 +4,19 @@ use egui::{Painter, Response, Ui};
 use crate::editor::app::State;
 use crate::editor::tools::{Action};
 
-#[derive(Debug)]
-pub enum ToolKind {
-    Cursor {
-        name: String,
-    },
-    Component {
-        name: String,
-    },
-    Subcircuit {
-        index: usize,
-    },
-}
-
-impl ToolKind {
-    #[inline(always)]
-    pub fn cursor(name: impl ToString) -> Self {
-        Self::Cursor { name: name.to_string() }
-    }
-
-    #[inline(always)]
-    pub fn component(name: impl ToString) -> Self {
-        Self::Component { name: name.to_string() }
-    }
-    
-    #[inline(always)]
-    pub fn subcircuit(index: usize) -> Self {
-        Self::Subcircuit { index }
-    }
-}
-
 pub type ToolIdx = usize;
 
 pub struct Tool {
     index: ToolIdx,
+    name: String,
     action: Box<dyn Action>,
-    kind: ToolKind,
 }
 
 impl Debug for Tool {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Tool")
             .field("index", &self.index)
-            .field("kind", &self.kind)
+            .field("name", &self.name)
             .finish_non_exhaustive()
     }
 }
@@ -66,23 +36,19 @@ impl Action for Tool {
 }
 
 impl Tool {
-    pub fn new(index: ToolIdx, action: Box<dyn Action>, kind: ToolKind) -> Self {
-        Self { index, action, kind }
+    pub fn new(index: ToolIdx, action: Box<dyn Action>, name: impl ToString) -> Self {
+        Self { index, action, name: name.to_string() }
     }
     
-    pub fn show(&self, current_pick: &mut ToolIdx, ui: &mut Ui) -> Response {
+    pub fn show(&self, current_pick: &mut ToolIdx, ui: &mut Ui) -> (&String, Response) {
         let is_picked = self.index == *current_pick;
-        let response = match &self.kind {
-            ToolKind::Cursor { name, .. } => ui.selectable_label(is_picked, name),
-            ToolKind::Component { name, .. } => ui.selectable_label(is_picked, name),
-            ToolKind::Subcircuit { index, .. } => ui.selectable_label(is_picked, format!("Component #{index}"))
-        };
+        let response = ui.selectable_label(is_picked, &self.name);
         
         if response.clicked() {
             *current_pick = self.index;
         }
         
-        response
+        (&self.name, response)
     }
     
     pub fn index(&self) -> ToolIdx {
