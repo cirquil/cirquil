@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::core::canvas::location::Location;
 use crate::core::simulation::component::Component;
-use crate::core::simulation::pin::Direction;
+use crate::core::simulation::pin::{Direction, Pin};
 use crate::serde::fs::{deserialize_from_file, serialize_to_file};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -33,6 +33,18 @@ pub struct SavedCircuitPin {
     pub label: String,
     pub bit_width: u8,
     pub direction: Direction,
+}
+
+impl From<SavedCircuitPin> for Pin {
+    fn from(value: SavedCircuitPin) -> Self {
+        Self {
+            value: Default::default(),
+            bit_width: value.bit_width,
+            direction: value.direction,
+            wire: Default::default(),
+            location: value.location,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
