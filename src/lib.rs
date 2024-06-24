@@ -7,3 +7,4 @@ pub mod logisim;
 pub mod editor;
 pub mod player;
 pub mod serde;
+pub mod headless;

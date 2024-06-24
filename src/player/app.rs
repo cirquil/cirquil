@@ -52,20 +52,9 @@ pub struct CirquilPlayerApp {
 }
 
 impl CirquilPlayerApp {
-    pub fn new() -> Self {
-        Self::from_file_option::<PathBuf>(None)
-    }
-
-    pub fn new_with_file<P>(initial_file: P) -> Self
-    where
-        P: AsRef<Path>,
-    {
-        Self::from_file_option(Some(initial_file))
-    }
-
-    fn from_file_option<P>(initial_file: Option<P>) -> Self
-    where
-        P: AsRef<Path>,
+    pub fn from_file_options<P>(initial_project_file: Option<P>, initial_workbench_file: Option<P>) -> Self
+        where
+            P: AsRef<Path>,
     {
         Self {
             circuit_manager: CircuitManager {
@@ -90,7 +79,7 @@ impl CirquilPlayerApp {
             top_circuit: 0,
             osc_visible: false,
             record_armed: false,
-            project_file: OpenedFile::new(initial_file.map(|x| PathBuf::from(x.as_ref()))),
+            project_file: OpenedFile::new(initial_project_file.map(|x| PathBuf::from(x.as_ref()))),
             simulation_ticker: SimulationTicker {
                 clock_speed: 1,
                 clock_period: Duration::from_micros(1_000_000),
@@ -100,7 +89,7 @@ impl CirquilPlayerApp {
             clock_state: ClockState::Stopped,
             probes: vec![],
             probe_max_id: 0,
-            workbench_file: OpenedFile::new(None),
+            workbench_file: OpenedFile::new(initial_workbench_file.map(|x| PathBuf::from(x.as_ref()))),
             current_instrument: Instrument::None,
             osc: Oscilloscope::default(),
             failed_probe_errors: None,
@@ -112,7 +101,7 @@ impl CirquilPlayerApp {
 
 impl Default for CirquilPlayerApp {
     fn default() -> Self {
-        Self::from_file_option::<PathBuf>(None)
+        Self::from_file_options::<PathBuf>(None, None)
     }
 }
 
@@ -128,6 +117,10 @@ impl eframe::App for CirquilPlayerApp {
 
         if let Some(path) = self.project_file.check_load() {
             self.load_project(path).unwrap();
+        }
+
+        if let Some(path) = self.workbench_file.check_load() {
+            self.failed_probe_errors = self.load_workbench(path);
         }
 
         let (top_circuit, _) = self.circuit_manager.get_circuits().instantiated_circuits.get(self.top_circuit).unwrap();
@@ -221,7 +214,7 @@ impl eframe::App for CirquilPlayerApp {
 
                     if ui.button("Open workbench").clicked() {
                         if let Some(path) = show_load_workbench_file_dialogue() {
-                            self.failed_probe_errors = self.load_workbench(path);
+                            self.workbench_file.request_open(path);
                         }
 
                         ui.close_menu();
@@ -254,7 +247,7 @@ impl eframe::App for CirquilPlayerApp {
                     };
                     if ui.add(Button::new("Open workbench").min_size(BUTTON_SIZE)).clicked() {
                         if let Some(path) = show_load_workbench_file_dialogue() {
-                            self.failed_probe_errors = self.load_workbench(path);
+                            self.workbench_file.request_open(path);
                         }
                     }
 
