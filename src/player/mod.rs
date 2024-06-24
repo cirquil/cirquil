@@ -7,4 +7,4 @@ mod clock;
 mod instrument;
 pub mod osc;
 mod workbench;
-mod place_probe;
+pub mod probe_location;

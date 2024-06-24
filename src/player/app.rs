@@ -22,7 +22,7 @@ use crate::player::clock::{ClockState, SimulationTicker};
 use crate::player::file::OpenedFile;
 use crate::player::instrument::Instrument;
 use crate::player::osc::{draw_osc, Oscilloscope};
-use crate::player::place_probe::place_new_probe;
+use crate::player::probe_location::place_new_probe;
 use crate::player::project::{show_load_logisim_file_dialog, show_load_project_file_dialog, show_save_project_file_dialog};
 use crate::player::workbench::{show_load_workbench_file_dialogue, show_save_workbench_file_dialogue};
 
