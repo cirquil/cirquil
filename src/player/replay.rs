@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use crate::core::simulation::circuit::{Circuit, CircuitIdx};
 use crate::player::circuit::CircuitManager;
 use crate::player::CirquilPlayerApp;
+use crate::player::osc::Oscilloscope;
 use crate::serde::fs::{deserialize_from_file, serialize_to_file};
 use crate::serde::replay::ReplayFile;
 
@@ -49,6 +50,8 @@ impl CirquilPlayerApp {
         self.circuit_manager = CircuitManager::create_replay(replay_file);
         self.probes = vec![];
         self.probe_max_id = 0;
+        
+        self.osc = Oscilloscope::default();
     }
 }
 

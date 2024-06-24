@@ -58,7 +58,7 @@ impl Oscilloscope {
             .collect();
 
         let trigger_value = values.get(self.trigger_source.as_str())
-            .map(|v| *v)
+            .copied()
             .unwrap_or_default();
 
         let new_trigger_value = trigger_value.get_defined_value() as usize;

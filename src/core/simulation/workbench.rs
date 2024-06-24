@@ -7,10 +7,8 @@ use crate::core::simulation::pin::Direction;
 use crate::core::simulation::probe::{CanvasProbe, Probe};
 use crate::core::simulation::wire::WireIdx;
 use crate::player::osc;
-use crate::player::osc::TriggerType;
-use crate::serde::workbench::{OscilloscopeConfig, OscilloscopeRow, ProbePin, SavedProbe, WorkbenchFile};
 use crate::player::probe_location::fix_loaded_probe;
-
+use crate::serde::workbench::{OscilloscopeConfig, OscilloscopeRow, ProbePin, SavedProbe, WorkbenchFile};
 
 impl CanvasProbe {
     fn from_saved(saved: SavedProbe,

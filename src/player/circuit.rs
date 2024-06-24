@@ -14,19 +14,11 @@ pub enum PlaybackType {
 
 impl PlaybackType {
     pub fn is_simulation(&self) -> bool {
-        if let PlaybackType::Simulation = self {
-            true
-        } else {
-            false
-        }
+        matches!(self, PlaybackType::Simulation)
     }
 
     pub fn is_replay(&self) -> bool {
-        if let PlaybackType::Replay(_, _) = self {
-            true
-        } else {
-            false
-        }
+        matches!(self, PlaybackType::Replay(_, _))
     }
 }
 

@@ -8,6 +8,7 @@ use crate::logisim::converter::convert_logisim_project;
 use crate::logisim::parser::parse_logisim;
 use crate::player::circuit::CircuitManager;
 use crate::player::CirquilPlayerApp;
+use crate::player::osc::Oscilloscope;
 use crate::serde::project::ProjectFile;
 
 #[derive(Debug)]
@@ -87,6 +88,8 @@ impl CirquilPlayerApp {
         self.current_circuit = top_circuit;
         self.probes = vec![];
         self.probe_max_id = 0;
+        
+        self.osc = Oscilloscope::default();
 
         Ok(())
     }
