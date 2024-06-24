@@ -118,7 +118,7 @@ impl Default for CirquilPlayerApp {
 
 impl eframe::App for CirquilPlayerApp {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
-        if let PlaybackType::Replay(_, _) = &self.circuit_manager.playback_type {
+        if self.circuit_manager.playback_type.is_replay() {
             self.circuit_manager.set_frame(self.target_replay_frame);
         }
 
@@ -141,7 +141,7 @@ impl eframe::App for CirquilPlayerApp {
                 self.replay_manager.push_frame(circuits);
             }
 
-            if let PlaybackType::Simulation = &self.circuit_manager.playback_type {
+            if self.circuit_manager.playback_type.is_simulation() {
                 self.tick(top_circuit);
             }
 
@@ -254,8 +254,8 @@ impl eframe::App for CirquilPlayerApp {
                     }
 
                     ui.add(Separator::default().vertical());
-
-                    if ui.add(Button::new("Record").min_size(BUTTON_SIZE).selected(self.record_armed)).clicked() {
+                    
+                    if ui.add_enabled(self.circuit_manager.playback_type.is_simulation(), Button::new("Record").min_size(BUTTON_SIZE).selected(self.record_armed)).clicked() {
                         self.record_armed = match self.record_armed {
                             true => {
                                 if let Some(path) = show_save_replay_file_dialogue() {
@@ -342,7 +342,7 @@ impl eframe::App for CirquilPlayerApp {
             });
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            if let PlaybackType::Replay(_, _) = &self.circuit_manager.playback_type {
+            if self.circuit_manager.playback_type.is_replay() {
                 egui::Window::new("Replay")
                     .show(ctx, |ui| {
                         ui.add(Slider::new(&mut self.target_replay_frame, 0..=self.circuit_manager.get_total_frames() - 1)

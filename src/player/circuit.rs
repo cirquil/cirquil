@@ -12,6 +12,24 @@ pub enum PlaybackType {
     Replay(ReplayFile, FrameIdx),
 }
 
+impl PlaybackType {
+    pub fn is_simulation(&self) -> bool {
+        if let PlaybackType::Simulation = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn is_replay(&self) -> bool {
+        if let PlaybackType::Replay(_, _) = self {
+            true
+        } else {
+            false
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct CircuitManager {
     pub circuits: InstantiatedCircuits,
