@@ -3,6 +3,7 @@ use uuid::Uuid;
 
 use crate::core::canvas::location::Location;
 use crate::core::simulation::pin::PinIdx;
+use crate::player::osc::TriggerType;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SavedProbe {
@@ -22,6 +23,8 @@ pub struct ProbePin {
 pub struct OscilloscopeConfig {
     pub rows: Vec<OscilloscopeRow>,
     pub last_row_id: usize,
+    pub trigger_type: TriggerType,
+    pub trigger_source: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

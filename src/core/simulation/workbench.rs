@@ -125,8 +125,8 @@ pub fn from_workbench_file(workbench_file: WorkbenchFile,
         rows: Vec::new(),
         trace: Default::default(),
         last_row_id: workbench_file.oscilloscope_config.last_row_id,
-        trigger_type: TriggerType::Both,
-        trigger_source: Default::default(),
+        trigger_type: workbench_file.oscilloscope_config.trigger_type,
+        trigger_source: workbench_file.oscilloscope_config.trigger_source,
         trigger_value: 0,
     };
     for i in workbench_file.oscilloscope_config.rows {
@@ -161,6 +161,8 @@ pub fn to_workbench_file(canvas_probes: &[CanvasProbe],
         })
             .collect(),
         last_row_id: oscilloscope.last_row_id,
+        trigger_source: oscilloscope.trigger_source.clone(),
+        trigger_type: oscilloscope.trigger_type,
     };
 
     WorkbenchFile {

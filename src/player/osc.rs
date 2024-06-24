@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use egui::{Color32, ComboBox, RichText, ScrollArea, Ui};
+use serde::{Deserialize, Serialize};
 
 use crate::core::compiler::project::InstantiatedCircuits;
 use crate::core::simulation::probe::CanvasProbe;
@@ -8,7 +9,7 @@ use crate::core::simulation::trace::Trace;
 use crate::core::simulation::value::Value;
 use crate::gui::value::get_value_color;
 
-#[derive(Debug, Copy, Clone, Default, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub enum TriggerType {
     Rising,
     Falling,
@@ -90,9 +91,7 @@ impl Oscilloscope {
 pub fn draw_osc(ui: &mut Ui, osc: &mut Oscilloscope, probes: &[CanvasProbe]) {
     egui::menu::bar(ui, |ui| {
         ui.menu_button("File", |ui| {
-            if ui.button("Save CSV").clicked() {
-                
-            }
+            if ui.button("Save CSV").clicked() {}
 
             ui.separator();
 
