@@ -43,8 +43,12 @@ pub fn compile_circuit(name: String, saved_circuit: SavedCircuit) -> (Circuit, C
     let mut wire_index = 0;
     while !wires_map.is_empty() {
         let begin = *wires_map.keys().next().unwrap();
-        let (segments, nodes) = dfs_wires(&begin, &mut wires_map, &mut dfs_components);
-        for (from, to) in segments.iter() {
+        let (mut segments, nodes)
+            = dfs_wires(&begin, &mut wires_map, &mut dfs_components);
+        for (from, to) in segments.iter_mut() {
+            if from.x > to.x || from.y > to.y {
+                (*from, *to) = (*to, *from);
+            }
             wire_nodes.insert(*from, wire_index);
             wire_nodes.insert(*to, wire_index);
         }
