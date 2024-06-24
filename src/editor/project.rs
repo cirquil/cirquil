@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
+use std::ptr::read;
 use egui::{Painter, Pos2, Rect, Stroke, Vec2};
 use crate::core::simulation::component::Component;
 
@@ -53,12 +54,15 @@ impl EditorCircuit {
         for component in self.components.iter() {
             let shapes = component.agg.as_shapes(painter.ctx());
             for mut shape in shapes {
-                shape.translate(component.position + offset);
+                shape.translate(component.position);
                 let rect = shape.visual_bounding_rect();
-                if viewport.intersects(rect) {
+                let visible = viewport.intersects(shape.visual_bounding_rect());
+                shape.translate(offset);
+
+                if visible {
                     painter.add(shape);
                 }
-
+                
                 max_x = max_x.max(rect.min.x).min(rect.max.x);
                 max_y = max_y.max(rect.min.y).max(rect.max.y);
             }
