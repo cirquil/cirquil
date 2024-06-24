@@ -6,12 +6,12 @@ use super::Action;
 
 #[derive(Default)]
 pub struct PointerCursor {
-    
+
 }
 
 impl Action for PointerCursor {
-    fn act(&mut self, state: &mut State, response: &Response, painter: &Painter, viewport: Rect) {
-        
+    fn act(&mut self, _state: &mut State, _response: &Response, _painter: &Painter, _viewport: Rect) {
+
     }
 }
 
@@ -25,11 +25,11 @@ impl Action for WireCursor {
         let Some(pointer) = response.ctx.pointer_hover_pos() else {
             return;
         };
-        
+
         if response.clicked_by(PointerButton::Secondary) {
             return self.dragged_from = None;
         }
-        
+
         let offset = response.rect.min.to_vec2();
         if !response.clicked() && self.dragged_from.is_some() {
             let start = self.dragged_from.unwrap() + offset;
@@ -46,7 +46,7 @@ impl Action for WireCursor {
         let end = if self.dragged_from.is_some() {
             let start = self.dragged_from.unwrap() + offset;
             let end = grid_normalize_end(pointer, start);
-            
+
             if start == end {
                 return self.dragged_from = None;
             }
@@ -54,14 +54,14 @@ impl Action for WireCursor {
             let Some(circuit) = _state.project.picked_circuit() else {
                 return eprintln!("Failed to retrieve the picked circuit!");
             };
-            
+
             circuit.add_wire(start - offset, end - offset);
-            
+
             Some(end - offset)
         } else {
             None
         };
-        
+
         self.dragged_from = end.or_else(|| {
             response.interact_pointer_pos().map(|pos| {
                 nearest_grid_anchor(pos - offset)

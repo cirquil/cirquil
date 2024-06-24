@@ -21,7 +21,7 @@ impl Circuit {
 }
 
 impl Action for Circuit {
-    fn act(&mut self, state: &mut State, response: &Response, painter: &Painter, viewport: Rect) {
+    fn act(&mut self, state: &mut State, response: &Response, _painter: &Painter, _viewport: Rect) {
         if !response.clicked() || state.project.is_picked(&self.id) {
             return;
         }

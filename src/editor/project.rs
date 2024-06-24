@@ -125,7 +125,7 @@ impl From<ProjectFile> for EditorProject {
 impl EditorProject {
     pub fn pick(&mut self, id: &CircuitId) {
         if self.circuits.contains_key(id) {
-            self.picked = id.clone();
+            self.picked.clone_from(id);
         } else {
             eprintln!("There is no circuit with name '{id}'!");
         }

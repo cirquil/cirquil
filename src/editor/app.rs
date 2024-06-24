@@ -74,18 +74,18 @@ impl eframe::App for CirquilEditor {
                     });
                     
                     if ui.add_enabled(self.state.path.is_some(), egui::Button::new("Save")).clicked() {
-                        
+                        todo!()
                     }
                     
                     if ui.button("Save As...").clicked() {
-                        
+                        todo!()
                     }
                 });
                 
                 ui.menu_button("Edit", |ui| {
                     if ui.button("Create Subcircuit").clicked() {
-                        todo!();
                         self.tooling.populate_circuits(self.state.project.known_circuits());
+                        todo!();
                     };
                 });
             })
