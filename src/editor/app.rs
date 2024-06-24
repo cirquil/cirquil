@@ -8,30 +8,15 @@ use crate::editor::project::EditorProject;
 
 use super::tools::{Action, Tree};
 
+#[derive(Default)]
 pub struct State {
     pub project: EditorProject,
 }
 
-impl Default for State {
-    fn default() -> Self {
-        Self {
-            project: Default::default(),
-        }
-    }
-}
-
+#[derive(Default)]
 pub struct CirquilEditor {
     state: State,
-    sidebar_tree: Tree,
-}
-
-impl Default for CirquilEditor {
-    fn default() -> Self {
-        Self {
-            state: Default::default(),
-            sidebar_tree: Default::default(),
-        }
-    }
+    tooling: Tree,
 }
 
 impl eframe::App for CirquilEditor {
@@ -46,7 +31,7 @@ impl eframe::App for CirquilEditor {
                 tools = tools.exact_height(r.size().y / 2.1);
             }
             tools.show_inside(ui, |ui| {
-                self.sidebar_tree.show(ui)
+                self.tooling.show(ui)
             });
 
             let properties = egui::CentralPanel::default();
@@ -67,7 +52,7 @@ impl eframe::App for CirquilEditor {
                     let grid_viewport = viewport.translate(response.rect.min.to_vec2());
                     painter.extend(Shape::grid(grid_viewport, viewport.min.to_vec2(), &ctx.style()));
                     
-                    if let Some(tool) = self.sidebar_tree.picked_tool() {
+                    if let Some(tool) = self.tooling.picked_tool() {
                         tool.act(&mut self.state, &response, &painter, viewport);
                     } else {
                         eprintln!("Failed to retrieve the picked tool!");

@@ -80,10 +80,10 @@ impl Default for Tree {
 }
 
 impl Tree {
-    pub fn show(&mut self, ui: &mut Ui) -> Vec<(Response, InnerResponse<Response>, Option<InnerResponse<Vec<Response>>>)> {
+    pub fn show(&mut self, ui: &mut Ui) {
         Vec::from_iter(self.groups.iter().map(|group| {
             group.show(&mut self.picked, ui)
-        }))
+        }));
     }
     
     pub fn picked_tool(&mut self) -> Option<&mut Tool> {

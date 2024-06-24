@@ -18,7 +18,7 @@ impl ComponentFactory {
 }
 
 impl Action for ComponentFactory {
-    fn act(&mut self, state: &mut State, response: &Response, _painter: &Painter, viewport: Rect) {
+    fn act(&mut self, state: &mut State, response: &Response, _painter: &Painter, _viewport: Rect) {
         if !response.clicked() {
             return;
         }

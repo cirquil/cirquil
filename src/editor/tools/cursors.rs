@@ -1,19 +1,12 @@
 use eframe::emath::Rect;
-use egui::{Painter, Pos2, Response, Stroke};
+use egui::{Painter, PointerButton, Pos2, Response, Stroke};
 use crate::editor::app::State;
 use crate::editor::canvas::grid::{grid_normalize_end, nearest_grid_anchor};
 use super::Action;
 
+#[derive(Default)]
 pub struct WireCursor {
     dragged_from: Option<Pos2>,
-}
-
-impl Default for WireCursor {
-    fn default() -> Self {
-        Self {
-            dragged_from: None,
-        }
-    }
 }
 
 impl Action for WireCursor {
@@ -21,15 +14,24 @@ impl Action for WireCursor {
         let Some(pointer) = response.ctx.pointer_hover_pos() else {
             return;
         };
-
+        
+        if response.clicked_by(PointerButton::Secondary) {
+            return self.dragged_from = None;
+        }
+        
         let offset = response.rect.min.to_vec2();
-        if !response.clicked() && self.dragged_from.is_some() {
+        let end = if !response.clicked() && self.dragged_from.is_some() {
             let start = self.dragged_from.unwrap() + offset;
+            let end = grid_normalize_end(pointer, start);
             painter.line_segment(
-                [start, grid_normalize_end(pointer, start)],
+                [start, end],
                 Stroke::new(2.0, response.ctx.style().visuals.weak_text_color()),
             );
-        }
+            
+            Some(end)
+        } else {
+            None
+        };
 
         if !response.clicked() {
             return;
@@ -49,8 +51,11 @@ impl Action for WireCursor {
             
             circuit.add_wire(start - offset, end - offset);
         }
-
-        self.dragged_from = response.interact_pointer_pos()
-            .map(|pos| nearest_grid_anchor(pos - offset));
+        
+        self.dragged_from = end.or_else(|| {
+            response.interact_pointer_pos().map(|pos| {
+                nearest_grid_anchor(pos - offset)
+            })
+        });
     }
 }
