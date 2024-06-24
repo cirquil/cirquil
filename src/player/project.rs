@@ -49,7 +49,7 @@ where
     P: AsRef<Path>,
 {
     match path.as_ref().extension() {
-        None => { return Err(ProjectLoadError::from(LoadErrorKind::UnknownFileType)); }
+        None => { Err(ProjectLoadError::from(LoadErrorKind::UnknownFileType)) }
         Some(e) => {
             match e.to_str() {
                 Some("cirq") => {
@@ -61,10 +61,8 @@ where
 
                     Ok(convert_logisim_project(logisim_project))
                 }
-                Some(_) => { return Err(ProjectLoadError::from(LoadErrorKind::UnknownFileType)); }
-                None => {
-                    return Err(ProjectLoadError::from(LoadErrorKind::UnknownError));
-                }
+                Some(_) => { Err(ProjectLoadError::from(LoadErrorKind::UnknownFileType)) }
+                None => { Err(ProjectLoadError::from(LoadErrorKind::UnknownError)) }
             }
         }
     }

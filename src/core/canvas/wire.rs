@@ -16,10 +16,7 @@ impl CanvasWire {
     pub fn closest_segment(&self, location: Location, max_dist: Option<i16>) -> Option<(WireIdx, usize, i16)> {
         self.segments.iter().enumerate()
             .filter_map(|(i, segment)| {
-                Self::segment_contains(location, *segment, max_dist)
-                    .and_then(|dist| {
-                        Some((self.wire, i, dist))
-                    })
+                Self::segment_contains(location, *segment, max_dist).map(|dist| (self.wire, i, dist))
             })
             .min_by_key(|(_, _, dist)| *dist)
     }
