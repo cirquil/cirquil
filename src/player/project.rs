@@ -44,29 +44,38 @@ impl From<StdIoError> for ProjectLoadError {
     }
 }
 
-impl CirquilPlayerApp {
-    pub fn load_project<P>(&mut self, path: P) -> Result<(), ProjectLoadError>
-        where P: AsRef<Path> {
-        let project_file = match path.as_ref().extension() {
-            None => { return Err(ProjectLoadError::from(LoadErrorKind::UnknownFileType)); }
-            Some(e) => {
-                match e.to_str() {
-                    Some("cirq") => {
-                        ProjectFile::load(path)?
-                    }
-                    Some("circ") => {
-                        let logisim_project = parse_logisim(path)
-                            .map_err(|_| ProjectLoadError::from(LoadErrorKind::UnknownError))?;
+fn load_from_file<P>(path: P) -> Result<ProjectFile, ProjectLoadError>
+where
+    P: AsRef<Path>,
+{
+    match path.as_ref().extension() {
+        None => { return Err(ProjectLoadError::from(LoadErrorKind::UnknownFileType)); }
+        Some(e) => {
+            match e.to_str() {
+                Some("cirq") => {
+                    Ok(ProjectFile::load(path)?)
+                }
+                Some("circ") => {
+                    let logisim_project = parse_logisim(path)
+                        .map_err(|_| ProjectLoadError::from(LoadErrorKind::UnknownError))?;
 
-                        convert_logisim_project(logisim_project)
-                    }
-                    Some(_) => { return Err(ProjectLoadError::from(LoadErrorKind::UnknownFileType)); }
-                    None => {
-                        return Err(ProjectLoadError::from(LoadErrorKind::UnknownError));
-                    }
+                    Ok(convert_logisim_project(logisim_project))
+                }
+                Some(_) => { return Err(ProjectLoadError::from(LoadErrorKind::UnknownFileType)); }
+                None => {
+                    return Err(ProjectLoadError::from(LoadErrorKind::UnknownError));
                 }
             }
-        };
+        }
+    }
+}
+
+impl CirquilPlayerApp {
+    pub fn load_project<P>(&mut self, path: P) -> Result<(), ProjectLoadError>
+    where
+        P: AsRef<Path>,
+    {
+        let project_file = load_from_file(path)?;
 
         let (top_circuit, compiled_circuits) = compile_project(project_file);
 
@@ -82,7 +91,18 @@ impl CirquilPlayerApp {
 
         Ok(())
     }
+
+    pub fn convert<P>(&mut self, path: P, cirq_path: P) -> Result<(), ProjectLoadError>
+    where
+        P: AsRef<Path>,
+    {
+        let project_file = load_from_file(path)?;
+        project_file.save(cirq_path)?;
+
+        Ok(())
+    }
 }
+
 
 pub fn show_load_project_file_dialog() -> Option<PathBuf> {
     rfd::FileDialog::new()
@@ -90,4 +110,16 @@ pub fn show_load_project_file_dialog() -> Option<PathBuf> {
         .add_filter("Cirquil Project", vec!["cirq"].as_slice())
         .add_filter("Logisim Project", vec!["circ"].as_slice())
         .pick_file()
+}
+
+pub fn show_load_logisim_file_dialog() -> Option<PathBuf> {
+    rfd::FileDialog::new()
+        .add_filter("Logisim Project", vec!["circ"].as_slice())
+        .pick_file()
+}
+
+pub fn show_save_project_file_dialog() -> Option<PathBuf> {
+    rfd::FileDialog::new()
+        .add_filter("Cirquil Project", vec!["cirq"].as_slice())
+        .save_file()
 }

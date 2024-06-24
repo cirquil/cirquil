@@ -23,7 +23,7 @@ use crate::player::file::OpenedFile;
 use crate::player::instrument::Instrument;
 use crate::player::osc::{draw_osc, Oscilloscope};
 use crate::player::place_probe::place_new_probe;
-use crate::player::project::show_load_project_file_dialog;
+use crate::player::project::{show_load_logisim_file_dialog, show_load_project_file_dialog, show_save_project_file_dialog};
 use crate::player::workbench::{show_load_workbench_file_dialogue, show_save_workbench_file_dialogue};
 
 const _GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
@@ -169,7 +169,18 @@ impl eframe::App for CirquilPlayerApp {
                         }
 
                         ui.close_menu()
-                    };
+                    }
+
+                    if ui.button("Convert .circ to .cirq").clicked() {
+                        if let Some(logisim_path) = show_load_logisim_file_dialog() {
+                            if let Some(cirq_path) = show_save_project_file_dialog() {
+                                self.convert(logisim_path, cirq_path)
+                                    .expect("Error converting .circ to .cirq");
+                            }
+                        }
+
+                        ui.close_menu();
+                    }
 
                     ui.add(Separator::default().horizontal());
 
