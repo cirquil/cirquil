@@ -8,12 +8,12 @@ use crate::serde::workbench::WorkbenchFile;
 
 impl CirquilPlayerApp {
     pub fn load_workbench<P>(&mut self, path: P) -> Option<Vec<String>>
-    where
-        P: AsRef<Path>,
+        where
+            P: AsRef<Path>,
     {
         let workbench_file: WorkbenchFile = deserialize_from_file(path).unwrap();
 
-        let (probes, osc, last_probe_id) = from_workbench_file(workbench_file, &self.circuits);
+        let (probes, osc, last_probe_id) = from_workbench_file(workbench_file, self.circuit_manager.get_circuits());
         self.osc = osc;
         self.probe_max_id = last_probe_id;
 
@@ -36,11 +36,11 @@ impl CirquilPlayerApp {
     }
 
     pub fn save_workbench<P>(&mut self, path: P)
-    where
-        P: AsRef<Path>,
+        where
+            P: AsRef<Path>,
     {
         let workbench_file = to_workbench_file(&self.probes, &self.osc,
-                                               &self.circuits, self.probe_max_id);
+                                               self.circuit_manager.get_circuits(), self.probe_max_id);
         serialize_to_file(&workbench_file, path).unwrap();
     }
 }

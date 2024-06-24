@@ -6,7 +6,7 @@ use std::time::{Duration, Instant};
 
 use eframe::epaint::Shape;
 use eframe::Frame;
-use egui::{Button, containers, Context, Pos2, ScrollArea, Sense, Separator, Stroke, Ui, Vec2, Vec2b};
+use egui::{Button, containers, Context, Pos2, ScrollArea, Sense, Separator, Slider, Stroke, Ui, Vec2, Vec2b};
 use egui::collapsing_header::CollapsingState;
 use egui_extras::{Size, StripBuilder};
 
@@ -19,12 +19,13 @@ use crate::gui::component::AsShapes;
 use crate::gui::constants::GRID_STEP;
 use crate::gui::grid;
 use crate::gui::value::get_value_color;
+use crate::player::circuit::{CircuitManager, PlaybackType};
 use crate::player::clock::{ClockState, SimulationTicker};
 use crate::player::file::OpenedFile;
 use crate::player::instrument::Instrument;
 use crate::player::osc::{draw_osc, Oscilloscope};
 use crate::player::project::show_load_project_file_dialog;
-use crate::player::replay::{ReplayManager, show_save_replay_file_dialogue};
+use crate::player::replay::{ReplayManager, show_load_replay_file_dialogue, show_save_replay_file_dialogue};
 use crate::player::workbench::{show_load_workbench_file_dialogue, show_save_workbench_file_dialogue};
 
 const _GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
@@ -32,7 +33,7 @@ const _GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
 const BUTTON_SIZE: Vec2 = Vec2::new(40.0, 40.0);
 
 pub struct CirquilPlayerApp {
-    pub circuits: InstantiatedCircuits,
+    pub circuit_manager: CircuitManager,
     pub current_circuit: CircuitIdx,
     pub top_circuit: CircuitIdx,
     pub osc_visible: bool,
@@ -47,6 +48,7 @@ pub struct CirquilPlayerApp {
     pub osc: Oscilloscope,
     pub failed_probe_errors: Option<Vec<String>>,
     pub replay_manager: ReplayManager,
+    pub target_replay_frame: usize,
 }
 
 impl CirquilPlayerApp {
@@ -66,20 +68,23 @@ impl CirquilPlayerApp {
             P: AsRef<Path>,
     {
         Self {
-            circuits: InstantiatedCircuits {
-                canvas_circuits: vec![CanvasCircuit {
-                    name: "main".to_string(),
-                    ..Default::default()
-                }],
-                instantiated_circuits: vec![
-                    (
-                        Rc::new(Circuit::default()),
-                        0
-                    ),
-                ],
-                simulation_tree: SimulationTreeNode::Leaf(0),
-                by_uuid: vec![],
-                parents: vec![],
+            circuit_manager: CircuitManager {
+                circuits: InstantiatedCircuits {
+                    canvas_circuits: vec![CanvasCircuit {
+                        name: "main".to_string(),
+                        ..Default::default()
+                    }],
+                    instantiated_circuits: vec![
+                        (
+                            Rc::new(Circuit::default()),
+                            0
+                        ),
+                    ],
+                    simulation_tree: SimulationTreeNode::Leaf(0),
+                    by_uuid: vec![],
+                    parents: vec![],
+                },
+                playback_type: PlaybackType::Simulation,
             },
             current_circuit: 0,
             top_circuit: 0,
@@ -100,6 +105,7 @@ impl CirquilPlayerApp {
             osc: Oscilloscope::default(),
             failed_probe_errors: None,
             replay_manager: ReplayManager::default(),
+            target_replay_frame: 0,
         }
     }
 }
@@ -112,6 +118,10 @@ impl Default for CirquilPlayerApp {
 
 impl eframe::App for CirquilPlayerApp {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
+        if let PlaybackType::Replay(_, _) = &self.circuit_manager.playback_type {
+            self.circuit_manager.set_frame(self.target_replay_frame);
+        }
+
         if self.clock_state == ClockState::Running {
             ctx.request_repaint_after(self.simulation_ticker.clock_period);
         }
@@ -120,16 +130,33 @@ impl eframe::App for CirquilPlayerApp {
             self.load_project(path).unwrap();
         }
 
-        let (top_circuit, _) = self.circuits.instantiated_circuits.get(self.top_circuit).unwrap();
+        let (top_circuit, _) = self.circuit_manager.get_circuits().instantiated_circuits.get(self.top_circuit).unwrap();
 
         if self.simulation_ticker.check_tick_needed() {
-            self.tick(top_circuit);
-
-            self.osc.collect_probe_values(self.probes.as_slice(), &self.circuits);
-
             if self.record_armed {
-                self.replay_manager.push_frame(self.circuits.clone());
+                let circuits: Vec<(Circuit, CircuitIdx)> = self.circuit_manager.get_circuits().instantiated_circuits.iter()
+                    .map(|(a, b)| ((*a).as_ref().clone(), *b))
+                    .collect();
+
+                self.replay_manager.push_frame(circuits);
             }
+
+            if let PlaybackType::Simulation = &self.circuit_manager.playback_type {
+                self.tick(top_circuit);
+            }
+
+            if let PlaybackType::Replay(_, frame) = &self.circuit_manager.playback_type {
+                let next_frame = if *frame >= self.circuit_manager.get_total_frames() - 1 {
+                    0
+                } else {
+                    *frame + 1
+                };
+
+                self.circuit_manager.set_frame(next_frame);
+                self.target_replay_frame = next_frame;
+            }
+
+            self.osc.collect_probe_values(self.probes.as_slice(), self.circuit_manager.get_circuits());
         }
 
         if let Some(failed_probe_errors) = &self.failed_probe_errors {
@@ -168,6 +195,16 @@ impl eframe::App for CirquilPlayerApp {
 
                         ui.close_menu()
                     };
+
+                    ui.add(Separator::default().horizontal());
+
+                    if ui.button("Open replay").clicked() {
+                        if let Some(path) = show_load_replay_file_dialogue() {
+                            self.load_replay(path);
+                        }
+
+                        ui.close_menu();
+                    }
 
                     ui.add(Separator::default().horizontal());
 
@@ -222,7 +259,7 @@ impl eframe::App for CirquilPlayerApp {
                         self.record_armed = match self.record_armed {
                             true => {
                                 if let Some(path) = show_save_replay_file_dialogue() {
-                                    self.replay_manager.save_replay(path);
+                                    self.save_replay(path);
                                     self.replay_manager.clear();
                                 }
 
@@ -282,7 +319,7 @@ impl eframe::App for CirquilPlayerApp {
                             ui.heading("Simulation tree");
 
                             ScrollArea::vertical().id_source("simulation_tree_scroll").auto_shrink(Vec2b::new(false, false)).show(ui, |ui| {
-                                if let Some(i) = traverse_simulation_tree(ui, &self.circuits.simulation_tree, &self.circuits, self.current_circuit) {
+                                if let Some(i) = traverse_simulation_tree(ui, &self.circuit_manager.get_circuits().simulation_tree, self.circuit_manager.get_circuits(), self.current_circuit) {
                                     self.current_circuit = i;
                                 }
                             });
@@ -305,6 +342,14 @@ impl eframe::App for CirquilPlayerApp {
             });
 
         egui::CentralPanel::default().show(ctx, |ui| {
+            if let PlaybackType::Replay(_, _) = &self.circuit_manager.playback_type {
+                egui::Window::new("Replay")
+                    .show(ctx, |ui| {
+                        ui.add(Slider::new(&mut self.target_replay_frame, 0..=self.circuit_manager.get_total_frames() - 1)
+                        );
+                    });
+            }
+
             egui::Window::new("Oscilloscope")
                 .min_size(Vec2::new(600.0, 300.0))
                 .max_size(Vec2::new(1400.0, 600.0))
@@ -312,7 +357,7 @@ impl eframe::App for CirquilPlayerApp {
                 .show(ctx, |ui| draw_osc(ui, &mut self.osc, self.probes.as_slice()));
 
             ScrollArea::both().id_source("canvas_scroll").show(ui, |ui| {
-                containers::Frame::canvas(ui.style()).show(ui, |ui| draw_canvas(ui, ctx, self.current_circuit, &self.circuits, &mut self.probes, &mut self.probe_max_id, &self.current_instrument));
+                containers::Frame::canvas(ui.style()).show(ui, |ui| draw_canvas(ui, ctx, self.current_circuit, self.circuit_manager.get_circuits(), &mut self.probes, &mut self.probe_max_id, &self.current_instrument));
             });
         });
     }

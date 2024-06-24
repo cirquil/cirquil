@@ -6,6 +6,7 @@ use std::path::{Path, PathBuf};
 use crate::core::compiler::project::compile_project;
 use crate::logisim::converter::convert_logisim_project;
 use crate::logisim::parser::parse_logisim;
+use crate::player::circuit::CircuitManager;
 use crate::player::CirquilPlayerApp;
 use crate::serde::project::ProjectFile;
 
@@ -74,7 +75,7 @@ impl CirquilPlayerApp {
             |(circuit, _)| circuit.propagate_all()
         );
 
-        self.circuits = compiled_circuits;
+        self.circuit_manager = CircuitManager::create_simulation(compiled_circuits);
         self.top_circuit = top_circuit;
         self.current_circuit = top_circuit;
         self.probes = vec![];

@@ -6,9 +6,8 @@ use crate::core::simulation::components::subcircuit::Subcircuit;
 use crate::core::simulation::pin::Direction;
 use crate::core::simulation::probe::{CanvasProbe, Probe};
 use crate::core::simulation::wire::WireIdx;
-use crate::serde::workbench::{OscilloscopeConfig, OscilloscopeRow, ProbePin, SavedProbe, WorkbenchFile};
 use crate::player::osc;
-
+use crate::serde::workbench::{OscilloscopeConfig, OscilloscopeRow, ProbePin, SavedProbe, WorkbenchFile};
 
 impl CanvasProbe {
     fn from_saved(saved: SavedProbe,

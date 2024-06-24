@@ -8,3 +8,4 @@ mod instrument;
 pub mod osc;
 mod workbench;
 mod replay;
+mod circuit;
