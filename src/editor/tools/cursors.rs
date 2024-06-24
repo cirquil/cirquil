@@ -20,24 +20,19 @@ impl Action for WireCursor {
         }
         
         let offset = response.rect.min.to_vec2();
-        let end = if !response.clicked() && self.dragged_from.is_some() {
+        if !response.clicked() && self.dragged_from.is_some() {
             let start = self.dragged_from.unwrap() + offset;
-            let end = grid_normalize_end(pointer, start);
             painter.line_segment(
-                [start, end],
+                [start, grid_normalize_end(pointer, start)],
                 Stroke::new(2.0, response.ctx.style().visuals.weak_text_color()),
             );
-            
-            Some(end)
-        } else {
-            None
-        };
+        }
 
         if !response.clicked() {
             return;
         }
 
-        if self.dragged_from.is_some() {
+        let end = if self.dragged_from.is_some() {
             let start = self.dragged_from.unwrap() + offset;
             let end = grid_normalize_end(pointer, start);
             
@@ -50,7 +45,11 @@ impl Action for WireCursor {
             };
             
             circuit.add_wire(start - offset, end - offset);
-        }
+            
+            Some(end - offset)
+        } else {
+            None
+        };
         
         self.dragged_from = end.or_else(|| {
             response.interact_pointer_pos().map(|pos| {
