@@ -1,10 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::core::canvas::circuit::CanvasCircuit;
-use crate::core::simulation::circuit::Circuit;
+use crate::core::compiler::project::InstantiatedCircuits;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReplayFile {
-    canvas_circuits: Vec<CanvasCircuit>,
-    states: Vec<Circuit>,
+    pub states: Vec<InstantiatedCircuits>,
 }

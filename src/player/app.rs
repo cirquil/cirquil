@@ -24,6 +24,7 @@ use crate::player::file::OpenedFile;
 use crate::player::instrument::Instrument;
 use crate::player::osc::{draw_osc, Oscilloscope};
 use crate::player::project::show_load_project_file_dialog;
+use crate::player::replay::{ReplayManager, show_save_replay_file_dialogue};
 use crate::player::workbench::{show_load_workbench_file_dialogue, show_save_workbench_file_dialogue};
 
 const _GRID_SQUARE: Vec2 = Vec2::new(GRID_STEP, GRID_STEP);
@@ -45,6 +46,7 @@ pub struct CirquilPlayerApp {
     pub current_instrument: Instrument,
     pub osc: Oscilloscope,
     pub failed_probe_errors: Option<Vec<String>>,
+    pub replay_manager: ReplayManager,
 }
 
 impl CirquilPlayerApp {
@@ -106,6 +108,7 @@ impl CirquilPlayerApp {
             current_instrument: Instrument::None,
             osc: Oscilloscope::default(),
             failed_probe_errors: None,
+            replay_manager: ReplayManager::default(),
         }
     }
 }
@@ -132,6 +135,10 @@ impl eframe::App for CirquilPlayerApp {
             self.tick(top_circuit);
 
             self.osc.collect_probe_values(self.probes.as_slice(), &self.circuits);
+
+            if self.record_armed {
+                self.replay_manager.push_frame(self.circuits.clone());
+            }
         }
 
         if let Some(failed_probe_errors) = &self.failed_probe_errors {
@@ -221,7 +228,17 @@ impl eframe::App for CirquilPlayerApp {
                     ui.add(Separator::default().vertical());
 
                     if ui.add(Button::new("Record").min_size(BUTTON_SIZE).selected(self.record_armed)).clicked() {
-                        self.record_armed = !self.record_armed;
+                        self.record_armed = match self.record_armed {
+                            true => {
+                                if let Some(path) = show_save_replay_file_dialogue() {
+                                    self.replay_manager.save_replay(path);
+                                    self.replay_manager.clear();
+                                }
+
+                                false
+                            }
+                            false => true,
+                        };
                     }
 
                     if ui.add_enabled(self.clock_state == ClockState::Running, Button::new("Stop").min_size(BUTTON_SIZE)).clicked() {

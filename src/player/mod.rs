@@ -7,3 +7,4 @@ mod clock;
 mod instrument;
 pub mod osc;
 mod workbench;
+mod replay;
