@@ -47,6 +47,8 @@ impl CirquilPlayerApp {
         self.top_circuit = replay_file.top_circuit;
         self.current_circuit = replay_file.top_circuit;
         self.circuit_manager = CircuitManager::create_replay(replay_file);
+        self.probes = vec![];
+        self.probe_max_id = 0;
     }
 }
 
