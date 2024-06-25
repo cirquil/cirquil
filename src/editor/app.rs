@@ -95,7 +95,7 @@ impl eframe::App for CirquilEditor {
                             file_dialog = file_dialog.set_directory(path);
                         }
 
-                        if let Some(path) = file_dialog.pick_file() {
+                        if let Some(path) = file_dialog.save_file() {
                             self.state.path = Some(path.clone());
                             let _ = ProjectFile::from(self.state.project.clone()).save(path);
                         }
