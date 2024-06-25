@@ -1,7 +1,7 @@
 use egui::{Shape, Rect, Vec2, Style, Pos2};
 
-const GRID_STEP: f32 = 10.0;
-const DOUBLED: f32 = GRID_STEP * 2.0;
+pub const GRID_STEP: f32 = 10.0;
+pub const DOUBLED: f32 = GRID_STEP * 2.0;
 
 pub trait ShapeExt: Sized {
     fn grid(viewport: Rect, offset: Vec2, style: &Style) -> Vec<Self>;

@@ -83,6 +83,10 @@ impl Component {
 pub struct ComponentProperties(HashMap<String, Property>);
 
 impl ComponentProperties {
+    pub fn list(&self) -> Vec<&String> {
+        self.0.keys().collect()
+    }
+    
     pub fn get(&self, name: &str) -> Option<&Property> {
         self.0.get(name)
     }

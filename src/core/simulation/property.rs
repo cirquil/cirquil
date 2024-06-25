@@ -1,6 +1,7 @@
 use std::cell::{Cell, RefCell};
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
+use std::ops::{RangeInclusive};
 
 use serde::{Deserialize, Serialize};
 
@@ -100,6 +101,10 @@ impl Error for BoundsError {}
 impl BoundedIntegerProperty {
     pub fn get(&self) -> u32 {
         self.value.get()
+    }
+    
+    pub fn get_bounds(&self) -> RangeInclusive<u32> {
+        self.min..=(self.max-1)
     }
 
     pub fn set(&self, value: u32) -> Result<(), BoundsError> {
