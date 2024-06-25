@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
 use egui::{Painter, Pos2, Rect, Shape, Stroke, Vec2};
+use crate::core::canvas::location::Location;
 
 use crate::core::simulation::component::{Component, ComponentPins};
 use crate::gui::value::get_value_color;
-use crate::serde::project::{ProjectFile, SavedCircuit, SavedComponent};
+use crate::serde::project::{ProjectFile, SavedCircuit, SavedCircuitBounds, SavedCircuitPin, SavedComponent, SavedWire};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct EditorComponent {
     pub agg: Component,
     pub position: Vec2,
@@ -21,7 +22,16 @@ impl From<SavedComponent> for EditorComponent {
     }
 }
 
-#[derive(Default, Debug)]
+impl From<EditorComponent> for SavedComponent {
+    fn from(value: EditorComponent) -> Self {
+        Self {
+            location: Location { x: value.position.x as i16, y: value.position.y as i16 },
+            component: value.agg,
+        }
+    }
+}
+
+#[derive(Default, Debug, Clone)]
 pub struct EditorCircuit {
     pub components: Vec<EditorComponent>,
     pub wires: Vec<(Pos2, Pos2)>,
@@ -45,7 +55,33 @@ impl From<SavedCircuit> for EditorCircuit {
     }
 }
 
-#[derive(Default)]
+impl From<EditorCircuit> for SavedCircuit {
+    fn from(value: EditorCircuit) -> Self {
+        let x = value.cached_max.x as i16;
+        let y = value.cached_max.y as i16;
+        
+        Self {
+            components: value.components.into_iter().map(From::from).collect(),
+            wires: value.wires.into_iter().map(|(start, end)| {
+                SavedWire {
+                    start: Location { x: start.x as i16, y: start.y as i16 },
+                    end: Location { x: end.x as i16, y: end.y as i16 },
+                }
+            }).collect(),
+            bounds: SavedCircuitBounds { start: Location { x: 0, y: 0 }, end: Location { x, y } },
+            pins: value.pins.get_pins().iter().map(|pin| {
+                SavedCircuitPin {
+                    location: pin.location,
+                    label: "".to_string(),
+                    bit_width: pin.bit_width,
+                    direction: pin.direction,
+                }
+            }).collect(),
+        }
+    }
+}
+
+#[derive(Default, Clone)]
 pub struct DrawnCircuit {
     pub wires: Vec<(usize, Rect)>,
     pub components: Vec<(usize, Rect)>,
@@ -114,10 +150,10 @@ impl EditorCircuit {
 
 pub type CircuitId = String;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct EditorProject {
     picked: CircuitId,
-    top: CircuitId,
+    pub top: CircuitId,
     circuits: HashMap<CircuitId, EditorCircuit>,
 }
 
@@ -139,6 +175,17 @@ impl From<ProjectFile> for EditorProject {
             picked: value.top_circuit.clone(),
             top: value.top_circuit,
             circuits: value.circuits.into_iter().map(|(k, v)| (k, From::from(v))).collect(),
+        }
+    }
+}
+
+impl From<EditorProject> for ProjectFile {
+    fn from(value: EditorProject) -> Self {
+        Self {
+            top_circuit: value.top,
+            circuits: value.circuits.into_iter().map(|(k, v)| {
+                (k, From::from(v))
+            }).collect()
         }
     }
 }

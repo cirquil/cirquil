@@ -80,11 +80,25 @@ impl eframe::App for CirquilEditor {
                     });
 
                     if ui.add_enabled(self.state.path.is_some(), egui::Button::new("Save")).clicked() {
-                        todo!()
+                        ui.close_menu();
+
+                        let _ = ProjectFile::from(self.state.project.clone()).save(self.state.path.clone().unwrap());
                     }
 
                     if ui.button("Save As...").clicked() {
-                        todo!()
+                        ui.close_menu();
+
+                        let mut file_dialog = rfd::FileDialog::new()
+                            .set_file_name(format!("{}.cirq", &self.state.project.top));
+
+                        if let Ok(path) = std::env::current_dir() {
+                            file_dialog = file_dialog.set_directory(path);
+                        }
+
+                        if let Some(path) = file_dialog.pick_file() {
+                            self.state.path = Some(path.clone());
+                            let _ = ProjectFile::from(self.state.project.clone()).save(path);
+                        }
                     }
                 });
 
