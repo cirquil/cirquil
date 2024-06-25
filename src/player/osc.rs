@@ -15,9 +15,9 @@ pub enum TriggerType {
     Rising,
     Falling,
 
-    #[default]
     Both,
 
+    #[default]
     Always,
 }
 
