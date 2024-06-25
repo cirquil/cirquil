@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use egui::{Painter, Pos2, Rect, Shape, Stroke, Vec2};
 use crate::core::canvas::location::Location;
 
-use crate::core::simulation::component::{Component, ComponentPins};
+use crate::core::simulation::component::{Component, ComponentModel, ComponentPins};
 use crate::gui::value::get_value_color;
 use crate::serde::project::{ProjectFile, SavedCircuit, SavedCircuitBounds, SavedCircuitPin, SavedComponent, SavedWire};
 
@@ -59,7 +59,29 @@ impl From<EditorCircuit> for SavedCircuit {
     fn from(value: EditorCircuit) -> Self {
         let x = value.cached_max.x as i16;
         let y = value.cached_max.y as i16;
-        
+
+        let pins = value.components.clone().into_iter().map(|component| {
+            match component.agg.model {
+                ComponentModel::InputPin(p) => {
+                    Some(SavedCircuitPin {
+                        location: component.agg.pins.get_pins()[0].location,
+                        label: component.agg.properties.get("label").unwrap().as_string().unwrap().get(),
+                        bit_width: component.agg.pins.get_pins()[0].bit_width,
+                        direction: component.agg.pins.get_pins()[0].direction,
+                    })
+                },
+                ComponentModel::OutputPin(p) => {
+                    Some(SavedCircuitPin {
+                        location: component.agg.pins.get_pins()[0].location,
+                        label: component.agg.properties.get("label").unwrap().as_string().unwrap().get(),
+                        bit_width: component.agg.pins.get_pins()[0].bit_width,
+                        direction: component.agg.pins.get_pins()[0].direction,
+                    })
+                }
+                _ => None
+            }
+        }).filter(|p| p.is_some()).collect();
+
         Self {
             components: value.components.into_iter().map(From::from).collect(),
             wires: value.wires.into_iter().map(|(start, end)| {
@@ -69,14 +91,7 @@ impl From<EditorCircuit> for SavedCircuit {
                 }
             }).collect(),
             bounds: SavedCircuitBounds { start: Location { x: 0, y: 0 }, end: Location { x, y } },
-            pins: value.pins.get_pins().iter().map(|pin| {
-                SavedCircuitPin {
-                    location: pin.location,
-                    label: "".to_string(),
-                    bit_width: pin.bit_width,
-                    direction: pin.direction,
-                }
-            }).collect(),
+            pins,
         }
     }
 }
