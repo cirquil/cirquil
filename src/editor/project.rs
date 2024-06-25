@@ -80,7 +80,7 @@ impl From<EditorCircuit> for SavedCircuit {
                 }
                 _ => None
             }
-        }).filter(|p| p.is_some()).collect();
+        }).filter(|p| p.is_some()).map(|p| p.unwrap()).collect();
 
         Self {
             components: value.components.into_iter().map(From::from).collect(),
